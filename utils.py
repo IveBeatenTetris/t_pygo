@@ -14,10 +14,10 @@ PATH = {
     "tilesets": os.getcwd() + "\\assets\\tilesets",
     "entities": os.getcwd() + "\\assets\\entities"
 }
-IMG = {
-    "noimage": pg.image.load(PATH["sysimg"] + "\\noimage.png"),
-    "windowbg": pg.image.load(PATH["sysimg"] + "\\bg01.png"),
-    "windowicon": pg.image.load(PATH["sysimg"] + "\\ente.png")
+LIBPATH = {
+    "noimage": PATH["sysimg"] + "\\noimage.png",
+    "windowbg": PATH["sysimg"] + "\\bg01.png",
+    "windowicon": PATH["sysimg"] + "\\ente.png"
 }
 RESOLUTIONS = {
     "1920x1080": (1920, 1080),
@@ -108,3 +108,30 @@ def validateDict(config={}, defaults={}):# dict
             validated[each] = defaults[each]
 
     return validated
+def getFrames(image, framesize):# list
+    """
+    return a list of frames clipped from an image.
+    'framesize' must be a tuple of 2.
+    usage: frames = getFrames(spritesheet, (16, 16)).
+    """
+    frames = []
+
+    rows = int(image.get_rect().height / framesize[1])
+    cells = int(image.get_rect().width / framesize[0])
+    rect = pg.Rect((0, 0), framesize)
+
+    # running each frame
+    for row in range(rows):
+        y = row * framesize[1]
+        rect.top = y
+        for cell in range(cells):
+            x = cell * framesize[0]
+            rect.left = x
+
+            image.set_clip(rect)
+            clip = image.subsurface(image.get_clip())
+
+            frames.append(clip)
+    del(clip, rect)
+
+    return frames

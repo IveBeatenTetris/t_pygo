@@ -2,3 +2,4 @@
 
 from .utils import *
 from .window import Window
+from .tile import Tile

@@ -7,10 +7,7 @@ from .utils import (
 import pygame as pg
 
 class Window:
-    """
-    pygame's window module with extened features.
-    'default' declares what arguments are actually workable.
-    """
+    """pygame's window module with extened features."""
     default = {
         "size": (320, 240),
         "resizable": False
