@@ -11,7 +11,7 @@ class Tile(pg.sprite.Sprite):
     """cut out a sprite from an image."""
     default = {
         "image": LIBPATH["noimage"],
-        "position": (0, 0),
+        "disposition": (0, 0),
         "size": (16, 16)
     }
     def __init__(self, config={}):
@@ -24,7 +24,7 @@ class Tile(pg.sprite.Sprite):
 
         draw(
             img, self.image, (
-                -self.config["position"][0],
-                -self.config["position"][1]
+                -(self.config["disposition"][1] * self.config["size"][1]),
+                -(self.config["disposition"][0] * self.config["size"][0])
                 )
             )
