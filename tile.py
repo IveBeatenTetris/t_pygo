@@ -8,7 +8,11 @@ from .utils import (
 import pygame as pg
 
 class Tile(pg.sprite.Sprite):
-    """cut out a sprite from an image."""
+    """
+    cut out a sprite from an image. actually its just replacement.
+    'disposition' takes a tuple of 2 small integers. these are multiplied with
+    the tile-size to determine the drawing position.
+    """
     default = {
         "image": LIBPATH["noimage"],
         "disposition": (0, 0),
