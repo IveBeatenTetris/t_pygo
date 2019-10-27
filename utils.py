@@ -1,7 +1,6 @@
 # dependencies
 import json, os, ctypes
 import pygame as pg
-#test
 
 # project and library pathes
 PATH = {
@@ -11,17 +10,19 @@ PATH = {
     "assets": os.getcwd() + "\\assets",
     "images": os.getcwd() + "\\assets\\images",
     "maps": os.getcwd() + "\\assets\\maps",
+    "tiles": os.getcwd() + "\\assets\\tiles",
     "tilesets": os.getcwd() + "\\assets\\tilesets",
     "entities": os.getcwd() + "\\assets\\entities"
 }
 LIBPATH = {
     "noimage": PATH["sysimg"] + "\\noimage.png",
+    "notile": PATH["sysimg"] + "\\notile.png",
     "windowbg": PATH["sysimg"] + "\\bg01.png",
     "windowicon": PATH["sysimg"] + "\\ente.png"
 }
 RESOLUTIONS = {
     "1920x1080": (1920, 1080),
-    "800x400": (800 , 400)
+    "800x400": (800, 400)
 }
 
 def prettyPrint(data, sort=False, tabs=4):
@@ -33,8 +34,8 @@ def prettyPrint(data, sort=False, tabs=4):
 def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     """
     drawing a single or multiple objects to the destination surface. then
-    return itself. 'position' can be tuple or pygame rect. 'special_flags' is
-    for optional surface blending on each other.
+    return itself. 'position' can be tuple, pygame rect or a string.
+    'special_flags' is for optional surface blending on each other.
     usage:
     draw(
         player,
@@ -135,3 +136,17 @@ def getFrames(image, framesize):# list
     del(clip, rect)
 
     return frames
+def loadJSON(path):# dict
+    """load and convert a JSON file to a dict."""
+    with open(path) as text:
+        content = "".join(text.readlines())
+        js = json.loads(content)
+        js.update({"name": path.split("\\")[-2]})
+        js.update({"path": path})
+        # //TODO tidy up
+        s = path.split("\\")
+        s = os.path.join(*s, "\\", *s[1:-1])
+        js.update({"filepath": s})
+        js.update({"filename": path.split("\\")[-1]})
+
+    return js

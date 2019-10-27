@@ -4,31 +4,29 @@ from .utils import (
     validateDict,
     getFrames,
     draw
-    )
+)
 import pygame as pg
 
 class Tile(pg.sprite.Sprite):
     """
     cut out a sprite from an image. actually its just replacement.
-    'disposition' takes a tuple of 2 small integers. these are multiplied with
-    the tile-size to determine the drawing position.
+    'config' should be a directly loaded json-file.
     """
     default = {
-        "image": LIBPATH["noimage"],
-        "disposition": (0, 0),
+        "image": LIBPATH["notile"],
         "size": (16, 16)
     }
     def __init__(self, config={}):
         """."""
         self.config = validateDict(config, self.default)# dict
         pg.sprite.Sprite.__init__(self)
-
+        # standard attributes
+        # surface related stuff
         self.image = pg.Surface(self.config["size"])# pygame surface
-        img = pg.image.load(self.config["image"])# pygame surface
-
-        draw(
-            img, self.image, (
-                -(self.config["disposition"][1] * self.config["size"][1]),
-                -(self.config["disposition"][0] * self.config["size"][0])
-                )
+        if self.config["image"] == LIBPATH["notile"]:
+            img = pg.image.load(self.config["image"])
+        else:
+            img = pg.image.load(
+                config["filepath"] + "\\" + self.config["image"]
             )
+        draw(img, self.image)
