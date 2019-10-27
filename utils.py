@@ -10,7 +10,6 @@ PATH = {
     "assets": os.getcwd() + "\\assets",
     "images": os.getcwd() + "\\assets\\images",
     "maps": os.getcwd() + "\\assets\\maps",
-    "tiles": os.getcwd() + "\\assets\\tiles",
     "tilesets": os.getcwd() + "\\assets\\tilesets",
     "entities": os.getcwd() + "\\assets\\entities"
 }

@@ -1,8 +1,4 @@
 from .utils import (
-    PATH,
-    LIBPATH,
-    validateDict,
-    getFrames,
     draw
 )
 import pygame as pg
@@ -10,23 +6,19 @@ import pygame as pg
 class Tile(pg.sprite.Sprite):
     """
     cut out a sprite from an image. actually its just replacement.
-    'config' should be a directly loaded json-file.
     """
-    default = {
-        "image": LIBPATH["notile"],
-        "size": (16, 16)
-    }
     def __init__(self, config={}):
         """."""
-        self.config = validateDict(config, self.default)# dict
         pg.sprite.Sprite.__init__(self)
-        # standard attributes
-        # surface related stuff
-        self.image = pg.Surface(self.config["size"])# pygame surface
-        if self.config["image"] == LIBPATH["notile"]:
-            img = pg.image.load(self.config["image"])
-        else:
-            img = pg.image.load(
-                config["filepath"] + "\\" + self.config["image"]
-            )
-        draw(img, self.image)
+        self.image = config["image"]# pygame surface
+        self.rect = self.image.get_rect()# pygame rect
+        self.id = config["id"]# int
+        # additional attributes
+        try:# bool
+            self.collide = config["block"]
+        except KeyError:
+            self.collide = False
+        try:# bool
+            self.visible = config["visible"]
+        except KeyError:
+            self.visible = True
