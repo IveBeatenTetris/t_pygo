@@ -1,9 +1,9 @@
 # dependencies
 from .utils import (
     validateDict,
-    loadJSON,
     draw,
-    getFrames
+    getFrames,
+    loadJSON
 )
 from .tile import Tile
 import pygame as pg
@@ -12,6 +12,8 @@ class Tileset(pg.Surface):
     """."""
     def __init__(self, config={}):
         """."""
+        if type(config) is str:
+            config = loadJSON(config)# dict
         self.name = config["name"]# str
         self.path = config["filepath"]# str
         self.image = pg.image.load(self.path + "\\" + config["image"])# pygame.surface

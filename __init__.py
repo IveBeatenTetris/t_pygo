@@ -2,5 +2,6 @@
 
 from .utils import *
 from .window import Window
-from .tile import Tile
+#from .tile import Tile
 from .tileset import Tileset
+from .map import Map
