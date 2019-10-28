@@ -14,10 +14,14 @@ class Tile(pg.sprite.Sprite):
         self.rect = self.image.get_rect()# pygame rect
         self.id = config["id"]# int
         # additional attributes
-        try:# bool
-            self.collide = config["block"]
+        try:# str
+            self.name = config["name"]
         except KeyError:
-            self.collide = False
+            self.name = "NoName"
+        try:# bool
+            self.block = config["block"]
+        except KeyError:
+            self.block = False
         try:# bool
             self.visible = config["visible"]
         except KeyError:

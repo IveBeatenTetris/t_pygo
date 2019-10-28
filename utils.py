@@ -135,6 +135,50 @@ def getFrames(image, framesize):# list
     del(clip, rect)
 
     return frames
+def createTiledMap(config, tiles):# dict
+    """
+    drawing tiles on a pygame surface and returning it in a dict together with
+    a list of wall rects and other special blocks with their position.
+    """
+    tilesize = tiles[0].image.get_rect().size
+
+    blocks = []
+    surface = pg.Surface(
+        (
+            config["width"] * tilesize[0],
+            config["height"] * tilesize[1]
+        ),
+        pg.SRCALPHA)
+    playerstart = None
+
+    i = 0
+    for row in range(config["height"]):
+        y = row * tilesize[1]
+        for line in range(config["width"]):
+            x = line * tilesize[0]
+
+            # only draw tile if area isn't empty
+            if config["data"][i] != 0:
+                tile = tiles[config["data"][i] - 1]
+                rect = pg.Rect((x, y), tile.image.get_rect().size)
+                surface.blit(tile.image, (x, y))
+
+                # add a block rect to blocklist if tile is not passable
+                if tile.block:
+                    blocks.append(rect)
+
+                # set player-start position if there is a tile placed for that
+                if tile.name:
+                    if tile.name == "player_start":
+                        playerstart = rect
+
+            i += 1
+
+    return {
+        "image": surface,
+        "blocks": blocks,
+        "playerstart": playerstart
+    }
 def loadJSON(path):# dict
     """load and convert a JSON file to a dict."""
     with open(path) as text:
