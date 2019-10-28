@@ -31,3 +31,9 @@ class Window:
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
         draw(object, self.display, position)
+    def resize(self, size):
+        """'size' needs to be a tuple."""
+        self.display = getDisplay(# pygame surface
+            size,
+            resizable = self.config["resizable"]
+        )
