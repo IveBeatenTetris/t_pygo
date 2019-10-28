@@ -1,10 +1,11 @@
 from .utils import (
+    loadJSON,
     draw
     )
 import pygame as pg
 
 class Map(pg.Surface):
     """."""
-    def __init__(self, config={}):
+    def __init__(self, path):
         """."""
-        pass
+        self.config = loadJSON(path)# dict        

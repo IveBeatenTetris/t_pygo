@@ -10,20 +10,24 @@ import pygame as pg
 
 class Tileset(pg.Surface):
     """."""
-    def __init__(self, config={}):
+    def __init__(self, path):
         """."""
-        if type(config) is str:
-            config = loadJSON(config)# dict
-        self.name = config["name"]# str
-        self.path = config["filepath"]# str
-        self.image = pg.image.load(self.path + "\\" + config["image"])# pygame.surface
+        self.config = loadJSON(path)# dict
+        self.name = self.config["name"]# str
+        self.path = self.config["filepath"]# str
+        self.image = pg.image.load(# pygame.surface
+            self.path + "\\" + self.config["image"]
+        )
         self.size = self.image.get_rect().size# tuple
-        self.tilesize = (config["tilewidth"], config["tileheight"])# tuple
-        self.tiles = self.__createTiles(config)# list
+        self.tilesize = (# tuple
+            self.config["tilewidth"],
+            self.config["tileheight"]
+        )
+        self.tiles = self.__createTiles()# list
 
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
         draw(self.image, self)
-    def __createTiles(self, config):# list
+    def __createTiles(self):# list
         """return a list of all tiles in the given tileset-image."""
         tilelist = []
 
@@ -35,8 +39,8 @@ class Tileset(pg.Surface):
                 }
 
             # additional tile properties
-            if "tileproperties" in config:
-                props = config["tileproperties"]
+            if "tileproperties" in self.config:
+                props = self.config["tileproperties"]
                 if str(i) in props:
 
                     # tile passable?
