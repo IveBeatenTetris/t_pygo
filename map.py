@@ -8,7 +8,13 @@ from .tileset import Tileset
 import pygame as pg
 
 class Map(pg.Surface):
-    """."""
+    """
+    holds tilesets, tiles and layers. the map object itself can be drawn on a
+    surface for preview purpose. for real map drawing us the layers of the map.
+    example:
+    for layer in self.layers:
+        draw(self.layers[layer], surface)
+    """
     def __init__(self, path):
         """."""
         self.config = loadJSON(path)# dict
