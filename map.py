@@ -1,6 +1,6 @@
 from .utils import (
     PATH,
-    loadJSON,
+    loadAssets,
     draw,
     createTiledMap
     )
@@ -15,9 +15,12 @@ class Map(pg.Surface):
     for layer in self.layers:
         draw(self.layers[layer], surface)
     """
-    def __init__(self, path):
+    def __init__(self, name):
         """."""
-        self.config = loadJSON(path)# dict
+        for each in loadAssets(PATH["maps"] + "\\" + name):
+            if each["type"] == "map":
+                self.config = each# dict
+
         self.name = self.config["name"]# str
         self.size = (# tuple
             self.config["width"] * self.config["tilewidth"],
@@ -54,17 +57,8 @@ class Map(pg.Surface):
             split = cfg["source"].split("/")
             name = split[-2]
             file = split[-1]
-            # getting an tsx-file but we need a json
-            path = (
-                PATH["tilesets"] +
-                "\\" +
-                name +
-                "\\" +
-                file.split(".")[0] +
-                ".json"
-            )
-            #config = loadJSON(path)
-            tilesets.update({name: Tileset(path)})
+            # updating the list
+            tilesets.update({name: Tileset(name)})
 
         return tilesets
     def __createLayers(self):# dict

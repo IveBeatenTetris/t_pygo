@@ -1,18 +1,22 @@
 # dependencies
 from .utils import (
+    PATH,
     validateDict,
     draw,
     getFrames,
-    loadJSON
+    loadAssets
 )
 from .tile import Tile
 import pygame as pg
 
 class Tileset(pg.Surface):
     """."""
-    def __init__(self, path):
+    def __init__(self, name):
         """."""
-        self.config = loadJSON(path)# dict
+        for each in loadAssets(PATH["tilesets"] + "\\" + name):
+            if each["type"] == "tileset":
+                self.config = each# dict
+
         self.name = self.config["name"]# str
         self.path = self.config["filepath"]# str
         self.image = pg.image.load(# pygame.surface

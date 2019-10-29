@@ -193,3 +193,28 @@ def loadJSON(path):# dict
         js.update({"filename": path.split("\\")[-1]})
 
     return js
+def loadAssets(path):# list
+    """
+    walk the assets-directory and open each json file. plus appending file name
+    and file path to the json file.
+    """
+    list = []
+
+    for dirs in os.walk(path):
+        for each in dirs[2]:
+            if each.split(".")[1] == "json":
+                config = loadJSON(dirs[0] + "\\" + each)
+                config.update({"filename": each})
+                list.append(config)
+            # if directory has an image
+            elif each.split(".")[1] == "png":
+                config = {
+                    "name": each.split(".")[0],
+                    "filename": each,
+                    "type": "image",
+                    "filepath": dirs[0]
+                }
+
+                list.append(config)
+
+    return list
