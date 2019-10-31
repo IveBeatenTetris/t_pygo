@@ -4,6 +4,7 @@ from .utils import (
     getDisplay,
     draw
 )
+import sys
 import pygame as pg
 
 class Window:
@@ -28,6 +29,10 @@ class Window:
         """updates stuff at apps loop-end."""
         pg.display.update()
         self.clock.tick(self.fps)
+    def quit(self):
+        """exits the app."""
+        pg.quit()
+        sys.exit()
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
         draw(object, self.display, position)

@@ -62,12 +62,12 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
             object, destination.get_rect(),
             special_flags=blendmode
         )
-    elif type(object) is dict:
-        for each in object:
-            destination.blit(object[each], position)
     elif type(object) is list:
         for each in object:
             draw(each, destination, position, blendmode=blendmode)
+    elif type(object) is dict:
+        for each in object:
+            destination.blit(object[each], position)
 
     elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface:
         destination.blit(object, position, special_flags=blendmode)
