@@ -24,6 +24,7 @@ class Entity(pg.sprite.Sprite):
         self.size = self.config["framesize"]# tuple
         self.frames = getFrames(self.rawimage, self.size)# list
         self.image = self.frames[0]# pygame surface
+        self.rect = self.image.get_rect()# pygame rect
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):

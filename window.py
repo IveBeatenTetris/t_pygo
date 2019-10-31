@@ -24,11 +24,14 @@ class Window:
             resizable = self.config["resizable"]
         )
         self.clock = pg.time.Clock()# pygame.clock
-        self.fps = 60# int
+        self.preffered_fps = 60# int
+        # fps is getting updated by self.update()
+        self.fps = 0# int
     def update(self):
         """updates stuff at apps loop-end."""
         pg.display.update()
-        self.clock.tick(self.fps)
+        self.clock.tick(self.preffered_fps)
+        self.fps = int(self.clock.get_fps())
     def quit(self):
         """exits the app."""
         pg.quit()
@@ -42,13 +45,19 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
-    def getEvents(self):
-        """return pygame.events."""
+    def getEvents(self):# pygame.event
+        """Get pygame events."""
         for event in pg.event.get():
-            if event.type is pg.QUIT or (
-                event.type is pg.KEYDOWN and
-                event.key == pg.K_ESCAPE
-            ):
-                self.quit()
+
+            # quit application
+            if event.type is pg.QUIT or (event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                pg.quit()
+                sys.exit()
+
+            # resizing the window
             if event.type is pg.VIDEORESIZE:
+                self.resize(event.size)
+
+            # going fullscreen
+            if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
