@@ -42,3 +42,13 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
+    def getEvents(self):
+        """return pygame.events."""
+        for event in pg.event.get():
+            if event.type is pg.QUIT or (
+                event.type is pg.KEYDOWN and
+                event.key == pg.K_ESCAPE
+            ):
+                self.quit()
+            if event.type is pg.VIDEORESIZE:
+                pass
