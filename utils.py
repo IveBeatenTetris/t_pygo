@@ -84,6 +84,30 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     else:
         destination.blit(object.image, position)
     return destination
+def drawBorder(surface, rect, border):# pygame surface
+    """
+    drawing a border to the given surface and return it.
+    syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
+    example: config = (1, 'solid', (255, 255, 255)).
+    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0 ,0, 0))).
+    """
+    size, line, color = border
+
+    pg.draw.lines(
+        surface,
+        color,
+        False,
+        [
+            (0, 0),
+            (0, rect.height - 1),
+            (rect.width - 1, rect.height - 1),
+            (rect.width - 1, 0),
+            (0, 0)
+        ],
+        size
+    )
+
+    return surface
 def getDisplay(size, **kwargs):# pygame.display.surface
     """
     create a new window display and return it. customisation possible.
