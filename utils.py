@@ -55,8 +55,8 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
             x = int(dsize[0] / 2) - int(osize[0] / 2)
             y = int(dsize[1] / 2) - int(osize[1] / 2)
             position = (x, y)
-
-    # drawing depending on object's type
+    # recursively drawing depending on object's type by calling this function
+    # again
     if type(object) is tuple:
         destination.fill(
             object, destination.get_rect(),
@@ -80,7 +80,9 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
                 sprite.rect.topleft,
                 special_flags=blendmode
             )
-
+    # might puke out an error on giving anything else than pg.sprite.Sprite
+    else:
+        destination.blit(object.image, position)
     return destination
 def getDisplay(size, **kwargs):# pygame.display.surface
     """
@@ -114,7 +116,8 @@ def getFrames(image, framesize):# list
     """
     return a list of frames clipped from an image.
     'framesize' must be a tuple of 2.
-    usage: frames = getFrames(spritesheet, (16, 16)).
+    usage:
+    frames = getFrames(spritesheet, (16, 16)).
     """
     frames = []
 

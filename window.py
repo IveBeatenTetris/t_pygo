@@ -16,7 +16,7 @@ class Window:
     def __init__(self, config={}):
         """."""
         self.config = validateDict(config, self.default)# dict
-        # pygame module init
+        # pygame module initializing
         pg.init()
 
         self.display = getDisplay(# pygame surface
