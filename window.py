@@ -8,7 +8,7 @@ import sys
 import pygame as pg
 
 class Window:
-    """pygame's window module with extened features."""
+    """pygame's window module with extended features."""
     default = {
         "size": (320, 240),
         "resizable": False
