@@ -3,33 +3,11 @@ from .utils import (
     PATH,
     draw,
     getFrames,
-    loadAssets
+    loadAssets,
+    prettyPrint
 )
 import pygame as pg
 
-class Tile(pg.sprite.Sprite):
-    """
-    cut out a sprite from an image. actually its just replacement.
-    """
-    def __init__(self, config={}):
-        """."""
-        pg.sprite.Sprite.__init__(self)
-        self.image = config["image"]# pygame surface
-        self.rect = self.image.get_rect()# pygame rect
-        self.id = config["id"]# int
-        # additional attributes
-        try:# str
-            self.name = config["name"]
-        except KeyError:
-            self.name = "NoName"
-        try:# bool
-            self.block = config["block"]
-        except KeyError:
-            self.block = False
-        try:# bool
-            self.visible = config["visible"]
-        except KeyError:
-            self.visible = True
 class Tileset(pg.Surface):
     """."""
     def __init__(self, name):
@@ -55,36 +33,47 @@ class Tileset(pg.Surface):
     def __createTiles(self):# list
         """return a list of all tiles in the given tileset-image."""
         tilelist = []
-
         for i, each in enumerate(getFrames(self.image, self.tilesize), 0):
             # this is food for a new tile object
             cfg = {
+                "name": "NoNameTile",
                 "image": each,
                 "id": i,
-                }
-
+                "block": False,
+            }
             # additional tile properties
-            if "tileproperties" in self.config:
-                props = self.config["tileproperties"]
-                if str(i) in props:
-
-                    # tile passable?
-                    try:
-                        cfg["block"] = props[str(i)]["block"]
-                    except KeyError:
-                        pass
-                    # tile visibility
-                    try:
-                        cfg["visible"] = props[str(i)]["visible"]
-                    except KeyError:
-                        pass
-                    # tile name
-                    try:
-                        cfg["name"] = props[str(i)]["name"]
-                    except KeyError:
-                        pass
-
+            for props in self.config["tiles"]:
+                if props["id"] == i:
+                    for property in props["properties"]:
+                        cfg[property["name"]] = property["value"]
             # appending to the resulting list
             tilelist.append(Tile(cfg))
-
         return tilelist
+class Tile(pg.sprite.Sprite):
+	"""cut out a sprite from an image. actually its just replacement."""
+	default = {
+		"name": "NoName",
+		"block": False,
+		"visible": True
+	}
+	def __init__(self, config={}):
+		"""."""
+		pg.sprite.Sprite.__init__(self)
+
+		self.image = config["image"]# pygame surface
+		self.rect = self.image.get_rect()# pygame rect
+		self.id = config["id"]# int
+
+		# additional attributes
+		try:
+		    self.name = config["name"]# str
+		except KeyError:
+		    self.name = self.default["name"]
+		try:
+		    self.block = config["block"]# bool
+		except KeyError:
+		    self.block = self.default["block"]
+		try:
+		    self.visible = config["visible"]# bool
+		except KeyError:
+		    self.visible = self.default["visible"]
