@@ -1,7 +1,6 @@
 # dependencies
 from .utils import (
     PATH,
-    validateDict,
     draw,
     getFrames,
     loadAssets

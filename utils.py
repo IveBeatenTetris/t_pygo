@@ -247,3 +247,6 @@ def loadAssets(path):# list
                 list.append(config)
 
     return list
+def getFonts():
+	"""return a list with pygame-fonts."""
+	return pygame.font.get_fonts()
