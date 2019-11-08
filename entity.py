@@ -8,7 +8,10 @@ from .libs.zrect import ZRect
 import pygame as pg
 
 class Entity(pg.sprite.Sprite):
-    """every form of ingame-agency will be based on this class."""
+    """
+    every form of ingame-agency will be based on this class. 'name' should be
+    asset-name.
+    """
     def __init__(self, name):
         """."""
         # looking for a json-file to use as the config
@@ -25,6 +28,12 @@ class Entity(pg.sprite.Sprite):
         self.frames = getFrames(self.rawimage, self.size)# list
         self.image = self.frames[0]# pygame surface
         self.rect = self.image.get_rect()# pygame rect
+    def position(self, pos=(0, 0)):
+        """reposition of the entity sprite. updates the rect."""
+        if type(pos) is pg.Rect:
+            self.rect.topleft = pos.topleft
+        elif type(pos) is tuple:
+            self.rect.topleft = pos
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
