@@ -33,12 +33,13 @@ class Map(pg.Surface):
         self.tilesets = self.__createTilesets()# dict
         self.tiles = self.__getTiles()# list
         self.layers = self.__createLayers()# dict
-        # getting player_start from a layer. may only be playced once per map
+        # getting playerstart from a layer. may only be placed once per map
         for _, layer in self.layers.items():
-            self.player_start = layer.player_start# pygame rect
+            self.playerstart = layer.player_start# pygame rect
             continue
-
+        # initiating surface
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
+        self.rect = self.get_rect()# pygame rect
         # drawing the preview to the map-surface
         self.__previewMap()
     def __getTiles(self):# list
