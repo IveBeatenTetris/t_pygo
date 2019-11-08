@@ -34,6 +34,12 @@ class Entity(pg.sprite.Sprite):
             self.rect.topleft = pos.topleft
         elif type(pos) is tuple:
             self.rect.topleft = pos
+    def move(self, x=0, y=0):
+        """move the entity to the given coordinates."""
+        self.position((
+            self.rect.left + x,
+            self.rect.top + y
+        ))
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
