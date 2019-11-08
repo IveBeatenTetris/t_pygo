@@ -2,15 +2,16 @@ from .utils import (
     PATH,
     loadAssets,
     draw,
-    getFrames
+    getFrames,
+    drawBorder
 )
-from .libs.zrect import ZRect
+from .text import Text
 import pygame as pg
 
 class Entity(pg.sprite.Sprite):
     """
     every form of ingame-agency will be based on this class. 'name' should be
-    asset-name.
+    asset-name. in dev-mode it shows bounding outlines etc.
     """
     def __init__(self, name):
         """."""
@@ -21,6 +22,7 @@ class Entity(pg.sprite.Sprite):
         # initializing the sprite
         pg.sprite.Sprite.__init__(self)
         # additional attributes
+        self.name = self.config["name"]# str
         self.rawimage = pg.image.load(# pygame surface
             self.config["filepath"] + "\\" + self.config["image"]
         )
@@ -28,6 +30,28 @@ class Entity(pg.sprite.Sprite):
         self.frames = getFrames(self.rawimage, self.size)# list
         self.image = self.frames[0]# pygame surface
         self.rect = self.image.get_rect()# pygame rect
+        self.collisionbox = pg.Rect(self.config["collisionbox"])# pygame.rect
+        self.dev_mode = self.config["dev_mode"]# bool
+        # keeping __init__ organazied
+        self.__build()
+    def __build(self):
+        """drawing depending on dev_mode."""
+        if self.dev_mode is True:
+            # whole sprite border in red
+            drawBorder(
+            	self.image,
+            	self.rect,
+            	(1, 'solid', (255, 0, 0))
+            )
+            # blue border for collision-box
+            bound = drawBorder(
+            	pg.Surface(self.collisionbox.size, pg.SRCALPHA),
+            	self.collisionbox,
+            	(1, 'solid', (0, 0, 255))
+            )
+            draw(bound, self.image, self.collisionbox)
+        else:
+            self.image = self.frames[0]
     def position(self, pos=(0, 0)):
         """reposition of the entity sprite. updates the rect."""
         if type(pos) is pg.Rect:
