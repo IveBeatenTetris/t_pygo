@@ -54,7 +54,7 @@ class Window:
             resizable = self.config["resizable"]
         )
     def getEvents(self):# pygame.event
-        """."""
+        """pygame events"""
         events = []
         for event in pg.event.get():
             # quit application
@@ -69,6 +69,9 @@ class Window:
                 pass
             events.append(event)
         return events
+    def pressedKeys(self):
+        """return pygame-event's pressed-keys."""
+        return pg.key.get_pressed()
     def changeIcon(self, path):
         """create an icon for the window from an image."""
         if type(path) is pg.Surface:
