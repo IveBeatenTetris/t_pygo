@@ -33,6 +33,10 @@ class Map(pg.Surface):
         self.tilesets = self.__createTilesets()# dict
         self.tiles = self.__getTiles()# list
         self.layers = self.__createLayers()# dict
+        # getting player_start from a layer. may only be playced once per map
+        for _, layer in self.layers.items():
+            self.player_start = layer.player_start# pygame rect
+            continue
 
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
         # drawing the preview to the map-surface
@@ -92,12 +96,15 @@ class Layer(pg.Surface):
     """."""
     def __init__(self, config):
         """."""
+        self.config = createTiledMap(config, config["tiles"])# dict
         self.name = config["name"]# str
         self.size = (# tuple
             config["width"] * config["tilesize"][0],
             config["height"] * config["tilesize"][1]
         )
-        pg.Surface.__init__(self, self.size, pg.SRCALPHA)
+        self.image = self.config["image"]# pygame surface
+        self.blocks = self.config["blocks"]# list
+        self.player_start = self.config["player_start"]# pygame rect / none
 
-        tmap = createTiledMap(config, config["tiles"])
-        draw(tmap["image"], self)
+        pg.Surface.__init__(self, self.size, pg.SRCALPHA)
+        draw(self.image, self)
