@@ -190,8 +190,9 @@ def createTiledMap(config, tiles):# dict
             if config["data"][i] != 0:
                 tile = tiles[config["data"][i] - 1]
                 rect = pg.Rect((x, y), tile.image.get_rect().size)
-                surface.blit(tile.image, (x, y))
-
+                # only draw if the tile is visible
+                if tile.visible is True:
+                    surface.blit(tile.image, (x, y))
                 # add a block rect to blocklist if tile is not passable
                 if tile.block:
                     blocks.append(rect)
@@ -206,7 +207,7 @@ def createTiledMap(config, tiles):# dict
     return {
         "image": surface,
         "blocks": blocks,
-        "playerstart": playerstart
+        "player_start": playerstart
     }
 def loadJSON(path):# dict
     """load and convert a JSON file to a dict."""
