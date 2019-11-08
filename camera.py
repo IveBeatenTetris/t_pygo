@@ -1,18 +1,29 @@
-from .utils import validateDict
+from .utils import (
+    validateDict,
+    draw,
+    getAnchors
+)
 import pygame as pg
 
-class Camera(pg.Rect):
+class Camera(pg.Surface):
     """."""
     # default values
     default = {
         "size": (640, 480),
         "position": (0, 0),
-        "border": None,
-        "track": None,
+        "tracking": None,
         "zoomfactor": 1
     }
     def __init__(self, config={}):
+        """."""
         self.config = validateDict(config, self.default)# dict
-        pg.Rect.__init__(self, self.config["position"], self.config["size"])
-        self.tracking = self.config["track"]# none / entity
+        self.tracking = self.config["tracking"]# none / entity
         self.zoomfactor = self.config["zoomfactor"]# int
+        # initiating surface
+        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        # sizing
+        self.rect = self.get_rect()# pygame rect
+        self.anchors = getAnchors(self.rect.size)# dict
+    def draw(self, object, position=(0,0)):
+        """drawing something to the camera surface."""
+        draw(object, self, position)

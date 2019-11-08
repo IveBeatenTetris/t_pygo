@@ -251,3 +251,23 @@ def loadAssets(path):# list
 def getFonts():
 	"""return a list with pygame-fonts."""
 	return pygame.font.get_fonts()
+def getAnchors(room):# dict
+    """returns a dict of room's anchor-points."""
+    anchors = {
+        "top": 0,
+        "middle": int(room[1] / 2),
+        "bottom": room[1],
+        "left": 0,
+        "center": int(room[0] / 2),
+        "right": room[0],
+        "topleft": (0 , 0),
+        "topcenter": (int(room[0] / 2) , 0),
+        "topright": (room[0] , 0),
+        "midleft": (0 , int(room[1] / 2)),
+        "midcenter": (int(room[0] / 2) , int(room[1] / 2)),
+        "midright": (room[0] , int(room[1] / 2)),
+        "bottomleft": (0 , room[1]),
+        "bottomcenter": (int(room[0] / 2) , room[1]),
+        "bottomright": (room[0] , room[1])
+    }
+    return anchors
