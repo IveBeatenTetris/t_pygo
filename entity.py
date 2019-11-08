@@ -3,7 +3,8 @@ from .utils import (
     loadAssets,
     draw,
     getFrames,
-    drawBorder
+    drawBorder,
+    getAnchors
 )
 from .text import Text
 import pygame as pg
@@ -30,6 +31,7 @@ class Entity(pg.sprite.Sprite):
         self.frames = getFrames(self.rawimage, self.size)# list
         self.image = self.frames[0]# pygame surface
         self.rect = self.image.get_rect()# pygame rect
+        self.anchors = getAnchors(self.rect.size)# dict
         self.collisionbox = pg.Rect(self.config["collisionbox"])# pygame.rect
         self.dev_mode = self.config["dev_mode"]# bool
         # keeping __init__ organazied
