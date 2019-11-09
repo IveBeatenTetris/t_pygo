@@ -27,3 +27,8 @@ class Camera(pg.Surface):
     def draw(self, object, position=(0,0)):
         """drawing something to the camera surface."""
         draw(object, self, position)
+    def update(self):
+        """update the camera with each tick."""
+        if self.tracking:
+            self.rect.left = -(self.tracking.rect.center[0] - int(self.rect.width / 2))
+            self.rect.top = -(self.tracking.rect.center[1] - int(self.rect.height / 2))
