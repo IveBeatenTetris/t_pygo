@@ -67,6 +67,13 @@ class Window:
             # going fullscreen
             if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
+            # zoom in and out
+            # under construction
+            if event.type is pg.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    print("zoom in")
+                elif event.button == 5:
+                    print("zoom out")
             events.append(event)
         return events
     def pressedKeys(self):
