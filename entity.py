@@ -54,14 +54,36 @@ class Entity(pg.sprite.Sprite):
             draw(bound, self.image, self.collisionbox)
         else:
             self.image = self.frames[0]
+    def __moveSingleAxis(self, pos):
+        """."""
+        self.rect.left = self.rect.left + pos[0]
+        self.rect.top = self.rect.top + pos[1]
+        self.collisionbox.topleft = (
+            self.rect.left + self.collisionbox[0],
+            self.rect.top + self.collisionbox[1]
+            )
     def position(self, pos=(0, 0)):
         """reposition of the entity sprite. updates the rect."""
         if type(pos) is pg.Rect:
             self.rect.topleft = pos.topleft
         elif type(pos) is tuple:
             self.rect.topleft = pos
-    def move(self, x=0, y=0):
+    def move(self):
         """move the entity to the given coordinates."""
+        keys = pg.key.get_pressed()
+        x, y = (0, 0)
+        # calculating x and y
+        if keys[pg.K_a]:
+            x = -1
+        if keys[pg.K_d]:
+            x = 1
+        if keys[pg.K_w]:
+        	y = -1
+        if keys[pg.K_s]:
+        	y = 1
+        # moving
+        self.__moveSingleAxis((x, y))
+        # repositioning rect
         self.position((
             self.rect.left + x,
             self.rect.top + y
