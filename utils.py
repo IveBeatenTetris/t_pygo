@@ -248,7 +248,7 @@ def loadAssets(path):# list
                 list.append(config)
 
     return list
-def getFonts():
+def getFonts():# list
 	"""return a list with pygame-fonts."""
 	return pygame.font.get_fonts()
 def getAnchors(room):# dict
@@ -271,3 +271,12 @@ def getAnchors(room):# dict
         "bottomright": (room[0] , room[1])
     }
     return anchors
+def scale(surface, factor):# pygame.surface
+    """
+    scaling a surface by an int-factor.
+    'factor' must be an integer.
+    usage: surf = scale(display, 2).
+    """
+    size = [each * factor for each in surface.get_rect().size]
+
+    return pg.transform.scale(surface, size)
