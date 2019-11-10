@@ -33,10 +33,14 @@ class Map(pg.Surface):
         self.tilesets = self.__createTilesets()# dict
         self.tiles = self.__getTiles()# list
         self.layers = self.__createLayers()# dict
-        # getting playerstart from a layer. may only be placed once per map
+        self.blocks = []# list
         for _, layer in self.layers.items():
-            self.playerstart = layer.player_start# pygame rect
-            continue
+            # getting playerstart from a layer. may only be placed once per map
+            if layer.player_start:
+                self.playerstart = layer.player_start# pygame rect
+            # filling self.blocks with all layers blocks
+            for each in layer.blocks:
+                self.blocks.append(each)
         # initiating surface
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
         self.rect = self.get_rect()# pygame rect
