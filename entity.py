@@ -8,6 +8,7 @@ from .utils import (
 )
 from .text import Text
 import pygame as pg
+from .libs.zrect import ZRect
 
 class Entity(pg.sprite.Sprite):
     """
@@ -24,15 +25,16 @@ class Entity(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         # additional attributes
         self.name = self.config["name"]# str
-        self.rawimage = pg.image.load(# pygame surface
+        self.rawimage = pg.image.load(# pygame.surface
             self.config["filepath"] + "\\" + self.config["image"]
         )
         self.size = self.config["framesize"]# tuple
         self.frames = getFrames(self.rawimage, self.size)# list
-        self.image = self.frames[0]# pygame surface
-        self.rect = self.image.get_rect()# pygame rect
+        self.image = self.frames[0]# pygame.surface
+        self.rect = ZRect(self.image.get_rect())# pgzero.zrect
         self.anchors = getAnchors(self.rect.size)# dict
         self.collisionbox = pg.Rect(self.config["collisionbox"])# pygame.rect
+        self.speed = self.config["speed"]# int
         self.dev_mode = self.config["dev_mode"]# bool
         # keeping __init__ organazied
         self.__build()
@@ -54,40 +56,44 @@ class Entity(pg.sprite.Sprite):
             draw(bound, self.image, self.collisionbox)
         else:
             self.image = self.frames[0]
-    def __moveSingleAxis(self, pos):
+    def __moveSingleAxis(self, pos, blocks):
         """."""
         self.rect.left = self.rect.left + pos[0]
         self.rect.top = self.rect.top + pos[1]
         self.collisionbox.topleft = (
-            self.rect.left + self.collisionbox[0],
-            self.rect.top + self.collisionbox[1]
+            self.rect.left + self.config["collisionbox"][0],
+            self.rect.top + self.config["collisionbox"][1]
             )
+        # collision checking
+        for block in blocks:
+            if self.collisionbox.colliderect(block):
+                rect = pg.Rect(self.config["collisionbox"])
+                if pos[0] > 0:
+                    self.rect.right = block.left + (self.rect.width - rect.right)
+                if pos[0] < 0:
+                    self.rect.left = block.right - rect.left
+                if pos[1] > 0:
+                    self.rect.bottom = block.top + (self.rect.height - rect.bottom)
+                if pos[1] < 0:
+                    self.rect.top = block.bottom - rect.top
     def position(self, pos=(0, 0)):
         """reposition of the entity sprite. updates the rect."""
         if type(pos) is pg.Rect:
             self.rect.topleft = pos.topleft
         elif type(pos) is tuple:
             self.rect.topleft = pos
-    def move(self):
+    def move(self, blocks=[]):
         """move the entity to the given coordinates."""
         keys = pg.key.get_pressed()
-        x, y = (0, 0)
-        # calculating x and y
-        if keys[pg.K_a]:
-            x = -1
-        if keys[pg.K_d]:
-            x = 1
-        if keys[pg.K_w]:
-        	y = -1
-        if keys[pg.K_s]:
-        	y = 1
         # moving
-        self.__moveSingleAxis((x, y))
-        # repositioning rect
-        self.position((
-            self.rect.left + x,
-            self.rect.top + y
-        ))
+        if keys[pg.K_a]:
+            self.__moveSingleAxis((-self.speed, 0), blocks)
+        if keys[pg.K_d]:
+            self.__moveSingleAxis((self.speed, 0), blocks)
+        if keys[pg.K_w]:
+            self.__moveSingleAxis((0, -self.speed), blocks)
+        if keys[pg.K_s]:
+            self.__moveSingleAxis((0, self.speed), blocks)
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
