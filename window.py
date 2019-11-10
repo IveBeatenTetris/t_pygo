@@ -22,16 +22,18 @@ class Window:
         'icon' is displayed next to the title in the window.
         'preffered_fps' - its in the name.
         'fps' is gonna be updated from the windows update-method.
+        'pausemenu' is a switch for showing a gui and closing it.
         'display' holds the actual pygame window.
         """
         pg.init()
-
         self.config = validateDict(config, self.default)# dict
+        # additional attributes
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
         self.preffered_fps = 60# int
         self.fps = 0# int
+        self.pausemenu = False# bool
         # display related stuff
         self.display = getDisplay(# pygame.surface
             self.config["size"],
@@ -62,12 +64,19 @@ class Window:
         events = []
         for event in pg.event.get():
             # quit application
-            if event.type is pg.QUIT or (event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE):
+            if event.type is pg.QUIT:
                 pg.quit()
                 sys.exit()
             # resizing the window
             if event.type is pg.VIDEORESIZE:
                 self.resize(event.size)
+            # pause menu
+            if event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                if self.pausemenu is True:
+                    self.pausemenu = False
+                else:
+                    self.pausemenu = True
+                print("pause menu:", self.pausemenu)
             # going fullscreen
             if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
