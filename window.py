@@ -1,4 +1,3 @@
-# dependencies
 from .utils import (
     LIBPATH,
     validateDict,
@@ -12,24 +11,29 @@ class Window:
     """pygame's window module with extended features."""
     default = {
         "size": (320, 240),
-        "title": "NoTitle",
+        "title": "No Title",
         "resizable": False,
         "icon": LIBPATH["windowicon"]
     }
     def __init__(self, config={}):
-        """."""
-        self.config = validateDict(config, self.default)# dict
-        # pygame module initializing
+        """
+        initiates pygame to act as a pygame-window.
+        'title' is gonna be displayed as the windows title.
+        'icon' is displayed next to the title in the window.
+        'preffered_fps' - its in the name.
+        'fps' is gonna be updated from the windows update-method.
+        'display' holds the actual pygame window.
+        """
         pg.init()
 
+        self.config = validateDict(config, self.default)# dict
         self.title = self.config["title"]# str
-        self.icon = self.config["icon"]# str / pygame surface
+        self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
         self.preffered_fps = 60# int
-        # fps is getting updated by self.update()
         self.fps = 0# int
-
-        self.display = getDisplay(# pygame surface
+        # display related stuff
+        self.display = getDisplay(# pygame.surface
             self.config["size"],
             resizable = self.config["resizable"]
         )
@@ -49,7 +53,7 @@ class Window:
         draw(object, self.display, position)
     def resize(self, size):
         """'size' needs to be a tuple."""
-        self.display = getDisplay(# pygame surface
+        self.display = getDisplay(# pygame.surface
             size,
             resizable = self.config["resizable"]
         )

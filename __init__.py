@@ -3,7 +3,6 @@
 from .utils import *
 from .window import Window
 from .text import Text
-from .tileset import Tileset
-from .map import Map
+from .map import Tileset, Map
 from .entity import Player
 from .camera import Camera

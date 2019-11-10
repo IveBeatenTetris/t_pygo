@@ -24,109 +24,59 @@ RESOLUTIONS = {
     "800x400": (800, 400)
 }
 
+# console
 def prettyPrint(data, sort=False, tabs=4):
     """pretty-print dicts."""
     if data.__class__ is dict:
         print(json.dumps(data, sort_keys=sort, indent=tabs))
     else:
         print("Nothing to pretty-print.")
-def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
+# files & directories
+def loadAssets(path):# list
     """
-    drawing a single or multiple objects to the destination surface. then
-    return itself. 'position' can be tuple, pygame rect or a string.
-    'special_flags' is for optional surface blending on each other.
-    usage:
-    draw(
-        player,
-        display,
-        pygame.Rect(0, 0, 160, 120),
-        special_flags=pygame.BLEND_ADD
-    )
+    walk the assets-directory and open each json file. plus appending file name
+    and file path to the json file.
     """
-    if type(position) is str:
-        # draw object in the center
-        if position == "center":
-            try:
-                osize = object.get_rect().size
-            except AttributeError:
-                osize = object.image.get_rect().size
-            dsize = destination.get_rect().size
+    list = []
 
-            x = int(dsize[0] / 2) - int(osize[0] / 2)
-            y = int(dsize[1] / 2) - int(osize[1] / 2)
-            position = (x, y)
-    # recursively drawing depending on object's type by calling this function
-    # again
-    if type(object) is tuple:
-        destination.fill(
-            object, destination.get_rect(),
-            special_flags=blendmode
-        )
-    elif type(object) is list:
-        for each in object:
-            draw(each, destination, position, blendmode=blendmode)
-    elif type(object) is dict:
-        for each in object:
-            destination.blit(object[each], position)
+    for dirs in os.walk(path):
+        for each in dirs[2]:
+            if each.split(".")[1] == "json":
+                config = loadJSON(dirs[0] + "\\" + each)
+                config.update({"filename": each})
+                list.append(config)
+            # if directory has an image
+            elif each.split(".")[1] == "png":
+                config = {
+                    "name": each.split(".")[0],
+                    "filename": each,
+                    "type": "image",
+                    "filepath": dirs[0]
+                }
 
-    elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface:
-        destination.blit(object, position, special_flags=blendmode)
-    elif object.__class__.__bases__[0] is pg.sprite.Sprite:
-        destination.blit(object.image, position, special_flags=blendmode)
-    elif object.__class__ is pg.sprite.Group:
-        for sprite in object:
-            destination.blit(
-                sprite.image,
-                sprite.rect.topleft,
-                special_flags=blendmode
-            )
-    # might puke out an error on giving anything else than pg.sprite.Sprite
-    else:
-        destination.blit(object.image, position)
-    return destination
-def drawBorder(surface, rect, border):# pygame surface
-    """
-    drawing a border to the given surface and return it.
-    syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
-    example: config = (1, 'solid', (255, 255, 255)).
-    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0 ,0, 0))).
-    """
-    size, line, color = border
+                list.append(config)
 
-    pg.draw.lines(
-        surface,
-        color,
-        False,
-        [
-            (0, 0),
-            (0, rect.height - 1),
-            (rect.width - 1, rect.height - 1),
-            (rect.width - 1, 0),
-            (0, 0)
-        ],
-        size
-    )
+    return list
+def loadJSON(path):# dict
+    """load and convert a JSON file to a dict."""
+    with open(path) as text:
+        content = "".join(text.readlines())
+        js = json.loads(content)
+        js.update({"name": path.split("\\")[-2]})
+        js.update({"path": path})
+        # //TODO tidy up
+        s = path.split("\\")
+        s = os.path.join(*s, "\\", *s[1:-1])
+        js.update({"filepath": s})
+        js.update({"filename": path.split("\\")[-1]})
 
-    return surface
-def getDisplay(size, **kwargs):# pygame.display.surface
-    """
-    create a new window display and return it. customisation possible.
-    example: resizable = True
-    usage: screen = getDisplay(((1920, 1080), resizable = True))
-    """
-    for key, value in kwargs.items():
-        if key == "fullscreen":
-            if value is True:
-                display = pg.display.set_mode(size, pg.FULLSCREEN)
-        elif key == "resizable":
-            if value is True:
-                display = pg.display.set_mode(size, pg.RESIZABLE)
-            else:
-                display = pg.display.set_mode(size)
-
-    return display
+    return js
+# dictionary operations
 def validateDict(config={}, defaults={}):# dict
-    """validate a dictionary by given defaults. params must be dict."""
+    """
+    validate a dictionary by comparing it to the default values from another
+    given dict.
+    """
     validated = {}
 
     for each in defaults:
@@ -136,34 +86,7 @@ def validateDict(config={}, defaults={}):# dict
             validated[each] = defaults[each]
 
     return validated
-def getFrames(image, framesize):# list
-    """
-    return a list of frames clipped from an image.
-    'framesize' must be a tuple of 2.
-    usage:
-    frames = getFrames(spritesheet, (16, 16)).
-    """
-    frames = []
-
-    rows = int(image.get_rect().height / framesize[1])
-    cells = int(image.get_rect().width / framesize[0])
-    rect = pg.Rect((0, 0), framesize)
-
-    # running each frame
-    for row in range(rows):
-        y = row * framesize[1]
-        rect.top = y
-        for cell in range(cells):
-            x = cell * framesize[0]
-            rect.left = x
-
-            image.set_clip(rect)
-            clip = image.subsurface(image.get_clip())
-
-            frames.append(clip)
-    del(clip, rect)
-
-    return frames
+# pygame
 def createTiledMap(config, tiles):# dict
     """
     drawing tiles on a pygame surface and returning it in a dict together with
@@ -209,48 +132,83 @@ def createTiledMap(config, tiles):# dict
         "blocks": blocks,
         "player_start": playerstart
     }
-def loadJSON(path):# dict
-    """load and convert a JSON file to a dict."""
-    with open(path) as text:
-        content = "".join(text.readlines())
-        js = json.loads(content)
-        js.update({"name": path.split("\\")[-2]})
-        js.update({"path": path})
-        # //TODO tidy up
-        s = path.split("\\")
-        s = os.path.join(*s, "\\", *s[1:-1])
-        js.update({"filepath": s})
-        js.update({"filename": path.split("\\")[-1]})
-
-    return js
-def loadAssets(path):# list
+def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     """
-    walk the assets-directory and open each json file. plus appending file name
-    and file path to the json file.
+    drawing a single or multiple objects to the destination surface. then
+    return itself. 'position' can be tuple, pygame rect or a string.
+    'special_flags' is for optional surface blending on each other.
+    usage:
+    draw(
+        player,
+        display,
+        pygame.Rect(0, 0, 160, 120),
+        special_flags=pygame.BLEND_ADD
+    )
     """
-    list = []
+    if type(position) is str:
+        # draw object in the center
+        if position == "center":
+            try:
+                osize = object.get_rect().size
+            except AttributeError:
+                osize = object.image.get_rect().size
+            dsize = destination.get_rect().size
 
-    for dirs in os.walk(path):
-        for each in dirs[2]:
-            if each.split(".")[1] == "json":
-                config = loadJSON(dirs[0] + "\\" + each)
-                config.update({"filename": each})
-                list.append(config)
-            # if directory has an image
-            elif each.split(".")[1] == "png":
-                config = {
-                    "name": each.split(".")[0],
-                    "filename": each,
-                    "type": "image",
-                    "filepath": dirs[0]
-                }
+            x = int(dsize[0] / 2) - int(osize[0] / 2)
+            y = int(dsize[1] / 2) - int(osize[1] / 2)
+            position = (x, y)
+    # recursively drawing depending on object's type by calling this function
+    # again
+    if type(object) is tuple:
+        destination.fill(
+            object, destination.get_rect(),
+            special_flags=blendmode
+        )
+    elif type(object) is list:
+        for each in object:
+            draw(each, destination, position, blendmode=blendmode)
+    elif type(object) is dict:
+        for each in object:
+            destination.blit(object[each], position)
+    elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface:
+        destination.blit(object, position, special_flags=blendmode)
+    elif object.__class__.__bases__[0] is pg.sprite.Sprite:
+        destination.blit(object.image, position, special_flags=blendmode)
+    elif object.__class__ is pg.sprite.Group:
+        for sprite in object:
+            destination.blit(
+                sprite.image,
+                sprite.rect.topleft,
+                special_flags=blendmode
+            )
+    # might puke out an error on giving anything else than pg.sprite.Sprite
+    else:
+        destination.blit(object.image, position)
+    return destination
+def drawBorder(surface, rect, border):# pygame surface
+    """
+    drawing a border to the given surface and return it.
+    syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
+    example: config = (1, 'solid', (255, 255, 255)).
+    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0 ,0, 0))).
+    """
+    size, line, color = border
 
-                list.append(config)
+    pg.draw.lines(
+        surface,
+        color,
+        False,
+        [
+            (0, 0),
+            (0, rect.height - 1),
+            (rect.width - 1, rect.height - 1),
+            (rect.width - 1, 0),
+            (0, 0)
+        ],
+        size
+    )
 
-    return list
-def getFonts():# list
-	"""return a list with pygame-fonts."""
-	return pygame.font.get_fonts()
+    return surface
 def getAnchors(room):# dict
     """returns a dict of room's anchor-points."""
     anchors = {
@@ -271,6 +229,54 @@ def getAnchors(room):# dict
         "bottomright": (room[0] , room[1])
     }
     return anchors
+def getDisplay(size, **kwargs):# pygame.display.surface
+    """
+    create a new window display and return it. customisation possible.
+    example: resizable = True
+    usage: screen = getDisplay(((1920, 1080), resizable = True))
+    """
+    for key, value in kwargs.items():
+        if key == "fullscreen":
+            if value is True:
+                display = pg.display.set_mode(size, pg.FULLSCREEN)
+        elif key == "resizable":
+            if value is True:
+                display = pg.display.set_mode(size, pg.RESIZABLE)
+            else:
+                display = pg.display.set_mode(size)
+
+    return display
+def getFonts():# list
+	"""return a list with pygame-fonts."""
+	return pygame.font.get_fonts()
+def getFrames(image, framesize):# list
+    """
+    return a list of frames clipped from an image.
+    'framesize' must be a tuple of 2.
+    usage:
+    frames = getFrames(spritesheet, (16, 16)).
+    """
+    frames = []
+
+    rows = int(image.get_rect().height / framesize[1])
+    cells = int(image.get_rect().width / framesize[0])
+    rect = pg.Rect((0, 0), framesize)
+
+    # running each frame
+    for row in range(rows):
+        y = row * framesize[1]
+        rect.top = y
+        for cell in range(cells):
+            x = cell * framesize[0]
+            rect.left = x
+
+            image.set_clip(rect)
+            clip = image.subsurface(image.get_clip())
+
+            frames.append(clip)
+    del(clip, rect)
+
+    return frames
 def scale(surface, factor):# pygame.surface
     """
     scaling a surface by an int-factor.
