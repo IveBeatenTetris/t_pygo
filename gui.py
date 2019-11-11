@@ -7,7 +7,10 @@ from .text import Text
 import pygame as pg
 
 class Overlay(pg.Surface):
-    """for dimmed backgrounds on menus."""
+    """
+    for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
+    that 0 is for none blending while 255 is for full rendering.
+    """
     default = {
         "background": (0, 0, 0),
         "size": (320, 240),
