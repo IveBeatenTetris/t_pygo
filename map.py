@@ -56,31 +56,8 @@ class Map(pg.Surface):
         # initiating surface
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
         self.rect = self.get_rect()# pygame.rect
-        # drawing the preview to the map-surface
-        self.__previewMap()
-    def __getTiles(self):# list
-        """
-        get tile objects from every appended tileset and return them in one
-        single list. means: multiple tilesets = more tiles
-        """
-        tiles = []
-
-        for k, v in self.tilesets.items():
-            for tile in v.tiles:
-                tiles.append(tile)
-
-        return tiles
-    def __createTilesets(self):# dict
-        """create a dict of tilesets and return it."""
-        tilesets = {}
-        # for each tileset-config
-        for cfg in self.config["tilesets"]:
-            split = cfg["source"].split("/")
-            name = split[-2]
-            file = split[-1]
-            # updating the list
-            tilesets.update({name: Tileset(name)})
-        return tilesets
+        # drawing the preview map
+        self.preview = self.__mix()# pygame.surface
     def __createLayers(self):# dict
         """
         return a dict of layers. each is an own dict with several attributes.
@@ -105,10 +82,36 @@ class Map(pg.Surface):
                 pass
 
         return layers
-    def __previewMap(self):# pygame.surface
-        """draw all layers on one surface to preview."""
+    def __createTilesets(self):# dict
+        """create a dict of tilesets and return it."""
+        tilesets = {}
+        # for each tileset-config
+        for cfg in self.config["tilesets"]:
+            split = cfg["source"].split("/")
+            name = split[-2]
+            file = split[-1]
+            # updating the list
+            tilesets.update({name: Tileset(name)})
+        return tilesets
+    def __getTiles(self):# list
+        """
+        get tile objects from every appended tileset and return them in one
+        single list. means: multiple tilesets = more tiles
+        """
+        tiles = []
+
+        for k, v in self.tilesets.items():
+            for tile in v.tiles:
+                tiles.append(tile)
+
+        return tiles
+    # experimental
+    def __mix(self):# pygame.surface
+        """merge some layers for better fps performance on higher resolutions."""
+        surface = pg.Surface(self.rect.size)
         for layer in self.layers:
-            draw(self.layers[layer], self)
+            draw(self.layers[layer], surface)
+        return surface
 class Layer(pg.Surface):
     """
     representation of a 'tiled'-layer. each layer can be drwn seperately. it
