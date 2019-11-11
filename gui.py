@@ -27,6 +27,8 @@ class Button(pg.sprite.Sprite):
         "size": (120, 40),
         "background": (0, 0, 0),
         "text": "Button",
+        "bold": False,
+        "italic": False,
         "position": (0, 0)
     }
     def __init__(self, config={}):
@@ -45,7 +47,9 @@ class Button(pg.sprite.Sprite):
         self.rect.topleft = self.config["position"]# tuple
         self.anchors = getAnchors(self.rect.size)# dict
         self.text = Text({# button
-            "text": self.config["text"]
+            "text": self.config["text"],
+            "bold": self.config["bold"],
+            "italic": self.config["italic"]
         })
         # drawing on button
         draw(self.config["background"], self.image)
