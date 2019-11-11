@@ -22,7 +22,6 @@ class Entity(pg.sprite.Sprite):
         ane keep the '__init__' clean.
         'name' doesnt have to match the files name.
         'rawimage' reference because the actual image is about to be tweaked.
-        'size' again im planing to remove this attribute once and for all.
         'frames' list of all cut-out sprites from an image. usefull for
             animations or quickly chaning sprite-image.
         'image' based of a frame out of 'self.frames'.
@@ -50,8 +49,7 @@ class Entity(pg.sprite.Sprite):
         self.rawimage = pg.image.load(# pygame.surface
             self.config["filepath"] + "\\" + self.config["image"]
         )
-        self.size = self.config["framesize"]# tuple
-        self.frames = getFrames(self.rawimage, self.size)# list
+        self.frames = getFrames(self.rawimage, self.config["framesize"])# list
         self.image = self.frames[0]# pygame.surface
         self.rect = ZRect(self.image.get_rect())# pgzero.zrect
         self.animationspeed = self.config["animationspeed"]# int
