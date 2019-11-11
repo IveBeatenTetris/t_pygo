@@ -69,14 +69,10 @@ def main():
 		# --------------------------- events ---------------------------- #
 		events = window.events()
 		if window.pausemenu:
-			if pause_button_exit.rect.collidepoint(pg.mouse.get_pos()):
-				for event in events:
-					if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-						window.quit()
-			elif pause_button_continue.rect.collidepoint(pg.mouse.get_pos()):
-				for event in events:
-					if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-						window.pausemenu = False
+			if pause_button_continue.leftClick(events):
+				window.pausemenu = False
+			elif pause_button_exit.leftClick(events):
+				window.quit()
 		# ------------------------ game routines ------------------------ #
 		# try to move the player
 		if not window.pausemenu:
@@ -84,7 +80,6 @@ def main():
 		# --------------------------- drawing --------------------------- #
 		# drawing everything to the camera
 		camera.draw((0, 0, 0))
-		#camera.draw(map.layers, camera.rect)
 		camera.draw(map.preview, camera.rect)
 		camera.draw(player, "center")
 		camera.draw(
@@ -111,4 +106,5 @@ def main():
 if __name__ == '__main__':
     setup()
     main()
+
 ```

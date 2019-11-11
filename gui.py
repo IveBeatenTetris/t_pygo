@@ -66,3 +66,14 @@ class Button(pg.sprite.Sprite):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
+    def leftClick(self, events):
+        """'events' must be list of pygame.events."""
+        mouse = pg.mouse.get_pos()
+        click = False
+
+        for event in events:
+            if self.rect.collidepoint(mouse):
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                    click = True
+
+        return click
