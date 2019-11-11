@@ -1,5 +1,7 @@
 # t_pygo
 
+implementation example:
+
 ```python
 # dependencies
 import t_pygo as go
