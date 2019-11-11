@@ -23,6 +23,7 @@ class Window:
         'preffered_fps' - its in the name.
         'fps' is gonna be updated from the windows update-method.
         'pausemenu' is a switch for showing a gui and closing it.
+        'mode' is for switching trough modes like 'moving' or 'paused'.
         'display' holds the actual pygame window.
         """
         pg.init()
@@ -34,6 +35,7 @@ class Window:
         self.preffered_fps = 60# int
         self.fps = 0# int
         self.pausemenu = False# bool
+        self.mode = "moving"# str
         # display related stuff
         self.display = getDisplay(# pygame.surface
             self.config["size"],
