@@ -50,7 +50,7 @@ def main():
 	"""main loop."""
 	while True:
 		# --------------------------- events ---------------------------- #
-		window.getEvents()
+		window.events()
 		# ------------------------ game routines ------------------------ #
 		# try to move the player
 		if not window.pausemenu:

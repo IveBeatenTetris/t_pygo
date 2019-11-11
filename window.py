@@ -62,7 +62,7 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
-    def getEvents(self):# pygame.event
+    def events(self):# pygame.event
         """pygame events"""
         events = []
         for event in pg.event.get():
