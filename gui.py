@@ -27,6 +27,7 @@ class Button(pg.sprite.Sprite):
         "size": (120, 40),
         "background": (0, 0, 0),
         "text": "Button",
+        "textcolor": (255, 255, 255),
         "fontsize": 16,
         "bold": False,
         "italic": False,
@@ -51,7 +52,8 @@ class Button(pg.sprite.Sprite):
             "text": self.config["text"],
             "fontsize": self.config["fontsize"],
             "bold": self.config["bold"],
-            "italic": self.config["italic"]
+            "italic": self.config["italic"],
+            "color": self.config["textcolor"]
         })
         # drawing on button
         draw(self.config["background"], self.image)
