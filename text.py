@@ -11,7 +11,9 @@ class Text(pg.sprite.Sprite):
 		"fontsize": 16,
 		"color": (0, 0, 0),
 		"text": "No Text",
-		"antialias": True
+		"antialias": True,
+		"bold": False,
+		"italic": False
 	}
 	def __init__(self, config={}):
 		"""
@@ -38,6 +40,8 @@ class Text(pg.sprite.Sprite):
 			self.config["font"],
 			self.fontsize
 		)
+		self.font.set_bold(self.config["bold"])
+		self.font.set_italic(self.config["italic"])
 		# image and rect are going to be created there
 		self.__create()
 	def __create(self):
