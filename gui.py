@@ -2,6 +2,7 @@ from .utils import (
     draw,
     validateDict
 )
+from .text import Text
 import pygame as pg
 
 class Overlay(pg.Surface):
@@ -33,7 +34,12 @@ class Button(pg.sprite.Sprite):
         # initiating sprite
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(self.config["size"])# pygame.surface
-        draw(self.config["background"], self.image)
         # additional attributes
         self.rect = self.image.get_rect()# pygame.rect
         self.rect.topleft = self.config["position"]# tuple
+        self.text = Text({# button
+            "text": self.config["text"]
+        })
+        # drawing on button
+        draw(self.config["background"], self.image)
+        draw(self.text, self.image)
