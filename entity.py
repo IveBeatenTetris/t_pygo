@@ -36,6 +36,7 @@ class Entity(pg.sprite.Sprite):
             the way the amount of pixels that the entity moves per frame.
         'facing' is used for determining the right picture for entity to
             display.
+        'knownblocks' holds all block-tiles from the active map.
         'dev_move' if 'true' this will render the entity bounding borders.
         """
         # looking for a json-file to use as the config
@@ -80,6 +81,7 @@ class Entity(pg.sprite.Sprite):
         self.collisionbox = pg.Rect(self.config["collisionbox"])# pygame.rect
         self.speed = self.config["speed"]# int
         self.facing = "down"# str
+        self.knownblocks = ["knownblocks"]# list
         self.dev_mode = self.config["dev_mode"]# bool
         # keeping __init__ organazied
         self.__build()
@@ -125,7 +127,7 @@ class Entity(pg.sprite.Sprite):
                     self.rect.bottom = block.top + (self.rect.height - rect.bottom)
                 if pos[1] < 0:
                     self.rect.top = block.bottom - rect.top
-    def move(self, blocks=[]):
+    def move(self):
         """moving entity. also animate while still moving."""
         keys = pg.key.get_pressed()
         moving = False
@@ -135,19 +137,19 @@ class Entity(pg.sprite.Sprite):
             speed = int(self.speed * 1.5)
         # moving and correct facing direction
         if keys[pg.K_a]:
-            self.__moveSingleAxis((-speed, 0), blocks)
+            self.__moveSingleAxis((-speed, 0), self.knownblocks)
             self.facing = "left"
             moving = True
         if keys[pg.K_d]:
-            self.__moveSingleAxis((speed, 0), blocks)
+            self.__moveSingleAxis((speed, 0), self.knownblocks)
             self.facing = "right"
             moving = True
         if keys[pg.K_w]:
-            self.__moveSingleAxis((0, -speed), blocks)
+            self.__moveSingleAxis((0, -speed), self.knownblocks)
             self.facing = "up"
             moving = True
         if keys[pg.K_s]:
-            self.__moveSingleAxis((0, speed), blocks)
+            self.__moveSingleAxis((0, speed), self.knownblocks)
             self.facing = "down"
             moving = True
         # walking cycle animation
