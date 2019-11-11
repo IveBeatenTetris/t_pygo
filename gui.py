@@ -1,6 +1,7 @@
 from .utils import (
     draw,
-    validateDict
+    validateDict,
+    getAnchors
 )
 from .text import Text
 import pygame as pg
@@ -29,6 +30,11 @@ class Button(pg.sprite.Sprite):
         "position": (0, 0)
     }
     def __init__(self, config={}):
+        """
+        'anchors' holds shortcuts for positional arguments like "midcenter" or
+            "topright" etc for documentation look into 'utils.py'.
+        'text' the actual displayed text.
+        """
         # comparing dicts and creating a new one
         self.config = validateDict(config, self.default)# dict
         # initiating sprite
@@ -37,9 +43,18 @@ class Button(pg.sprite.Sprite):
         # additional attributes
         self.rect = self.image.get_rect()# pygame.rect
         self.rect.topleft = self.config["position"]# tuple
+        self.anchors = getAnchors(self.rect.size)# dict
         self.text = Text({# button
             "text": self.config["text"]
         })
         # drawing on button
         draw(self.config["background"], self.image)
-        draw(self.text, self.image)
+        # drawing text in the very center of the button
+        draw(
+            self.text,
+            self.image,
+            (
+                self.anchors["midcenter"][0] - int(self.text.rect.width / 2),
+                self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
+            )
+        )
