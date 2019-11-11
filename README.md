@@ -32,25 +32,51 @@ pause_background = go.Overlay({
 	"size": camera.rect.size,
 	"opacity": 175
 })
-pause_back_button = go.Button({
-	"size": (140, 50),
+pause_button_continue = go.Button({
+	"size": (160, 50),
 	"background": (75, 75, 75),
-	"text": "Back",
-	"position": camera.anchors["midcenter"]
+	"textcolor": (200, 200, 200),
+	"text": "Continue",
+	"fontsize": 22,
+	"bold": True,
+	#"position": camera.anchors["midcenter"]
+	"position": (camera.anchors["middle"], 160)
+})
+pause_button_exit = go.Button({
+	"size": (160, 50),
+	"background": (75, 75, 75),
+	"textcolor": (200, 200, 200),
+	"text": "Exit Game",
+	"fontsize": 22,
+	"bold": True,
+	#"position": camera.anchors["midcenter"]
+	"position": (camera.anchors["middle"], 240)
 })
 
 # functions
 def setup():
 	"""pre-setup for the game before entering the main-loop."""
+	# resizing window relative to camera size
 	window.resize(camera.rect.size)
+	# player has to know the active maps blocking elements
 	player.knownblocks = map.blocks
+	# placing player on the map
 	if map.playerstart:
 	    player.position(map.playerstart)
 def main():
 	"""main loop."""
 	while True:
 		# --------------------------- events ---------------------------- #
-		window.events()
+		events = window.events()
+		if window.pausemenu:
+			if pause_button_exit.rect.collidepoint(pg.mouse.get_pos()):
+				for event in events:
+					if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+						window.quit()
+			elif pause_button_continue.rect.collidepoint(pg.mouse.get_pos()):
+				for event in events:
+					if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+						window.pausemenu = False
 		# ------------------------ game routines ------------------------ #
 		# try to move the player
 		if not window.pausemenu:
@@ -70,7 +96,8 @@ def main():
 		# drawing gui when paused
 		if window.pausemenu:
 			window.draw(pause_background)
-			window.draw(pause_back_button, pause_back_button.rect)
+			window.draw(pause_button_continue, pause_button_continue.rect)
+			window.draw(pause_button_exit, pause_button_exit.rect)
 		# -------------------------- updating --------------------------- #
 		# frames per second
 		text.update({
