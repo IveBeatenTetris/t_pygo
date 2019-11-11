@@ -24,10 +24,12 @@ class Text(pg.sprite.Sprite):
 		'antialias' if 'false' the font will appear pixelated.
 		'font' creates a new pygame.font from an installed system font.
 		"""
+		# comparing both dicts and creating a new one from it
 		self.config = validateDict(config, self.default)# dict
+		# initiating
 		pg.sprite.Sprite.__init__(self)
 		pg.font.init()
-
+		# additional attributes
 		self.fontsize = self.config["fontsize"]# int
 		self.color = self.config["color"]# tuple
 		self.text = self.config["text"]# str
@@ -36,7 +38,7 @@ class Text(pg.sprite.Sprite):
 			self.config["font"],
 			self.fontsize
 		)
-
+		# image and rect are going to be created there
 		self.__create()
 	def __create(self):
 		"""
@@ -45,6 +47,7 @@ class Text(pg.sprite.Sprite):
 		text-objective.
 		"""
 		self.image = self.font.render(self.text, self.antialias, self.color)
+		self.rect = self.image.get_rect()
 	def update(self, cfg):
 		"""updates attributes with the given parameters. 'cfg' must be dict."""
 		try:
