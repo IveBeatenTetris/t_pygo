@@ -27,6 +27,7 @@ class Button(pg.sprite.Sprite):
         "size": (120, 40),
         "background": (0, 0, 0),
         "text": "Button",
+        "fontsize": 16,
         "bold": False,
         "italic": False,
         "position": (0, 0)
@@ -48,6 +49,7 @@ class Button(pg.sprite.Sprite):
         self.anchors = getAnchors(self.rect.size)# dict
         self.text = Text({# button
             "text": self.config["text"],
+            "fontsize": self.config["fontsize"],
             "bold": self.config["bold"],
             "italic": self.config["italic"]
         })
