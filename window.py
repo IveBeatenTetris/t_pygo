@@ -13,7 +13,8 @@ class Window:
         "size": (320, 240),
         "title": "No Title",
         "resizable": False,
-        "icon": LIBPATH["windowicon"]
+        "icon": LIBPATH["windowicon"],
+        "fps": 30
     }
     def __init__(self, config={}):
         """
@@ -32,7 +33,7 @@ class Window:
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
-        self.preffered_fps = 60# int
+        self.preffered_fps = self.config["fps"]# int
         self.fps = 0# int
         self.pausemenu = False# bool
         self.mode = "moving"# str
@@ -78,7 +79,6 @@ class Window:
                     self.pausemenu = False
                 else:
                     self.pausemenu = True
-                print("pause menu:", self.pausemenu)
             # going fullscreen
             if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
