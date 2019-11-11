@@ -13,7 +13,7 @@ class Camera(pg.Surface):
     """
     # default values
     default = {
-        "size": (640, 480),
+        "size": (320, 240),
         "tracking": None,
         "zoomfactor": 1
     }

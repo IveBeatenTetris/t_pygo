@@ -21,7 +21,7 @@ class Map(pg.Surface):
         """
         load a dict from a json-file and make it config.
         'name' is gonna be adapted when the map is created with 'tiled'.
-        'size' i would really like to dump this and only the rect furthermore.
+        'size' recalculated map size. consider using the rect anyways.
         'tilesize' most commonly its 16x16 or 32x32.
         'tiles' is a list of all the tiles cut out from the image.
         'layers' every tile is drawn to its layer. you can draw each layer
@@ -107,7 +107,10 @@ class Map(pg.Surface):
         return tiles
     # experimental
     def __mix(self):# pygame.surface
-        """merge some layers for better fps performance on higher resolutions."""
+        """
+        merge some layers for better fps performance on higher resolutions.
+        for now it renders every layer without exception.
+        """
         surface = pg.Surface(self.rect.size)
         for layer in self.layers:
             draw(self.layers[layer], surface)
@@ -122,7 +125,7 @@ class Layer(pg.Surface):
         """
         'config' becomes the returned value of 'createTiledMap()'. in this case
             a dict.
-        'size' still want to scrap that in general.
+        'size' recalculated map size. consider using the rect anyways.
         'blocks' all non-passable tiles on this layer.
         'player_start' this is where the player starts when placed in 'tiled'.
         """
@@ -148,8 +151,6 @@ class Tileset(pg.Surface):
         'path' actually path to the holding directory. this one is been
             appended through opening the tileset as an asset like in
             'loadAssets(path + name)'.
-        'size' - im thinking about removing this since it leaches its values
-            unnecessarily from the rect.
         'tilesize' most commonly its 16x16 or 32x32.
         'tiles' is a list of all the tiles cut out from the image.
         """
@@ -163,14 +164,13 @@ class Tileset(pg.Surface):
         self.image = pg.image.load(# pygame.surface
             self.path + "\\" + self.config["image"]
         )
-        self.size = self.image.get_rect().size# tuple
         self.tilesize = (# tuple
             self.config["tilewidth"],
             self.config["tileheight"]
         )
         self.tiles = self.__createTiles()# list
         # display related stuff
-        pg.Surface.__init__(self, self.size, pg.SRCALPHA)
+        pg.Surface.__init__(self, self.image.get_rect().size, pg.SRCALPHA)
         draw(self.image, self)
     def __createTiles(self):# list
         """

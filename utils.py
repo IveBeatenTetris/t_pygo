@@ -146,7 +146,7 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     )
     """
     if type(position) is str:
-        # draw object in the center
+        # draw object in the relative to the given string
         if position == "center":
             try:
                 osize = object.get_rect().size
