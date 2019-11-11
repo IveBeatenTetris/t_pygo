@@ -6,4 +6,7 @@ from .text import Text
 from .map import Tileset, Map
 from .entity import Player
 from .camera import Camera
-from .gui import Overlay
+from .gui import (
+    Overlay,
+    Button
+)
