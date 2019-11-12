@@ -10,3 +10,4 @@ from .gui import (
     Overlay,
     Button
 )
+from .controller import Controller
