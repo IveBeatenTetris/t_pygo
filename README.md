@@ -8,7 +8,7 @@ import t_pygo as go
 import pygame as pg
 
 # assignments
-window = go.Window({
+app = go.Window({
 	"title": "merely something 0.0.1",
 	"zoom": 1,
 	"fps": 70
@@ -28,9 +28,9 @@ text = go.Text({
 
 # gui
 pause_background = go.Overlay({
-	"background": (20, 40, 60),
+	"background": (0, 0, 0),
 	"size": camera.rect.size,
-	"opacity": 175
+	"opacity": 200
 })
 pause_button_continue = go.Button({
 	"size": (160, 50),
@@ -56,8 +56,8 @@ pause_button_exit = go.Button({
 # functions
 def setup():
 	"""pre-setup for the game before entering the main-loop."""
-	# resizing window relative to camera size
-	window.resize(camera.rect.size)
+	# resizing app relative to camera size
+	app.resize(camera.rect.size)
 	# player has to know the active maps blocking elements
 	player.knownblocks = map.blocks
 	# placing player on the map
@@ -67,15 +67,24 @@ def main():
 	"""main loop."""
 	while True:
 		# --------------------------- events ---------------------------- #
-		events = window.events()
-		if window.pausemenu:
+		events = app.events()
+		# ESCAPE KEY
+		if app.keys()["esc"]:
+			app.pause()
+		# MOUSE WHEEL
+		if app.mouseWheel() == "up":
+			print("mouse wheel up")
+		elif app.mouseWheel() == "down":
+			print("mouse wheel down")
+		# PAUSE MENU
+		if app.paused:
 			if pause_button_continue.leftClick(events):
-				window.pausemenu = False
+				app.pause()
 			elif pause_button_exit.leftClick(events):
-				window.quit()
+				app.quit()
 		# ------------------------ game routines ------------------------ #
 		# try to move the player
-		if not window.pausemenu:
+		if not app.paused:
 			player.move()
 		# --------------------------- drawing --------------------------- #
 		# drawing everything to the camera
@@ -86,22 +95,22 @@ def main():
 			go.drawBorder(camera, camera.rect, (3, 'solid', (255, 0, 0)))
 		)
 		camera.draw(text)
-		# finally drawing camera to window
-		window.draw(camera)
+		# finally drawing camera to app
+		app.draw(camera)
 		# drawing gui when paused
-		if window.pausemenu:
-			window.draw(pause_background)
-			window.draw(pause_button_continue, pause_button_continue.rect)
-			window.draw(pause_button_exit, pause_button_exit.rect)
+		if app.paused:
+			app.draw(pause_background)
+			app.draw(pause_button_continue, pause_button_continue.rect)
+			app.draw(pause_button_exit, pause_button_exit.rect)
 		# -------------------------- updating --------------------------- #
 		# frames per second
 		text.update({
-			"text": "quacks: {0}".format(window.fps)
+			"text": "quacks: {0}".format(app.fps)
 		})
 		# camera recalculatings
 		camera.update()
 		# pygames display updates
-		window.update()
+		app.update()
 # begin game-routines
 if __name__ == '__main__':
     setup()
