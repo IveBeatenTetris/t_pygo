@@ -44,6 +44,7 @@ class Window:
         )
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
+    # game routines
     def update(self):
         """updates stuff at apps loop-end."""
         pg.display.update()
@@ -53,6 +54,7 @@ class Window:
         """exits the app."""
         pg.quit()
         sys.exit()
+    # display stuff
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
         draw(object, self.display, position)
@@ -62,8 +64,9 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
+    # event related methodes
     def events(self):# pygame.event
-        """pygame events"""
+        """pygame events."""
         events = []
         for event in pg.event.get():
             # quit application
@@ -82,11 +85,24 @@ class Window:
             # going fullscreen
             if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
+            # finalizing event list
             events.append(event)
         return events
     def pressedKeys(self):
         """return pygame-event's pressed-keys."""
         return pg.key.get_pressed()
+    def mouseWheel(self, events):
+        """."""
+        wheel = "none"
+
+        for event in events:
+            if event.type is pg.MOUSEBUTTONDOWN and event.button == 4:
+                wheel = "up"
+            elif event.type is pg.MOUSEBUTTONDOWN and event.button == 5:
+                wheel = "down"
+
+        return wheel
+    # window appearance
     def changeIcon(self, path):
         """create an icon for the window from an image."""
         if type(path) is pg.Surface:
