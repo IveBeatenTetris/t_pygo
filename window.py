@@ -23,8 +23,11 @@ class Window:
         'icon' is displayed next to the title in the window.
         'preffered_fps' - its in the name.
         'fps' is gonna be updated from the windows update-method.
-        'pausemenu' is a switch for showing a gui and closing it.
+        'paused' is a switch for showing a gui and closing it. handled by
+            'self.pause()'.
         'mode' is for switching trough modes like 'moving' or 'paused'.
+        '_events' with each game-loop this list will become the new
+            pygame.events.
         'display' holds the actual pygame window.
         """
         pg.init()
@@ -35,8 +38,9 @@ class Window:
         self.clock = pg.time.Clock()# pygame.clock
         self.preffered_fps = self.config["fps"]# int
         self.fps = 0# int
-        self.pausemenu = False# bool
+        self.paused = False# bool
         self.mode = "moving"# str
+        self._events = []# list
         # display related stuff
         self.display = getDisplay(# pygame.surface
             self.config["size"],
@@ -54,6 +58,12 @@ class Window:
         """exits the app."""
         pg.quit()
         sys.exit()
+    def pause(self):
+        """pauses the game or continues it."""
+        if self.paused is True:
+            self.paused = False
+        else:
+            self.paused = True
     # display stuff
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
@@ -68,34 +78,45 @@ class Window:
     def events(self):# pygame.event
         """pygame events."""
         events = []
+
         for event in pg.event.get():
             # quit application
             if event.type is pg.QUIT:
-                pg.quit()
-                sys.exit()
+                self.quit()
             # resizing the window
             if event.type is pg.VIDEORESIZE:
                 self.resize(event.size)
-            # pause menu
-            if event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE:
-                if self.pausemenu is True:
-                    self.pausemenu = False
-                else:
-                    self.pausemenu = True
             # going fullscreen
             if event.type is pg.KEYDOWN and event.key == pg.K_F12:
                 pass
             # finalizing event list
             events.append(event)
+
+        # applying these events to the window-event list
+        self._events = events
         return events
     def pressedKeys(self):
         """return pygame-event's pressed-keys."""
         return pg.key.get_pressed()
-    def mouseWheel(self, events):
-        """."""
+    def keys(self):
+        """might look for a more efficient way to check for hitten keys."""
+        keys = {
+            "esc": False,
+            "f1": False
+        }
+
+        for event in self._events:
+            if event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                keys["esc"] = True
+            if event.type is pg.KEYDOWN and event.key == pg.K_F1:
+                keys["f1"] = True
+
+        return keys
+    def mouseWheel(self):
+        """mouse wheel event checking. returns a string."""
         wheel = "none"
 
-        for event in events:
+        for event in self._events:
             if event.type is pg.MOUSEBUTTONDOWN and event.button == 4:
                 wheel = "up"
             elif event.type is pg.MOUSEBUTTONDOWN and event.button == 5:
