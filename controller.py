@@ -3,9 +3,12 @@ import pygame as pg
 class Controller(object):
     """handling game pad input. for now only from xbox one controllers."""
     def __init__(self):
-        """initiating controller."""
-        self = pg.joystick.Joystick(0)
-        self.init()
+        """initiating controller if there is one."""
+        try:
+            self = pg.joystick.Joystick(0)
+            self.init()
+        except pg.error:
+            self = None
     def buttons(self, events):
         """
         looks for controller events. i want to scrap the given 'events'
