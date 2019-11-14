@@ -175,7 +175,7 @@ class Layer(pg.Surface):
         for obj in self.config["objects"]:
             # create an event area drawn in 'tiled'
             if obj["type"] == "event":
-                pass
+                objects.append(EventArea(obj))
 
         return objects
 class Tileset(pg.Surface):
@@ -267,3 +267,27 @@ class Tile(pg.sprite.Sprite):
 		    self.visible = config["visible"]# bool
 		except KeyError:
 		    self.visible = self.default["visible"]
+class EventArea(pg.Rect):
+    """
+    this is a representation of an object-area from a tiled-maps object-layer.
+    """
+    def __init__(self, config):
+        """
+        'name' is the name of the function that is about to be called.
+        'trigger' type the event will be triggered.
+        """
+        self.config = config# dict
+        # initiating pygame rect
+        pg.Rect.__init__(
+            self,
+            (int(config["x"]), int(config["y"])),
+            (config["width"], config["height"])
+        )
+        # additional attributes
+        self.name = config["name"]# str
+        self.trigger = ""# str
+        # if there are additional properties in the map
+        if config["properties"]:
+            for prop in config["properties"]:
+                if prop["name"] == "trigger":
+                    self.trigger = prop["value"]
