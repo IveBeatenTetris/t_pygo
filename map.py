@@ -47,12 +47,14 @@ class Map(pg.Surface):
         self.layers = self.__createLayers()# dict
         self.blocks = []# list
         for _, layer in self.layers.items():
-            # getting playerstart from a layer. may only be placed once per map
-            if layer.player_start:
-                self.playerstart = layer.player_start# pygame.rect
-            # filling self.blocks with all layers blocks
-            for each in layer.blocks:
-                self.blocks.append(each)
+            if layer.type == "tilelayer":
+                # getting playerstart from a layer. may only be placed once per
+                # map
+                if layer.player_start:
+                    self.playerstart = layer.player_start# pygame.rect
+                # filling self.blocks with all layers blocks
+                for each in layer.blocks:
+                    self.blocks.append(each)
         # initiating surface
         pg.Surface.__init__(self, self.size, pg.SRCALPHA)
         self.rect = self.get_rect()# pygame.rect
@@ -73,13 +75,17 @@ class Map(pg.Surface):
                 each.update({
                     "tiles": self.tiles,
                     "tilesize": self.tilesize
-                    })
+                })
                 layer = Layer(each)
                 layers.update({each["name"]: layer})
-
-            # group layer
+            # layer group
             elif each["type"] == "group":
                 pass
+            # object layer
+            elif each["type"] == "objectgroup":
+                # updating layers
+                layer = Layer(each)
+                layers.update({each["name"]: layer})
 
         return layers
     def __createTilesets(self):# dict
@@ -112,35 +118,66 @@ class Map(pg.Surface):
         for now it renders every layer without exception.
         """
         surface = pg.Surface(self.rect.size)
+
         for layer in self.layers:
-            draw(self.layers[layer], surface)
+            if self.layers[layer].type == "tilelayer":
+                draw(self.layers[layer], surface)
+
         return surface
 class Layer(pg.Surface):
     """
-    representation of a 'tiled'-layer. each layer can be drwn seperately. it
+    representation of a 'tiled'-layer. each layer can be drawn seperately. it
     holds information about all its used tiles, its names, blocks, invisibles
     etc.
+    can also be a 'object' layer for placing events and so on.
     """
     def __init__(self, config):
         """
-        'config' becomes the returned value of 'createTiledMap()'. in this case
-            a dict.
-        'size' recalculated map size. consider using the rect anyways.
-        'blocks' all non-passable tiles on this layer.
-        'player_start' this is where the player starts when placed in 'tiled'.
+        'type' declares the layer type for comparison.
+        'name' declares the layer name for comparison.
+        'tilelayer':
+            'config' becomes the returned value of 'createTiledMap()'. in this
+            case a dict.
+            'size' recalculated map size. consider using the rect anyways.
+            'blocks' all non-passable tiles on this layer.
+            'player_start' this is where the player starts when placed in
+            'tiled'.
+        'objectgroup':
+            'config' now becomes a config dict of an object layer from a tiled
+            file.
         """
-        self.config = createTiledMap(config, config["tiles"])# dict
-        # additional attributes
-        self.size = (# tuple
-            config["width"] * config["tilesize"][0],
-            config["height"] * config["tilesize"][1]
-        )
-        self.image = self.config["image"]# pygame.surface
-        self.blocks = self.config["blocks"]# list
-        self.player_start = self.config["player_start"]# pygame rect / none
-        # drawing to surface
-        pg.Surface.__init__(self, self.size, pg.SRCALPHA)
-        draw(self.image, self)
+        self.type = config["type"]# str
+        self.name = config["name"]# str
+        # tile layer
+        if self.type == "tilelayer":
+            self.config = createTiledMap(config, config["tiles"])# dict
+            # additional attributes
+            self.size = (# tuple
+                config["width"] * config["tilesize"][0],
+                config["height"] * config["tilesize"][1]
+            )
+            self.image = self.config["image"]# pygame.surface
+            self.blocks = self.config["blocks"]# list
+            self.player_start = self.config["player_start"]# pygame rect / none
+            # drawing to surface
+            pg.Surface.__init__(self, self.size, pg.SRCALPHA)
+            draw(self.image, self)
+        # object layer
+        # object layer
+        elif self.type == "objectgroup":
+            self.config = config# dict
+            # additional attributes
+            self.objects = self.__createObjects()# list
+    def __createObjects(self):
+        """from a config dict of a 'tiled'-map create interactive objects."""
+        objects = []
+
+        for obj in self.config["objects"]:
+            # create an event area drawn in 'tiled'
+            if obj["type"] == "event":
+                pass
+
+        return objects
 class Tileset(pg.Surface):
     """spritesheet object. can be drawn to a surface for preview purpose."""
     def __init__(self, name):
