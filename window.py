@@ -4,8 +4,9 @@ from .utils import (
     getDisplay,
     draw
 )
-import sys
+from .controller import Controller
 import pygame as pg
+import sys
 
 class Window:
     """pygame's window module with extended features."""
@@ -26,6 +27,8 @@ class Window:
         'paused' is a switch for showing a gui and closing it. handled by
             'self.pause()'.
         'mode' is for switching trough modes like 'moving' or 'paused'.
+        'controller' decided to put it into the window. its been updated in the
+        'window.events()'-method.
         '_events' with each game-loop this list will become the new
             pygame.events.
         'display' holds the actual pygame window.
@@ -40,6 +43,7 @@ class Window:
         self.fps = 0# int
         self.paused = False# bool
         self.mode = "moving"# str
+        self.controller = Controller()# controller (pygame.joystick.joystick)
         self._events = []# list
         # display related stuff
         self.display = getDisplay(# pygame.surface
@@ -76,7 +80,7 @@ class Window:
         )
     # event related methodes
     def events(self):# pygame.event
-        """pygame events."""
+        """pygame events. updates the controller with events."""
         events = []
 
         for event in pg.event.get():
@@ -94,6 +98,10 @@ class Window:
 
         # applying these events to the window-event list
         self._events = events
+        # updating controller element if there is one
+        if self.controller:
+            self.controller.update(events)
+
         return events
     def pressedKeys(self):
         """return pygame-event's pressed-keys."""

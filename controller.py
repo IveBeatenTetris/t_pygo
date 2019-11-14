@@ -3,13 +3,23 @@ import pygame as pg
 class Controller(object):
     """handling game pad input. for now only from xbox one controllers."""
     def __init__(self):
-        """initiating controller if there is one."""
+        """
+        initiating controller if there is one.
+        'events' is been updated from out the window in its 'events()'-method.
+        """
         try:
             self.joystick = pg.joystick.Joystick(0)
             self.joystick.init()
+            self.events = []# list > pygame.events
         except pg.error:
             self.joystick = None
-    def buttons(self, events):
+    def update(self, events):
+        """
+        updating events with each game loop. 'window'-class is calling this so
+        not necessary to call it somewhere else again.
+        """
+        self.events = events
+    def buttons(self):
         """
         looks for controller events. i want to scrap the given 'events'
         property.
@@ -31,7 +41,7 @@ class Controller(object):
             "right": False
         }
 
-        for event in events:
+        for event in self.events:
             if event.type == pg.JOYBUTTONDOWN:
                 if event.button == 6:
                     buttons["select"] = True
@@ -66,7 +76,7 @@ class Controller(object):
                     buttons["left"] = True
 
         return buttons
-    def sticks(self, events):
+    def sticks(self):
         """response for using the joysticks."""
         left = {
             "up": False,
@@ -83,7 +93,7 @@ class Controller(object):
             "click": False
         }
 
-        for event in events:
+        for event in self.events:
             if event.type == pg.JOYAXISMOTION:
                 # left stick
                 if event.axis == 0:
