@@ -9,7 +9,7 @@ import pygame as pg
 import sys
 
 class Window:
-    """pygame's window module with extended features."""
+    """pygames window module with extended features."""
     default = {
         "size": (320, 240),
         "title": "No Title",
@@ -99,7 +99,7 @@ class Window:
         # applying these events to the window-event list
         self._events = events
         # updating controller element if there is one
-        if self.controller:
+        if self.controller.joystick:
             self.controller.update(events)
 
         return events
