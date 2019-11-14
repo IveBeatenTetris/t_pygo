@@ -112,7 +112,7 @@ class Entity(pg.sprite.Sprite):
         self.collisionbox.topleft = (
             self.rect.left + self.config["collisionbox"][0],
             self.rect.top + self.config["collisionbox"][1]
-            )
+        )
         # collision checking
         for block in blocks:
             if self.collisionbox.colliderect(block):
@@ -125,7 +125,7 @@ class Entity(pg.sprite.Sprite):
                     self.rect.bottom = block.top + (self.rect.height - rect.bottom)
                 if pos[1] < 0:
                     self.rect.top = block.bottom - rect.top
-    def move(self):
+    def move(self, controller=None):
         """moving entity. also animate while still moving."""
         keys = pg.key.get_pressed()
         moving = False
@@ -134,19 +134,19 @@ class Entity(pg.sprite.Sprite):
         if pg.key.get_mods() & pg.KMOD_SHIFT:
             speed = int(self.speed * 1.5)
         # moving and correct facing direction
-        if keys[pg.K_a]:
+        if keys[pg.K_a] or (controller and controller.sticks[0]["left"]):
             self.__moveSingleAxis((-speed, 0), self.knownblocks)
             self.facing = "left"
             moving = True
-        if keys[pg.K_d]:
+        if keys[pg.K_d] or (controller and controller.sticks[0]["right"]):
             self.__moveSingleAxis((speed, 0), self.knownblocks)
             self.facing = "right"
             moving = True
-        if keys[pg.K_w]:
+        if keys[pg.K_w] or (controller and controller.sticks[0]["up"]):
             self.__moveSingleAxis((0, -speed), self.knownblocks)
             self.facing = "up"
             moving = True
-        if keys[pg.K_s]:
+        if keys[pg.K_s] or (controller and controller.sticks[0]["down"]):
             self.__moveSingleAxis((0, speed), self.knownblocks)
             self.facing = "down"
             moving = True
