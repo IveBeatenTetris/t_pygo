@@ -275,6 +275,7 @@ class EventArea(pg.Rect):
         """
         'name' is the name of the function that is about to be called.
         'trigger' type the event will be triggered.
+        'visible' can use this as a condition.
         """
         self.config = config# dict
         # initiating pygame rect
@@ -286,6 +287,7 @@ class EventArea(pg.Rect):
         # additional attributes
         self.name = config["name"]# str
         self.trigger = ""# str
+        self.visible = config["visible"]# bool
         # if there are additional properties in the map
         if config["properties"]:
             for prop in config["properties"]:
