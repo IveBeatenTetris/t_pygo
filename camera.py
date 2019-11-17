@@ -34,7 +34,17 @@ class Camera(pg.Rect):
         # sizing
         self.anchors = getAnchors(self.size)# dict
     def update(self):
-        """."""
+        """updating rect on each game loop."""
         if self.tracking:
             self.left = -(self.tracking.rect.center[0] - int(self.width / 2))
             self.top = -(self.tracking.rect.center[1] - int(self.height / 2))
+    def zoom(self, factor):
+        """
+        change the zoomfactor of the camera rect. doesnt change the camera size.
+        """
+        if self.zoomfactor + factor < 1:
+            self.zoomfactor = 1
+        elif self.zoomfactor + factor > 3:
+            self.zoomfactor = 3
+        else:
+            self.zoomfactor = self.zoomfactor + factor
