@@ -35,6 +35,7 @@ class Entity(pg.sprite.Sprite):
             the way the amount of pixels that the entity moves per frame.
         'facing' is used for determining the right picture for entity to
             display.
+        'moving' if key or controller sticks are used 'true' else 'false'.
         'knownblocks' holds all block-tiles from the active map.
         'dev_move' if 'true' this will render the entity bounding borders.
         """
@@ -79,9 +80,10 @@ class Entity(pg.sprite.Sprite):
         self.collisionbox = pg.Rect(self.config["collisionbox"])# pygame.rect
         self.speed = self.config["speed"]# int
         self.facing = "down"# str
+        self.moving = False# bool
         self.knownblocks = ["knownblocks"]# list
         self.dev_mode = self.config["dev_mode"]# bool
-        # keeping __init__ organazied
+        # keeping __init__ organized
         self.__build()
     def __build(self):
         """drawing depending on dev_mode."""
@@ -125,33 +127,40 @@ class Entity(pg.sprite.Sprite):
                     self.rect.bottom = block.top + (self.rect.height - rect.bottom)
                 if pos[1] < 0:
                     self.rect.top = block.bottom - rect.top
-    def move(self, controller=None):
-        """moving entity. also animate while still moving."""
-        keys = pg.key.get_pressed()
-        moving = False
-        speed = self.speed
-        # shift key is pressed
-        if pg.key.get_mods() & pg.KMOD_SHIFT:
-            speed = int(self.speed * 1.5)
-        # moving and correct facing direction
-        if keys[pg.K_a] or (controller and controller.sticks[0]["left"]):
-            self.__moveSingleAxis((-speed, 0), self.knownblocks)
-            self.facing = "left"
-            moving = True
-        if keys[pg.K_d] or (controller and controller.sticks[0]["right"]):
-            self.__moveSingleAxis((speed, 0), self.knownblocks)
-            self.facing = "right"
-            moving = True
-        if keys[pg.K_w] or (controller and controller.sticks[0]["up"]):
-            self.__moveSingleAxis((0, -speed), self.knownblocks)
-            self.facing = "up"
-            moving = True
-        if keys[pg.K_s] or (controller and controller.sticks[0]["down"]):
-            self.__moveSingleAxis((0, speed), self.knownblocks)
-            self.facing = "down"
-            moving = True
-        # walking cycle animation
-        if moving:
+    def move(self, axis):
+        """."""
+        x, y = axis
+        self.moving = False
+
+        if x != 0:
+            # left
+            if x < 0:
+                self.__moveSingleAxis((-self.speed, 0), self.knownblocks)
+                self.facing = "left"
+            # right
+            elif x > 0:
+                self.__moveSingleAxis((self.speed, 0), self.knownblocks)
+                self.facing = "right"
+            self.moving = True
+        if y != 0:
+            # up
+            if y < 0:
+                self.__moveSingleAxis((0, -self.speed), self.knownblocks)
+                self.facing = "up"
+            # down
+            elif y > 0:
+                self.__moveSingleAxis((0, self.speed), self.knownblocks)
+                self.facing = "down"
+            self.moving = True
+    def position(self, pos=(0, 0)):
+        """reposition of the entity sprite. updates the rect."""
+        if type(pos) is pg.Rect:
+            self.rect.topleft = pos.topleft
+        elif type(pos) is tuple:
+            self.rect.topleft = pos
+    def update(self):
+        """calling this with each game loop end."""
+        if self.moving:# walking cycle animation
             if self.facing == "down":
                 name = "walkdown"
             elif self.facing == "left":
@@ -163,8 +172,7 @@ class Entity(pg.sprite.Sprite):
 
             self.image = self.animations[name].image
             self.animations[name].update()
-        # idle facing direction
-        else:
+        else:# idle facing image
             if self.facing == "down":
                 self.image = self.frames[0]
             elif self.facing == "left":
@@ -173,12 +181,8 @@ class Entity(pg.sprite.Sprite):
                 self.image = self.frames[2]
             elif self.facing == "right":
                 self.image = self.frames[3]
-    def position(self, pos=(0, 0)):
-        """reposition of the entity sprite. updates the rect."""
-        if type(pos) is pg.Rect:
-            self.rect.topleft = pos.topleft
-        elif type(pos) is tuple:
-            self.rect.topleft = pos
+        # resetting this so the idle-image can jump in after releasing a key
+        self.moving = False
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
