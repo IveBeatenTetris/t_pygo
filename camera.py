@@ -1,25 +1,23 @@
 from .utils import (
     validateDict,
-    draw,
     getAnchors
 )
 import pygame as pg
 
-class Camera(pg.Surface):
+class Camera(pg.Rect):
     """
-    the camera is used for correctly draw everything to the window screen.
-    one should use the camera as position agrument to draw a map, layer or
-    just everything that's static and not really moving.
+    update the camera with each tick. if the camera tracks a target its
+    coordinates are beeing recalculated here. call it with every game-loop.
     """
-    # default values
     default = {
-        "size": (320, 240),
+        "size": (640, 480),
+        "position": (0, 0),
         "tracking": None,
-        "zoomfactor": 1
+        "zoom": 1
     }
     def __init__(self, config={}):
         """
-        'config' validated config file to feed the camera with.
+        'config' validated dict of properties to feed the camera with.
         'tracking' possible tracking of an entity. the camera then recalculates
             its position in the 'update()'-method.
         'zoomfactor' right now is only a placeholder for upcoming changes.
@@ -28,22 +26,15 @@ class Camera(pg.Surface):
         """
         # comparing the defaults to the given one and create a new verified one
         self.config = validateDict(config, self.default)# dict
+        # initiating rect
+        pg.Rect.__init__(self, self.config["position"], self.config["size"])
         # additional attributes
-        self.tracking = self.config["tracking"]# none / entity / pygame.srpite
-        self.zoomfactor = self.config["zoomfactor"]# int
-        # initiating surface
-        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        self.tracking = self.config["tracking"]# none / entity
+        self.zoomfactor = self.config["zoom"]# int
         # sizing
-        self.rect = self.get_rect()# pygame.rect
-        self.anchors = getAnchors(self.rect.size)# dict
-    def draw(self, object, position=(0,0)):
-        """drawing something to the camera surface."""
-        draw(object, self, position)
+        self.anchors = getAnchors(self.size)# dict
     def update(self):
-        """
-        update the camera with each tick. if the camera tracks a target its
-        coordinates are beeing recalculated here. call it with every game-loop.
-        """
+        """."""
         if self.tracking:
-            self.rect.left = -(self.tracking.rect.center[0] - int(self.rect.width / 2))
-            self.rect.top = -(self.tracking.rect.center[1] - int(self.rect.height / 2))
+            self.left = -(self.tracking.rect.center[0] - int(self.width / 2))
+            self.top = -(self.tracking.rect.center[1] - int(self.height / 2))
