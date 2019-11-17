@@ -32,6 +32,7 @@ class Window:
         '_events' with each game-loop this list will become the new
             pygame.events.
         'display' holds the actual pygame window.
+        'size' window size in a tuple for short reference.
         """
         pg.init()
         self.config = validateDict(config, self.default)# dict
@@ -50,6 +51,7 @@ class Window:
             self.config["size"],
             resizable = self.config["resizable"]
         )
+        self.size = self.config["size"]# tuple
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
     # game routines
@@ -78,6 +80,7 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
+        self.size = size
     # event related methodes
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
