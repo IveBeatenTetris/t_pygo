@@ -127,6 +127,31 @@ class Entity(pg.sprite.Sprite):
                     self.rect.bottom = block.top + (self.rect.height - rect.bottom)
                 if pos[1] < 0:
                     self.rect.top = block.bottom - rect.top
+    def update(self):
+        """calling this with each game loop end."""
+        if self.moving:# walking cycle animation
+            if self.facing == "down":
+                name = "walkdown"
+            elif self.facing == "left":
+                name = "walkleft"
+            elif self.facing == "up":
+                name = "walkup"
+            elif self.facing == "right":
+                name = "walkright"
+
+            self.image = self.animations[name].image
+            self.animations[name].update()
+        else:# idle facing image
+            if self.facing == "down":
+                self.image = self.frames[0]
+            elif self.facing == "left":
+                self.image = self.frames[1]
+            elif self.facing == "up":
+                self.image = self.frames[2]
+            elif self.facing == "right":
+                self.image = self.frames[3]
+        # resetting this so the idle-image can jump in after releasing a key
+        self.moving = False
     def move(self, axis):
         """."""
         x, y = axis
@@ -158,31 +183,6 @@ class Entity(pg.sprite.Sprite):
             self.rect.topleft = pos.topleft
         elif type(pos) is tuple:
             self.rect.topleft = pos
-    def update(self):
-        """calling this with each game loop end."""
-        if self.moving:# walking cycle animation
-            if self.facing == "down":
-                name = "walkdown"
-            elif self.facing == "left":
-                name = "walkleft"
-            elif self.facing == "up":
-                name = "walkup"
-            elif self.facing == "right":
-                name = "walkright"
-
-            self.image = self.animations[name].image
-            self.animations[name].update()
-        else:# idle facing image
-            if self.facing == "down":
-                self.image = self.frames[0]
-            elif self.facing == "left":
-                self.image = self.frames[1]
-            elif self.facing == "up":
-                self.image = self.frames[2]
-            elif self.facing == "right":
-                self.image = self.frames[3]
-        # resetting this so the idle-image can jump in after releasing a key
-        self.moving = False
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
