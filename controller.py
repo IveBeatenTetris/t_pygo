@@ -10,41 +10,41 @@ class Controller(object):
         try:
             self.joystick = pg.joystick.Joystick(0)
             self.joystick.init()
-            self.events = []# list > pygame.events
-            self.buttons = {
-                "select": False,
-                "start": False,
-                "lb": False,
-                "lt": False,
-                "rb": False,
-                "rt": False,
-                "a": False,
-                "x": False,
-                "b": False,
-                "y": False,
-                "dup": False,
-                "ddown": False,
-                "dleft": False,
-                "dright": False,
-                "l3": False,
-                "r3": False
-            }
-            self.sticks = [
-                {
-                    "up": False,
-                    "down": False,
-                    "left": False,
-                    "right": False
-                },
-                {
-                    "up": False,
-                    "down": False,
-                    "left": False,
-                    "right": False
-                }
-            ]
         except pg.error:
             self.joystick = None
+        self.events = []# list > pygame.events
+        self.buttons = {
+            "select": False,
+            "start": False,
+            "lb": False,
+            "lt": False,
+            "rb": False,
+            "rt": False,
+            "a": False,
+            "x": False,
+            "b": False,
+            "y": False,
+            "dup": False,
+            "ddown": False,
+            "dleft": False,
+            "dright": False,
+            "l3": False,
+            "r3": False
+        }
+        self.sticks = [
+            {
+                "up": False,
+                "down": False,
+                "left": False,
+                "right": False
+            },
+            {
+                "up": False,
+                "down": False,
+                "left": False,
+                "right": False
+            }
+        ]
     def update(self, events):
         """
         updating events with each game loop. 'window'-class is calling this so
