@@ -129,7 +129,8 @@ class Entity(pg.sprite.Sprite):
                     self.rect.top = block.bottom - rect.top
     def update(self):
         """calling this with each game loop end."""
-        if self.moving:# walking cycle animation
+        # walking cycle animation
+        if self.moving:
             if self.facing == "down":
                 name = "walkdown"
             elif self.facing == "left":
@@ -141,7 +142,8 @@ class Entity(pg.sprite.Sprite):
 
             self.image = self.animations[name].image
             self.animations[name].update()
-        else:# idle facing image
+        # idle facing image
+        else:
             if self.facing == "down":
                 self.image = self.frames[0]
             elif self.facing == "left":
@@ -196,6 +198,13 @@ class Animation(pg.sprite.Sprite):
         "sequence": [4, 5, 6, 7],
         "duration": entity.animationspeed
         })
+    'config' validated dict for feeding this class.
+    'sequence'
+    'frames' a list of images.
+    'pointer' points to the active frame.
+    'framecount' count of frames as integer.
+    'timer'
+    'timemod'
     """
     default = {
         "frames": [],
@@ -205,12 +214,13 @@ class Animation(pg.sprite.Sprite):
     def __init__(self, config={}):
         """."""
         self.config = validateDict(config, self.default)# dict
+        # initiating sprite
+        pg.sprite.Sprite.__init__(self)# pygame.sprite
         self.sequence = self.config["sequence"]# tuple / list
         self.duration = self.config["duration"]# int
         self.frames = self.config["frames"][# list
             self.sequence[0]: self.sequence[-1] + 1
         ]
-        pg.sprite.Sprite.__init__(self)# pygame.sprite
         self.pointer = 0# int
         self.image = self.frames[self.pointer]# pygame.surface
         self.framecount = len(self.frames)# int
@@ -237,3 +247,8 @@ class Animation(pg.sprite.Sprite):
             self.pointer = 0
 
         self.image = self.frames[self.pointer]
+    def setDuration(self, duration):
+        """update duration of animation."""
+        self.duration = duration
+        self.timer = self.duration + 1
+        self.timemod = int(self.timer / self.framecount)
