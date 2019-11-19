@@ -69,13 +69,23 @@ class Button(pg.sprite.Sprite):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
+    def hover(self, events):
+        """return 'true' if the mouse hovers the button."""
+        mouse = pg.mouse.get_pos()
+        hover = False
+
+        for event in events:
+            if self.rect.collidepoint(mouse):
+                hover = True
+
+        return hover
     def leftClick(self, events):
-        """'events' must be list of pygame.events."""
+        """returns 'true' if button is left-clicked."""
         mouse = pg.mouse.get_pos()
         click = False
 
         for event in events:
-            if self.rect.collidepoint(mouse):
+            if self.hover(events):
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     click = True
 
