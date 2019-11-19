@@ -32,6 +32,8 @@ class Window:
         '_events' with each game-loop this list will become the new
             pygame.events.
         'display' holds the actual pygame window.
+        'screenshot' this surface can be used to simulate frozen screens like
+            in menus.
         'size' window size in a tuple for short reference.
         """
         pg.init()
@@ -51,6 +53,7 @@ class Window:
             self.config["size"],
             resizable = self.config["resizable"]
         )
+        self.screenshot = self.display.copy()# pygame.surface
         self.size = self.config["size"]# tuple
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
@@ -70,6 +73,8 @@ class Window:
             self.paused = False
         else:
             self.paused = True
+            # create a screenshot
+            self.screenshot = self.display.copy()
     # display stuff
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
@@ -85,7 +90,7 @@ class Window:
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
         events = []
-
+        # keyboard and mouse events
         for event in pg.event.get():
             # quit application
             if event.type is pg.QUIT:
@@ -94,11 +99,10 @@ class Window:
             if event.type is pg.VIDEORESIZE:
                 self.resize(event.size)
             # going fullscreen
-            if event.type is pg.KEYDOWN and event.key == pg.K_F12:
+            if event.type is pg.KEYDOWN and event.key is pg.K_F12:
                 pass
             # finalizing event list
             events.append(event)
-
         # applying these events to the window-event list
         self._events = events
         # updating controller element if there is one
