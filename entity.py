@@ -185,6 +185,10 @@ class Entity(pg.sprite.Sprite):
             self.rect.topleft = pos.topleft
         elif type(pos) is tuple:
             self.rect.topleft = pos
+    def setAnimationSpeed(self, speed):
+        """call animations to update their animation speed (duration)."""
+        for anim in self.animations:
+            self.animations[anim].setDuration(speed)
 class Player(Entity):
     """representing a playable character."""
     def __init__(self, name):
