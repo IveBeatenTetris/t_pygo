@@ -47,8 +47,8 @@ class Text(pg.sprite.Sprite):
 	def __create(self):
 		"""
 		recreate the image-surface of the text. this is necessary since the
-		pygame.font only creates images instead of an interactive
-		text-objective.
+		pygame.font only creates images instead of an interactive text-objects.
+		usually the text-object doesnt have to be recreated anyways.
 		"""
 		self.image = self.font.render(self.text, self.antialias, self.color)
 		self.rect = self.image.get_rect()
