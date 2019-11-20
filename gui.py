@@ -85,34 +85,6 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
-class Grid(pg.Surface):
-    """a grid layout to place gui elements on it."""
-
-    default = {
-        "size": (320, 240),
-        "rows": 3,
-        "cells": 3
-    }
-    def __init__(self, config={}):
-        """
-        'rows' count of rows on the grid.
-        'cells' count of cells on the grid.
-        """
-        # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
-        # initiating surface object
-        pg.Surface.__init__(self, self.config["size"])
-        self.rect = self.get_rect()# pygame.rect
-        # additional attributes
-        self.rows = self.config["rows"]# int
-        self.cells = self.config["cells"]# int
-        # creating the visual surface
-        self.__build()
-    def __build(self):
-        """building the surface."""
-        for row in range(self.rows):
-            for cell in range(self.cells):
-                print("cell", cell + 1, "row", row + 1)
 class Overlay(pg.Surface):
     """
     for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
