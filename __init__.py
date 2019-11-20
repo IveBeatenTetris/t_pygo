@@ -7,7 +7,8 @@ from .map import Tileset, Map
 from .entity import Player
 from .camera import Camera
 from .gui import (
-    Overlay,
-    Button
+    Grid,
+    Button,
+    Overlay
 )
 from .controller import Controller
