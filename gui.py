@@ -29,6 +29,7 @@ class Button(pg.sprite.Sprite):
     default = {
         "size": (120, 40),
         "background": (0, 0, 0),
+        "hoverbackground": (20, 20, 20),
         "text": "Button",
         "textcolor": (255, 255, 255),
         "fontsize": 16,
@@ -58,8 +59,17 @@ class Button(pg.sprite.Sprite):
             "italic": self.config["italic"],
             "color": self.config["textcolor"]
         })
+        # building the sprite object
+        self.__build()
+    def __build(self):
+        """redrawing everything"""
+        # determining background
+        if self.rect.collidepoint(pg.mouse.get_pos()):
+            bg = self.config["hoverbackground"]
+        else:
+            bg = self.config["background"]
         # drawing on button
-        draw(self.config["background"], self.image)
+        draw(bg, self.image)
         # drawing text in the very center of the button
         draw(
             self.text,
@@ -77,6 +87,9 @@ class Button(pg.sprite.Sprite):
         for event in events:
             if self.rect.collidepoint(mouse):
                 hover = True
+                
+        # rebuilding the surface so the hover effect can pop in
+        self.__build()
 
         return hover
     def leftClick(self, events):
