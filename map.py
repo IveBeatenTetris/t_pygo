@@ -276,6 +276,8 @@ class EventArea(pg.Rect):
         'name' is the name of the function that is about to be called.
         'trigger' type the event will be triggered.
         'visible' can use this as a condition.
+        'state' returns the state this event is in. if 'done' it cannot be used
+            anymore. on 'ready' its waiting to get called.
         """
         self.config = config# dict
         # initiating pygame rect
@@ -285,9 +287,10 @@ class EventArea(pg.Rect):
             (config["width"], config["height"])
         )
         # additional attributes
-        self.name = config["name"]# str
+        self.name = config["name"].split("()")[0]# str
         self.trigger = ""# str
         self.visible = config["visible"]# bool
+        self.state = "ready"# str
         # if there are additional properties in the map
         if config["properties"]:
             for prop in config["properties"]:
