@@ -128,8 +128,7 @@ class Layer(pg.Surface):
     """
     representation of a 'tiled'-layer. each layer can be drawn seperately. it
     holds information about all its used tiles, its names, blocks, invisibles
-    etc.
-    can also be a 'object' layer for placing events and so on.
+    etc. can also be a 'object' layer for placing events and so on.
     """
     def __init__(self, config):
         """
@@ -137,21 +136,21 @@ class Layer(pg.Surface):
         'name' declares the layer name for comparison.
         'tilelayer':
             'config' becomes the returned value of 'createTiledMap()'. in this
-            case a dict.
+                case a dict.
             'size' recalculated map size. consider using the rect anyways.
             'blocks' all non-passable tiles on this layer.
             'player_start' this is where the player starts when placed in
             'tiled'.
         'objectgroup':
             'config' now becomes a config dict of an object layer from a tiled
-            file.
+                file.
+        'overlap' tedermine a layer that draws over entities.
         """
         self.type = config["type"]# str
         self.name = config["name"]# str
         # tile layer
         if self.type == "tilelayer":
             self.config = createTiledMap(config, config["tiles"])# dict
-            # additional attributes
             self.size = (# tuple
                 config["width"] * config["tilesize"][0],
                 config["height"] * config["tilesize"][1]
@@ -163,11 +162,15 @@ class Layer(pg.Surface):
             pg.Surface.__init__(self, self.size, pg.SRCALPHA)
             draw(self.image, self)
         # object layer
-        # object layer
         elif self.type == "objectgroup":
             self.config = config# dict
-            # additional attributes
             self.objects = self.__createObjects()# list
+        # additional attributes
+        self.overlap = False# bool
+        if "properties" in config:
+            for prop in config["properties"]:
+                if prop["name"] == "overlap":
+                    self.overlap = prop["value"]# bool
     def __createObjects(self):
         """from a config dict of a 'tiled'-map create interactive objects."""
         objects = []
