@@ -127,6 +127,14 @@ class Entity(pg.sprite.Sprite):
                     self.rect.bottom = block.top + (self.rect.height - rect.bottom)
                 if pos[1] < 0:
                     self.rect.top = block.bottom - rect.top
+    def collide(self, rect):
+        """return 'true' on collision with the object."""
+        collision = False
+
+        if self.rect.colliderect(rect):
+            collision = True
+
+        return collision
     def update(self):
         """calling this with each game loop end."""
         # walking cycle animation
