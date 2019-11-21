@@ -116,11 +116,14 @@ class Window:
     def keys(self):
         """might look for a more efficient way to check for hitten keys."""
         keys = {
+            "return": False,
             "esc": False,
             "f1": False
         }
 
         for event in self._events:
+            if event.type is pg.KEYDOWN and event.key == pg.K_RETURN:
+                keys["return"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 keys["esc"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_F1:
