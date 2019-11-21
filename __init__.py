@@ -8,6 +8,7 @@ from .entity import Player
 from .camera import Camera
 from .gui import (
     Button,
-    Overlay
+    Overlay,
+    TextBox
 )
 from .controller import Controller

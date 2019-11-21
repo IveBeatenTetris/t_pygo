@@ -103,3 +103,25 @@ class Overlay(pg.Surface):
         pg.Surface.__init__(self, self.config["size"])
         # setting opacity if there is one
         self.set_alpha(self.config["opacity"])
+class TextBox(pg.Surface):
+    """surface for displaying text."""
+    default = {
+        "type": "textbox",
+        "size": (300, 100),
+        "position": (0, 0),
+        "background": (0, 0, 0)
+    }
+    def __init__(self, config={}):
+        """
+        'type' declares if the object is gonna be build as 'textbox' or
+            'speechbubble'
+        'call' bool to check if the textbox is called or not.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.type = self.config["type"]# str
+        self.call = False# bool
+        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        self.rect = self.get_rect()# pygame.rect
+        self.rect.topleft = self.config["position"]
+        draw(self.config["background"], self)
