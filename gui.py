@@ -125,3 +125,6 @@ class TextBox(pg.Surface):
         self.rect = self.get_rect()# pygame.rect
         self.rect.topleft = self.config["position"]
         draw(self.config["background"], self)
+    def setPosition(self, pos):
+        """updating rect position."""
+        self.rect.topleft = pos
