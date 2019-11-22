@@ -3,7 +3,6 @@ from .utils import (
     validateDict,
     getAnchors
 )
-#from .text import Text
 import pygame as pg
 
 class Button(pg.sprite.Sprite):
