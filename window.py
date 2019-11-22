@@ -2,6 +2,7 @@ from .utils import (
     LIBPATH,
     validateDict,
     getDisplay,
+    getAnchors,
     draw
 )
 from .controller import Controller
@@ -34,7 +35,9 @@ class Window:
         'display' holds the actual pygame window.
         'screenshot' this surface can be used to simulate frozen screens like
             in menus.
-        'size' window size in a tuple for short reference.
+        'size' window size in a tuple for short reference only.
+        'anchors' is used for quick-pointing a part of the rect. for example:
+            draw(object, self, self.anchors["midcenter"]).
         """
         pg.init()
         self.config = validateDict(config, self.default)# dict
@@ -55,6 +58,7 @@ class Window:
         )
         self.screenshot = self.display.copy()# pygame.surface
         self.size = self.config["size"]# tuple
+        self.anchors = getAnchors(self.size)# dict
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
     # game routines
@@ -86,6 +90,7 @@ class Window:
             resizable = self.config["resizable"]
         )
         self.size = size
+        self.anchors = getAnchors(self.size)
     # event related methodes
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
