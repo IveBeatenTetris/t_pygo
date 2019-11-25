@@ -190,7 +190,7 @@ def drawBorder(surface, rect, border):# pygame surface
     drawing a border to the given surface and return it.
     syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
     example: config = (1, 'solid', (255, 255, 255)).
-    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0 ,0, 0))).
+    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0, 0, 0))).
     """
     size, line, color = border
 

@@ -2,7 +2,8 @@ from .utils import (
     draw,
     validateDict,
     getAnchors,
-    wrapText
+    wrapText,
+    drawBorder
 )
 import pygame as pg
 
@@ -211,8 +212,7 @@ class TextBox(pg.Surface):
             "bold": True,
             "italic": False,
             "color": (200, 200, 200),
-            "size": self.calculateRect().size,
-            #"size": self.rect.size,
+            "size": self.calculateRect(self.rect).size,
             "wrap": True
         })
         # drawing background
@@ -226,15 +226,14 @@ class TextBox(pg.Surface):
         else:
             pos = (0, 0)
         draw(self.text, self, pos)
-    def calculateRect(self):
+    def calculateRect(self, rect):
         """recalculating rect size based on padding and margin"""
-        rect = self.rect
         p = self.padding
 
         if p:
             if type(p) is int:
                 rect.width = rect.width - (p * 2)
-                rect.height = rect.height - (p * 2)
+                #rect.height = rect.height - (p * 2)
 
         return rect
     def setPosition(self, pos):
