@@ -184,6 +184,7 @@ class TextBox(pg.Surface):
     default = {
         "text": "Default Text",
         "type": "textbox",
+        "font": "Verdana",
         "size": (300, 100),
         "position": (0, 0),
         "background": (0, 0, 0),
@@ -209,6 +210,7 @@ class TextBox(pg.Surface):
         self.text = Text({# text object
             "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
             "fontsize": 16,
+            "font": config["font"],
             "bold": True,
             "italic": False,
             "color": (200, 200, 200),
