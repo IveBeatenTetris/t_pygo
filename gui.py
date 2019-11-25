@@ -185,7 +185,8 @@ class TextBox(pg.Surface):
         "type": "textbox",
         "size": (300, 100),
         "position": (0, 0),
-        "background": (0, 0, 0)
+        "background": (0, 0, 0),
+        "padding": None
     }
     def __init__(self, config={}):
         """
@@ -193,6 +194,7 @@ class TextBox(pg.Surface):
             'speechbubble'
         'call' bool to check if the textbox is called or not.
         'text' holds a whole text object with warpped or non-wrapped text.
+        'padding' text padding from the corners of the textbox rect.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
@@ -201,18 +203,40 @@ class TextBox(pg.Surface):
         pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
         self.rect = self.get_rect()# pygame.rect
         self.rect.topleft = self.config["position"]
-        self.text = Text({
+        # additional attributes
+        self.padding = self.config["padding"]# none / int
+        self.text = Text({# text object
             "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
             "fontsize": 16,
             "bold": True,
             "italic": False,
             "color": (200, 200, 200),
-            "size": self.rect.size,
+            "size": self.calculateRect().size,
+            #"size": self.rect.size,
             "wrap": True
         })
-        # drawing to surface
+        # drawing background
         draw(self.config["background"], self)
-        draw(self.text, self)
+        # drawing text depending on margins
+        if self.padding:
+            if type(self.padding) is int:
+                pos = (self.padding, self.padding)
+            elif type(self.padding) is list or type(self.padding) is list:
+                pos = self.padding
+        else:
+            pos = (0, 0)
+        draw(self.text, self, pos)
+    def calculateRect(self):
+        """recalculating rect size based on padding and margin"""
+        rect = self.rect
+        p = self.padding
+
+        if p:
+            if type(p) is int:
+                rect.width = rect.width - (p * 2)
+                rect.height = rect.height - (p * 2)
+
+        return rect
     def setPosition(self, pos):
         """updating rect position."""
         self.rect.topleft = pos
