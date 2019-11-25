@@ -184,7 +184,8 @@ class TextBox(pg.Surface):
     default = {
         "text": "Default Text",
         "type": "textbox",
-        "font": "Verdana",
+        "font": "verdana",
+        "fontsize": 16,
         "size": (300, 100),
         "position": (0, 0),
         "background": (0, 0, 0),
@@ -195,8 +196,8 @@ class TextBox(pg.Surface):
         'type' declares if the object is gonna be build as 'textbox' or
             'speechbubble'
         'call' bool to check if the textbox is called or not.
-        'text' holds a whole text object with warpped or non-wrapped text.
         'padding' text padding from the corners of the textbox rect.
+        'text' holds a whole text object with warpped or non-wrapped text.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
@@ -209,8 +210,8 @@ class TextBox(pg.Surface):
         self.padding = self.config["padding"]# none / int
         self.text = Text({# text object
             "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
-            "fontsize": 16,
-            "font": config["font"],
+            "fontsize": self.config["fontsize"],
+            "font": self.config["font"],
             "bold": True,
             "italic": False,
             "color": (200, 200, 200),
