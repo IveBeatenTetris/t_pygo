@@ -218,6 +218,9 @@ class TextBox(pg.Surface):
             "size": self.calculateRect(self.rect).size,
             "wrap": True
         })
+        self.__build()
+    def __build(self):
+        """composing surface."""
         # drawing background
         draw(self.config["background"], self)
         # drawing text depending on margins
