@@ -1,7 +1,8 @@
 from .utils import (
     draw,
     validateDict,
-    getAnchors
+    getAnchors,
+    wrapText
 )
 import pygame as pg
 
@@ -103,64 +104,84 @@ class Overlay(pg.Surface):
         # setting opacity if there is one
         self.set_alpha(self.config["opacity"])
 class Text(pg.sprite.Sprite):
-	"""text surface. ready to be drawn."""
-	default = {
-		"font": "Verdana",
-		"fontsize": 16,
-		"color": (0, 0, 0),
-		"text": "No Text",
-		"antialias": True,
-		"bold": False,
-		"italic": False
-	}
-	def __init__(self, config={}):
-		"""
-		creates a text that can be drawn to any surface.
-		first validates the config dict by camparing it with its default values.
-		validateDict() is going to do that for you.
-		'fontsize' its in the name.
-		'color' should be tuple by 3 like (50, 110, 95).
-		'text' only one-liners right now.
-		'antialias' if 'false' the font will appear pixelated.
-		'font' creates a new pygame.font from an installed system font.
-		"""
-		# comparing both dicts and creating a new one from it
-		self.config = validateDict(config, self.default)# dict
-		# initiating
-		pg.sprite.Sprite.__init__(self)
-		pg.font.init()
-		# additional attributes
-		self.fontsize = self.config["fontsize"]# int
-		self.color = self.config["color"]# tuple
-		self.text = self.config["text"]# str
-		self.antialias = self.config["antialias"]# bool
-		self.font = pg.font.SysFont(# pygame.font
-			self.config["font"],
-			self.fontsize
-		)
-		self.font.set_bold(self.config["bold"])
-		self.font.set_italic(self.config["italic"])
-		# image and rect are going to be created there
-		self.__create()
-	def __create(self):
-		"""
-		recreate the image-surface of the text. this is necessary since the
-		pygame.font only creates images instead of an interactive text-objects.
-		usually the text-object doesnt have to be recreated anyways.
-		"""
-		self.image = self.font.render(self.text, self.antialias, self.color)
-		self.rect = self.image.get_rect()
-	def update(self, cfg):
-		"""updates attributes with the given parameters. 'cfg' must be dict."""
-		try:
-			self.text = cfg["text"]
-		except KeyError:
-			pass
+    """text surface. ready to be drawn."""
+    default = {
+    	"font": "Verdana",
+    	"fontsize": 16,
+    	"color": (0, 0, 0),
+    	"text": "No Text",
+    	"antialias": True,
+    	"bold": False,
+    	"italic": False,
+        "size": (100, 100),
+        "wrap": False
+    }
+    def __init__(self, config={}):
+        """
+        creates a text that can be drawn to any surface.
+        first validates the config dict by camparing it with its default values.
+            validateDict() is going to do that for you.
+        'fontsize' its in the name.
+        'color' should be tuple by 3 like (50, 110, 95).
+        'text' only one-liners right now.
+        'antialias' if 'false' the font will appear pixelated.
+        'font' creates a new pygame.font from an installed system font.
+        'wrap' if 'true' then call a function to wrap the text into a given
+            rect.
+        'size' tuple of 2 ints. only for reference purpose.
+        """
+        # comparing both dicts and creating a new one from it
+        self.config = validateDict(config, self.default)# dict
+        # initiating
+        pg.sprite.Sprite.__init__(self)
+        pg.font.init()
+        # additional attributes
+        self.fontsize = self.config["fontsize"]# int
+        self.color = self.config["color"]# tuple
+        self.text = self.config["text"]# str
+        self.antialias = self.config["antialias"]# bool
+        self.font = pg.font.SysFont(# pygame.font
+        	self.config["font"],
+        	self.fontsize
+        )
+        self.font.set_bold(self.config["bold"])
+        self.font.set_italic(self.config["italic"])
+        self.wrap = self.config["wrap"]# bool
+        self.size = self.config["size"]# tuple
+        # image and rect are going to be created there
+        self.__create()
+    def __create(self):
+        """
+        recreate the image-surface of the text. this is necessary since the
+        pygame.font only creates images instead of interactive text-objects.
+        usually the text-object doesnt have to be recreated anyways.
+        """
+        if self.wrap:
+            self.image = wrapText(
+                self.text,
+                self.color,
+                pg.Rect((0, 0), self.size),
+                self.font,
+                aa = True
+            )
+        else:
+            self.image = self.font.render(self.text, self.antialias, self.color)
+        self.rect = self.image.get_rect()
+    def update(self, cfg={}):
+    	"""
+        updates attributes with the given parameters. 'cfg' must be dict.
+        recreates text surface at the end.
+        """
+    	try:
+    		self.text = cfg["text"]
+    	except KeyError:
+    		pass
 
-		self.__create()
+    	self.__create()
 class TextBox(pg.Surface):
     """surface for displaying text."""
     default = {
+        "text": "Default Text",
         "type": "textbox",
         "size": (300, 100),
         "position": (0, 0),
@@ -171,6 +192,7 @@ class TextBox(pg.Surface):
         'type' declares if the object is gonna be build as 'textbox' or
             'speechbubble'
         'call' bool to check if the textbox is called or not.
+        'text' holds a whole text object with warpped or non-wrapped text.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
@@ -179,13 +201,16 @@ class TextBox(pg.Surface):
         pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
         self.rect = self.get_rect()# pygame.rect
         self.rect.topleft = self.config["position"]
-        self.text = Text({# text object
+        self.text = Text({
             "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
             "fontsize": 16,
             "bold": True,
             "italic": False,
-            "color": (200, 200, 200)
+            "color": (200, 200, 200),
+            "size": self.rect.size,
+            "wrap": True
         })
+        # drawing to surface
         draw(self.config["background"], self)
         draw(self.text, self)
     def setPosition(self, pos):
