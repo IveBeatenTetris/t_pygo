@@ -279,11 +279,15 @@ def getFrames(image, framesize):# list
     return frames
 def scale(surface, factor):# pygame.surface
     """
-    scaling a surface by an int-factor.
-    'factor' must be an integer.
+    scaling a surface by afactor.
+    'factor' must be an integer tuple or a list.
     usage: surf = scale(display, 2).
+        surf = scale(display, (100, 50))
     """
-    size = [each * factor for each in surface.get_rect().size]
+    if type(factor) is int:
+        size = [each * factor for each in surface.get_rect().size]
+    elif type(factor) is tuple or type(factor) is list:
+        size = factor
 
     return pg.transform.scale(surface, size)
 def wrapText(text, color, rect, font, aa=False, bkg=None):# pygame.surface
