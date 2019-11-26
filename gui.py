@@ -163,7 +163,7 @@ class Text(pg.sprite.Sprite):
                 self.color,
                 pg.Rect((0, 0), self.size),
                 self.font,
-                aa = True
+                aa = self.antialias
             )
         else:
             self.image = self.font.render(self.text, self.antialias, self.color)
@@ -188,6 +188,9 @@ class TextBox(pg.Surface):
         "fontsize": 16,
         "size": (300, 100),
         "position": (0, 0),
+        "bold": False,
+        "italic": False,
+        "wrap": True,
         "color": (255, 255, 255),
         "background": (0, 0, 0),
         "padding": None
@@ -213,11 +216,11 @@ class TextBox(pg.Surface):
             "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
             "fontsize": self.config["fontsize"],
             "font": self.config["font"],
-            "bold": True,
-            "italic": False,
+            "bold": self.config["bold"],
+            "italic": self.config["italic"],
             "color": self.config["color"],
             "size": self.calculateRect(self.rect).size,
-            "wrap": True
+            "wrap": self.config["wrap"]
         })
         self.__build()
     def __build(self):
