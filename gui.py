@@ -1,10 +1,13 @@
 from .utils import (
+    LIBPATH,
     draw,
     validateDict,
     getAnchors,
     wrapText,
-    drawBorder
+    drawBorder,
+    scale
 )
+from .camera import Camera
 import pygame as pg
 
 class Button(pg.sprite.Sprite):
@@ -86,6 +89,41 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
+class MiniMap(pg.Surface):
+    """display a miniature version of an area around the players position."""
+    default = {
+        "map": None,
+        "size": (100, 75)
+    }
+    def __init__(self, config={}):
+        """."""
+        # comparing dicts and creating a new one
+        self.config = validateDict(config, self.default)# dict
+        # initiating surface
+        pg.Surface.__init__(self, self.config["size"])
+        # determining map image
+        if self.config["map"]:# pygame.surface
+            img = self.config["map"].preview
+        else:
+            img = pg.image.load(LIBPATH["noimage"])
+        self.image = img
+        self.rect = pg.Rect((0, 0), self.config["size"])# pygame.rect
+        #draw(self.image, self)
+        draw((0, 0, 0), self)
+    def update(self, screenshot):
+        """updates this class with each game loop."""
+        # if not none
+        if screenshot:
+            # scaling screenshot
+            img = scale(
+                screenshot,
+                (
+                    int(screenshot.get_rect().width / 3),
+                    int(screenshot.get_rect().height / 3)
+                )
+            )
+            #draw((0, 0, 0), self)
+            draw(img, self, "center")
 class Overlay(pg.Surface):
     """
     for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
