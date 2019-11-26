@@ -188,6 +188,7 @@ class TextBox(pg.Surface):
         "fontsize": 16,
         "size": (300, 100),
         "position": (0, 0),
+        "color": (255, 255, 255),
         "background": (0, 0, 0),
         "padding": None
     }
@@ -214,7 +215,7 @@ class TextBox(pg.Surface):
             "font": self.config["font"],
             "bold": True,
             "italic": False,
-            "color": (200, 200, 200),
+            "color": self.config["color"],
             "size": self.calculateRect(self.rect).size,
             "wrap": True
         })
