@@ -34,7 +34,7 @@ class Window:
             pygame.events.
         'display' holds the actual pygame window.
         'screenshot' this surface can be used to simulate frozen screens like
-            in menus.
+            in menus. its refreshed by calling 'self.screenShot()'
         'size' window size in a tuple for short reference only.
         'anchors' is used for quick-pointing a part of the rect. for example:
             draw(object, self, self.anchors["midcenter"]).
@@ -56,7 +56,7 @@ class Window:
             self.config["size"],
             resizable = self.config["resizable"]
         )
-        self.screenshot = self.display.copy()# pygame.surface
+        self.screenshot = None# none / pygame.surface
         self.size = self.config["size"]# tuple
         self.anchors = getAnchors(self.size)# dict
         self.changeTitle(self.config["title"])
@@ -91,6 +91,9 @@ class Window:
         )
         self.size = size
         self.anchors = getAnchors(self.size)
+    def screenShot(self):
+        """creates a copy of the all displayed things and save it."""
+        self.screenshot = self.display.copy()
     # event related methodes
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
