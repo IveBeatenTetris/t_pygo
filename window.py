@@ -123,6 +123,7 @@ class Window:
         keys = {
             "return": False,
             "esc": False,
+            "e": False,
             "f1": False
         }
 
@@ -133,6 +134,8 @@ class Window:
                 keys["esc"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_F1:
                 keys["f1"] = True
+            if event.type is pg.KEYDOWN and event.key == pg.K_e:
+                keys["e"] = True
 
         return keys
     def mouseWheel(self):
