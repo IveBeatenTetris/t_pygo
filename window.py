@@ -91,9 +91,12 @@ class Window:
         )
         self.size = size
         self.anchors = getAnchors(self.size)
-    def screenShot(self):
+    def screenShot(self, surface=None):
         """creates a copy of the all displayed things and save it."""
-        self.screenshot = self.display.copy()
+        if surface:
+            self.screenshot = surface.copy()
+        else:
+            self.screenshot = self.display.copy()
     # event related methodes
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
