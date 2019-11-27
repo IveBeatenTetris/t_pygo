@@ -319,42 +319,42 @@ class Interface(pg.Surface):
         panels = []
 
         if "panels" in self.config:
-            for k, v in self.config["panels"].items():
-                v.update({
-                    "name": k,
+            p = self.config["panels"]
+            if "money" in p:
+                p["money"].update({
+                    "name": "money",
                     "image": self.image
                 })
-                panels.append(Panel(v))
+                panels.append(MoneyPanel(p["money"]))
 
         return panels
     def update(self):
         """calling this method with each game loop."""
         pass
-class Panel(pg.Surface):
-    """small part of an interface."""
+# interface panels
+class MoneyPanel(pg.Surface):
+    """displays money in the interface."""
+    default = {
+        "rect": [0, 0, 0, 0],
+        "imagerect": [0, 0, 0, 0],
+        "image": pg.image.load(LIBPATH["noimage"])
+    }
     def __init__(self, config={}):
         """
         this panel acts as a surface ready to been drawn to another surface.
+        'imagerect' needed to draw the correct position of the icon set to the
+            icon.
+        'icon' surface for drawing the icon surface.
         """
-        rect = pg.Rect(0, 0, 0, 0)
-        imagerect = pg.Rect(0, 0, 0, 0)
-        icon = pg.Surface(rect.size)
-        name = "No Name"
-        # updating variables
-        for k, v in config.items():
-            if k == "name":
-                name = v
-            if k == "rect":
-                rect = pg.Rect(v)
-            if k == "imagerect":
-                imagerect = pg.Rect(v)
-            if k == "image":
-                icon = pg.Surface(imagerect.size, pg.SRCALPHA)
-                draw(v, icon)
-        # creating attributes
-        self.name = name# str
-        self.rect = rect# pygame.surface
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        self.imagerect = pg.Rect(self.config["imagerect"])# pygame.rect
+        self.image = self.config["image"]# pygame.surface
+        self.icon = pg.Surface(self.imagerect.size, pg.SRCALPHA)# pygame.surface
         # initiating surface
-        pg.Surface.__init__(self, rect.size, pg.SRCALPHA)
-        # drawing icon
-        draw(icon, self)
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing on icon
+        draw(self.image, self.icon, self.imagerect)
+        # drawing icon to panel
+        draw(self.icon, self)
