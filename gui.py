@@ -1,7 +1,9 @@
 from .utils import (
+    PATH,
     LIBPATH,
     draw,
     validateDict,
+    loadAssets,
     getAnchors,
     wrapText,
     drawBorder,
@@ -287,3 +289,66 @@ class TextBox(pg.Surface):
     def setPosition(self, pos):
         """updating rect position."""
         self.rect.topleft = pos
+class Interface(pg.Surface):
+    """surface for displaying multiple gui panels."""
+    def __init__(self, name, size=(320, 240)):
+        """
+        generates multiple gui panels and drawing them to its surface.
+        'config' dict from json-file with additional properties.
+        'name' name of the panel.
+        'panels': a list of panel objects ready to been drawn to screen.
+        """
+        # combine path + name to get the asset by its tail
+        for each in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if each["type"] == "interface":
+                self.config = each
+        self.name = self.config["name"]# str
+        self.path = self.config["filepath"]# str
+        self.image = pg.image.load(# pygame.surface
+            self.path + "\\" + self.config["image"]
+        )
+        # initiating surface
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect = self.get_rect()# pygame.rect
+        self.panels = self.__createPanels()# list
+        # drawing panels to interface
+        for panel in self.panels:
+            draw(panel, self, panel.rect)
+    def __createPanels(self):
+        """."""
+        panels = []
+
+        if "panels" in self.config:
+            for k, v in self.config["panels"].items():
+                v.update({
+                    "name": k,
+                    "image": self.image
+                })
+                panels.append(Panel(v))
+
+        return panels
+class Panel(pg.Surface):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        # initiating surface
+        #self.name = config["name"]# str
+        rect = pg.Rect(0, 0, 0, 0)
+        imagerect = pg.Rect(0, 0, 0, 0)
+        icon = pg.Surface(rect.size)
+        name = "No Panel"
+
+        for k, v in config.items():
+            if k == "name":
+                name = v
+            if k == "rect":
+                rect = pg.Rect(v)
+            if k == "imagerect":
+                imagerect = pg.Rect(v)
+            if k == "image":
+                icon = pg.Surface(imagerect.size)
+                draw(v, icon)
+
+        pg.Surface.__init__(self, rect.size)
+        self.rect = rect# pygame.surface
+        draw(icon, self)

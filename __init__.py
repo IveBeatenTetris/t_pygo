@@ -10,6 +10,7 @@ from .gui import (
     MiniMap,
     Overlay,
     Text,
-    TextBox
+    TextBox,
+    Interface
 )
 from .controller import Controller
