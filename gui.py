@@ -328,9 +328,6 @@ class Interface(pg.Surface):
                 panels.append(MoneyPanel(p["money"]))
 
         return panels
-    def update(self):
-        """calling this method with each game loop."""
-        pass
 # interface panels
 class MoneyPanel(pg.Surface):
     """displays money in the interface."""
