@@ -346,12 +346,12 @@ class Panel(pg.Surface):
             if k == "imagerect":
                 imagerect = pg.Rect(v)
             if k == "image":
-                icon = pg.Surface(imagerect.size)
+                icon = pg.Surface(imagerect.size, pg.SRCALPHA)
                 draw(v, icon)
         # creating attributes
         self.name = name# str
         self.rect = rect# pygame.surface
         # initiating surface
-        pg.Surface.__init__(self, rect.size)
+        pg.Surface.__init__(self, rect.size, pg.SRCALPHA)
         # drawing icon
         draw(icon, self)
