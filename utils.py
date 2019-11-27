@@ -11,7 +11,8 @@ PATH = {
     "images": os.getcwd() + "\\assets\\images",
     "maps": os.getcwd() + "\\assets\\maps",
     "tilesets": os.getcwd() + "\\assets\\tilesets",
-    "entities": os.getcwd() + "\\assets\\entities"
+    "entities": os.getcwd() + "\\assets\\entities",
+    "interface": os.getcwd() + "\\assets\\interface"
 }
 LIBPATH = {
     "noimage": PATH["sysimg"] + "\\noimage.png",
