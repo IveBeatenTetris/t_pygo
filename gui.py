@@ -327,6 +327,9 @@ class Interface(pg.Surface):
                 panels.append(Panel(v))
 
         return panels
+    def update(self):
+        """calling this method with each game loop."""
+        pass
 class Panel(pg.Surface):
     """small part of an interface."""
     def __init__(self, config={}):
