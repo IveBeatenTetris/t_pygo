@@ -342,7 +342,8 @@ class MoneyPanel(pg.Surface):
     default = {
         "rect": [0, 0, 0, 0],
         "imagerect": [0, 0, 0, 0],
-        "image": pg.image.load(LIBPATH["noimage"])
+        "image": pg.image.load(LIBPATH["noimage"]),
+        "background": None
     }
     def __init__(self, config={}):
         """
@@ -357,11 +358,18 @@ class MoneyPanel(pg.Surface):
         self.imagerect = pg.Rect(self.config["imagerect"])# pygame.rect
         self.image = self.config["image"]# pygame.surface
         self.icon = pg.Surface(self.imagerect.size, pg.SRCALPHA)# pygame.surface
+        self.background = self.config["background"]# none / tuple
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         self.__build()
     def __build(self):
         """building the surface object."""
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        if self.background:
+            # filling surface
+            draw(tuple(self.background), self)
+        else:
+            # reinitiating surface
+            pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # drawing on icon
         draw(self.image, self.icon, self.imagerect)
         # drawing icon to panel
