@@ -315,20 +315,21 @@ class Interface(pg.Surface):
         self.__build()
     def __build(self):
         """building panels."""
-        for name, panel in self.panels.items():
+        for panel in self.panels:
             pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
             draw(panel, self, panel.rect)
     def __createPanels(self):
         """creating panels and append them to a returning dict."""
-        panels = {}
+        panels = []
+        name = "NoNamePanel"
 
         if "panels" in self.config:
-            for k, v in self.config["panels"].items():
-                v.update({
-                    "name": k,
-                    "image": self.image
-                })
-                panels.update({"money": Panel(v)})
+            for p in self.config["panels"]:
+                # updating properties with 'image' and 'name'
+                p.update({"image": self.image})
+                if "name" in p:
+                    name = p["name"]
+                panels.append(Panel(p))
 
         return panels
     def update(self):
@@ -338,6 +339,7 @@ class Interface(pg.Surface):
 class Panel(pg.Surface):
     """displays a panel in the interface."""
     default = {
+        "name": "No Panel Name",
         "rect": [0, 0, 0, 0],
         "imagerect": [0, 0, 0, 0],
         "image": pg.image.load(LIBPATH["noimage"]),
@@ -346,6 +348,7 @@ class Panel(pg.Surface):
     def __init__(self, config={}):
         """
         this panel acts as a surface ready to been drawn to another surface.
+        'name' used to identify specific panels.
         'imagerect' needed to draw the correct position of the icon set to the
             icon.
         'icon' surface for drawing the icon surface.
@@ -353,6 +356,7 @@ class Panel(pg.Surface):
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
+        self.name = self.config["name"]# str
         self.rect = pg.Rect(self.config["rect"])# pygame.rect
         self.imagerect = pg.Rect(self.config["imagerect"])# pygame.rect
         self.image = self.config["image"]# pygame.surface
