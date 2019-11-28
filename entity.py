@@ -53,6 +53,9 @@ class Entity(pg.sprite.Sprite):
         self.frames = getFrames(self.rawimage, self.config["framesize"])# list
         self.image = self.frames[0]# pygame.surface
         self.rect = ZRect(self.image.get_rect())# pgzero.zrect
+        self.avatar = pg.image.load(# pygame.surface
+            self.config["filepath"] + "\\" + self.config["avatar"]
+        )
         self.animationspeed = self.config["animationspeed"]# int
         self.animations = {# dict
             "walkdown": Animation({
@@ -87,6 +90,7 @@ class Entity(pg.sprite.Sprite):
         self.__build()
     def __build(self):
         """drawing depending on dev_mode."""
+        # redrawing player animation frame
         if self.dev_mode is True:
             # whole sprite border in red
             drawBorder(
