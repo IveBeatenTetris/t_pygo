@@ -312,6 +312,9 @@ class Interface(pg.Surface):
         self.rect = self.get_rect()# pygame.rect
         self.panels = self.__createPanels()# dict
         # drawing panels to interface
+        self.__build()
+    def __build(self):
+        """building panels."""
         for name, panel in self.panels.items():
             draw(panel, self, panel.rect)
     def __createPanels(self):
@@ -328,6 +331,10 @@ class Interface(pg.Surface):
                 panels.update({"money": MoneyPanel(p["money"])})
 
         return panels
+    def update(self):
+        """calling this method with each game loop."""
+        # rebuilding panel
+        self.__build()
 # interface panels
 class MoneyPanel(pg.Surface):
     """displays money in the interface."""
@@ -355,6 +362,6 @@ class MoneyPanel(pg.Surface):
         draw(self.image, self.icon, self.imagerect)
         # drawing icon to panel
         draw(self.icon, self)
-    def draw(self, object, rect):
+    def draw(self, object, position=(0, 0)):
         """drawing something to the panel."""
-        pass
+        self.blit(object.image, position)
