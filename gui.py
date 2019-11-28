@@ -316,6 +316,7 @@ class Interface(pg.Surface):
     def __build(self):
         """building panels."""
         for name, panel in self.panels.items():
+            pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
             draw(panel, self, panel.rect)
     def __createPanels(self):
         """creating panels and append them to a returning dict."""
@@ -356,6 +357,9 @@ class MoneyPanel(pg.Surface):
         self.imagerect = pg.Rect(self.config["imagerect"])# pygame.rect
         self.image = self.config["image"]# pygame.surface
         self.icon = pg.Surface(self.imagerect.size, pg.SRCALPHA)# pygame.surface
+        self.__build()
+    def __build(self):
+        """building the surface object."""
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # drawing on icon
@@ -364,4 +368,5 @@ class MoneyPanel(pg.Surface):
         draw(self.icon, self)
     def draw(self, object, position=(0, 0)):
         """drawing something to the panel."""
-        self.blit(object.image, position)
+        self.__build()
+        draw(object, self, position)
