@@ -323,22 +323,20 @@ class Interface(pg.Surface):
         panels = {}
 
         if "panels" in self.config:
-            p = self.config["panels"]
-            if "money" in p:
-                p["money"].update({
-                    "name": "money",
+            for k, v in self.config["panels"].items():
+                v.update({
+                    "name": k,
                     "image": self.image
                 })
-                panels.update({"money": MoneyPanel(p["money"])})
+                panels.update({"money": Panel(v)})
 
         return panels
     def update(self):
         """calling this method with each game loop."""
         # rebuilding panel
         self.__build()
-# interface panels
-class MoneyPanel(pg.Surface):
-    """displays money in the interface."""
+class Panel(pg.Surface):
+    """displays a panel in the interface."""
     default = {
         "rect": [0, 0, 0, 0],
         "imagerect": [0, 0, 0, 0],
@@ -351,6 +349,7 @@ class MoneyPanel(pg.Surface):
         'imagerect' needed to draw the correct position of the icon set to the
             icon.
         'icon' surface for drawing the icon surface.
+        'background' if not none it it will fill in the background color.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
