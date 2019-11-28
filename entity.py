@@ -40,9 +40,9 @@ class Entity(pg.sprite.Sprite):
         'dev_move' if 'true' this will render the entity bounding borders.
         """
         # looking for a json-file to use as the config
-        for each in loadAssets(PATH["entities"] + "\\" + name):
+        for each in loadAssets(PATH["entities"] + "\\" + name):# dict
             if each["type"] == "player":
-                self.config = each# dict
+                self.config = each
         # initializing the sprite
         pg.sprite.Sprite.__init__(self)
         # additional attributes

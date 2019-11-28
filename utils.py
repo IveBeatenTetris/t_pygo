@@ -75,7 +75,11 @@ def loadJSON(path):# dict
             content = content[:match.start()] + content[match.end():]
             match = json_comments.search(content)
         js = json.loads(content)
-        js.update({"name": path.split("\\")[-2]})
+        if "name" in js:
+            name = js["name"]
+        else:
+            name = path.split("\\")[-2]
+        js.update({"name": name})
         js.update({"path": path})
         # //TODO tidy up
         s = path.split("\\")
