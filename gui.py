@@ -296,7 +296,7 @@ class Interface(pg.Surface):
         generates multiple gui panels and drawing them to its surface.
         'config' dict from json-file with additional properties.
         'name' name of the panel.
-        'panels' a list of panel objects ready to been drawn to screen.
+        'panels' a dict of panel objects ready to been drawn to screen.
         """
         # combine path + name to get the asset by its tail
         for each in loadAssets(PATH["interface"] + "\\" + name):# dict
@@ -310,13 +310,13 @@ class Interface(pg.Surface):
         # initiating surface
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect = self.get_rect()# pygame.rect
-        self.panels = self.__createPanels()# list
+        self.panels = self.__createPanels()# dict
         # drawing panels to interface
-        for panel in self.panels:
+        for name, panel in self.panels.items():
             draw(panel, self, panel.rect)
     def __createPanels(self):
-        """creating panels and append them to a returning list."""
-        panels = []
+        """creating panels and append them to a returning dict."""
+        panels = {}
 
         if "panels" in self.config:
             p = self.config["panels"]
@@ -325,7 +325,7 @@ class Interface(pg.Surface):
                     "name": "money",
                     "image": self.image
                 })
-                panels.append(MoneyPanel(p["money"]))
+                panels.update({"money": MoneyPanel(p["money"])})
 
         return panels
 # interface panels
