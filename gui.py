@@ -214,7 +214,7 @@ class Text(pg.sprite.Sprite):
         recreates text surface at the end.
         """
     	try:
-    		self.text = cfg["text"]
+    		self.text = str(cfg["text"])
     	except KeyError:
     		pass
 
@@ -355,3 +355,6 @@ class MoneyPanel(pg.Surface):
         draw(self.image, self.icon, self.imagerect)
         # drawing icon to panel
         draw(self.icon, self)
+    def draw(self, object, rect):
+        """drawing something to the panel."""
+        pass
