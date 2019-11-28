@@ -295,14 +295,12 @@ class Interface(pg.Surface):
         """
         generates multiple gui panels and drawing them to its surface.
         'config' dict from json-file with additional properties.
-        'name' name of the panel.
         'panels' a dict of panel objects ready to been drawn to screen.
         """
         # combine path + name to get the asset by its tail
         for each in loadAssets(PATH["interface"] + "\\" + name):# dict
             if each["type"] == "interface":
                 self.config = each
-        self.name = self.config["name"]# str
         self.path = self.config["filepath"]# str
         self.image = pg.image.load(# pygame.surface
             self.path + "\\" + self.config["image"]
@@ -315,20 +313,19 @@ class Interface(pg.Surface):
         self.__build()
     def __build(self):
         """building panels."""
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+
         for panel in self.panels:
-            pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
             draw(panel, self, panel.rect)
     def __createPanels(self):
         """creating panels and append them to a returning dict."""
         panels = []
-        name = "NoNamePanel"
 
         if "panels" in self.config:
             for p in self.config["panels"]:
                 # updating properties with 'image' and 'name'
                 p.update({"image": self.image})
-                if "name" in p:
-                    name = p["name"]
                 panels.append(Panel(p))
 
         return panels
@@ -341,7 +338,7 @@ class Panel(pg.Surface):
     default = {
         "name": "No Panel Name",
         "rect": [0, 0, 0, 0],
-        "imagerect": [0, 0, 0, 0],
+        "iconrect": [0, 0, 0, 0],
         "image": pg.image.load(LIBPATH["noimage"]),
         "background": None
     }
@@ -349,7 +346,7 @@ class Panel(pg.Surface):
         """
         this panel acts as a surface ready to been drawn to another surface.
         'name' used to identify specific panels.
-        'imagerect' needed to draw the correct position of the icon set to the
+        'iconrect' needed to draw the correct position of the icon set to the
             icon.
         'icon' surface for drawing the icon surface.
         'background' if not none it it will fill in the background color.
@@ -358,9 +355,9 @@ class Panel(pg.Surface):
         self.config = validateDict(config, self.default)# dict
         self.name = self.config["name"]# str
         self.rect = pg.Rect(self.config["rect"])# pygame.rect
-        self.imagerect = pg.Rect(self.config["imagerect"])# pygame.rect
+        self.iconrect = pg.Rect(self.config["iconrect"])# pygame.rect
         self.image = self.config["image"]# pygame.surface
-        self.icon = pg.Surface(self.imagerect.size, pg.SRCALPHA)# pygame.surface
+        self.icon = pg.Surface(self.iconrect.size, pg.SRCALPHA)# pygame.surface
         self.background = self.config["background"]# none / tuple
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
@@ -374,7 +371,7 @@ class Panel(pg.Surface):
             # reinitiating surface
             pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # drawing on icon
-        draw(self.image, self.icon, self.imagerect)
+        draw(self.image, self.icon, self.iconrect)
         # drawing icon to panel
         draw(self.icon, self)
     def draw(self, object, position=(0, 0)):
