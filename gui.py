@@ -374,7 +374,10 @@ class Panel(pg.Surface):
         draw(self.image, self.icon, self.iconrect)
         # drawing icon to panel
         draw(self.icon, self)
+    def update(self):
+        """calling this method with each game loop."""
+        # rebuilding panel
+        self.__build()
     def draw(self, object, position=(0, 0)):
         """drawing something to the panel."""
-        self.__build()
         draw(object, self, position)
