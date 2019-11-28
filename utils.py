@@ -1,5 +1,5 @@
 # dependencies
-import json, os, ctypes
+import json, os, re, ctypes
 import pygame as pg
 
 # project and library pathes
@@ -24,6 +24,12 @@ RESOLUTIONS = {
     "1920x1080": (1920, 1080),
     "800x400": (800, 400)
 }
+
+# rules for json parsing
+json_comments =  re.compile(
+    "(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?",
+    re.DOTALL | re.MULTILINE
+)
 
 # console
 def prettyPrint(data, sort=False, tabs=4):
@@ -62,6 +68,12 @@ def loadJSON(path):# dict
     """load and convert a JSON file to a dict."""
     with open(path) as text:
         content = "".join(text.readlines())
+        #looking for comments
+        match = json_comments.search(content)
+        while match:
+            #single line comment
+            content = content[:match.start()] + content[match.end():]
+            match = json_comments.search(content)
         js = json.loads(content)
         js.update({"name": path.split("\\")[-2]})
         js.update({"path": path})
