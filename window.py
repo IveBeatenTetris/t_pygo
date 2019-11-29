@@ -15,12 +15,14 @@ class Window:
         "size": (320, 240),
         "title": "No Title",
         "resizable": False,
+        "background": (0, 0, 0),
         "icon": LIBPATH["windowicon"],
         "fps": 30
     }
     def __init__(self, config={}):
         """
         initiates pygame to act as a pygame-window.
+        'background' used to fill color to the window background.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
         'preffered_fps' - its in the name.
@@ -42,6 +44,7 @@ class Window:
         pg.init()
         self.config = validateDict(config, self.default)# dict
         # additional attributes
+        self.background = self.config["background"]# tuple
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
@@ -89,6 +92,7 @@ class Window:
             size,
             resizable = self.config["resizable"]
         )
+        self.draw(self.background)
         self.size = size
         self.anchors = getAnchors(self.size)
     def screenShot(self, surface=None):
