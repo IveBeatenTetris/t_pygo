@@ -38,6 +38,13 @@ def prettyPrint(data, sort=False, tabs=4):
         print(json.dumps(data, sort_keys=sort, indent=tabs))
     else:
         print("Nothing to pretty-print.")
+# system
+def getMachineResolution():# tuple
+    """return full screen resolution in pixels."""
+    user32 = ctypes.windll.user32
+    user32.SetProcessDPIAware()
+    size = (user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
+    return size
 # files & directories
 def loadAssets(path):# list
     """
