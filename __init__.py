@@ -7,10 +7,11 @@ from .entity import Player
 from .camera import Camera
 from .gui import (
     Button,
+    Interface,
     MiniMap,
     Overlay,
+    Panel,
     Text,
-    TextBox,
-    Interface
+    TextBox
 )
 from .controller import Controller
