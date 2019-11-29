@@ -8,6 +8,7 @@ from .camera import Camera
 from .gui import (
     Button,
     Interface,
+    MenuBar,
     MiniMap,
     Overlay,
     Panel,

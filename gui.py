@@ -337,7 +337,7 @@ class Panel(pg.Surface):
     """displays a panel in the interface."""
     default = {
         "name": "No Panel Name",
-        "rect": [0, 0, 0, 0],
+        "rect": [0, 0, 100, 75],
         "iconrect": [0, 0, 0, 0],
         "image": pg.image.load(LIBPATH["noimage"]),
         "background": None
@@ -381,3 +381,21 @@ class Panel(pg.Surface):
     def draw(self, object, position=(0, 0)):
         """drawing something to the panel."""
         draw(object, self, position)
+class MenuBar(pg.Surface):
+    """a menu bar to draw pull down menus from."""
+    default = {
+        "rect": [0, 0, 200, 25],
+        "background": (10, 10, 10)
+    }
+    def __init__(self, config={}):
+        """
+        'background' a tuple of 3 ints to fill the surface with.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        self.background = self.config["background"]# tuple
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size)
+        # drawing to surface
+        draw(self.background, self)
