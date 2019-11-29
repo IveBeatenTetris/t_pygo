@@ -7,7 +7,7 @@ from .utils import (
 )
 from .controller import Controller
 import pygame as pg
-import sys
+import sys, os
 
 class Window:
     """pygames window module with extended features."""
@@ -41,7 +41,11 @@ class Window:
         'anchors' is used for quick-pointing a part of the rect. for example:
             draw(object, self, self.anchors["midcenter"]).
         """
+        # centering window
+        os.environ["SDL_VIDEO_CENTERED"] = "1"
+        # initiate pygame
         pg.init()
+        # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
         # additional attributes
         self.background = self.config["background"]# tuple
