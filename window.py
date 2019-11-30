@@ -109,10 +109,13 @@ class Window:
     def events(self):# pygame.event
         """pygame events. updates the controller with events."""
         events = []
+        keys = self.pressedKeys()
         # keyboard and mouse events
         for event in pg.event.get():
             # quit application
             if event.type is pg.QUIT:
+                self.quit()
+            if keys[pg.K_LALT] and keys[pg.K_F4]:
                 self.quit()
             # resizing the window
             if event.type is pg.VIDEORESIZE:
@@ -137,8 +140,10 @@ class Window:
         keys = {
             "return": False,
             "esc": False,
+            "alt": False,
             "e": False,
-            "f1": False
+            "f1": False,
+            "f4": False
         }
 
         for event in self._events:
@@ -146,8 +151,12 @@ class Window:
                 keys["return"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 keys["esc"] = True
+            if event.type is pg.KEYDOWN and event.key == pg.K_LALT:
+                keys["alt"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_F1:
                 keys["f1"] = True
+            if event.type is pg.KEYDOWN and event.key == pg.K_F4:
+                keys["f4"] = True
             if event.type is pg.KEYDOWN and event.key == pg.K_e:
                 keys["e"] = True
 
