@@ -15,6 +15,7 @@ class Window:
         "size": (320, 240),
         "title": "No Title",
         "resizable": False,
+        "fullscreen": False,
         "background": (0, 0, 0),
         "icon": LIBPATH["windowicon"],
         "fps": 30
@@ -22,6 +23,7 @@ class Window:
     def __init__(self, config={}):
         """
         initiates pygame to act as a pygame-window.
+        'fullscreen' if 'true' it renders the window maximized and borderless.
         'background' used to fill color to the window background.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
@@ -48,6 +50,7 @@ class Window:
         # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
         # additional attributes
+        self.fullscreen = self.config["fullscreen"]# bool
         self.background = self.config["background"]# tuple
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
@@ -94,7 +97,8 @@ class Window:
         """'size' needs to be a tuple."""
         self.display = getDisplay(# pygame.surface
             size,
-            resizable = self.config["resizable"]
+            resizable = self.config["resizable"],
+            fullscreen = self.fullscreen
         )
         self.draw(self.background)
         self.size = size
