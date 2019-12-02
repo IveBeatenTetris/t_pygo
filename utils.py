@@ -301,6 +301,36 @@ def getFrames(image, framesize):# list
     del(clip, rect)
 
     return frames
+def repeatBG(image, size, axis="xy", pos=(0, 0)):# pygame.surface
+    """
+    returns a pygame.surface where the given image will be drawn repeatedly.
+    'axis':
+        'x' repeat the image along the horizontal line.
+        'y' repeat the image along the vertival line.
+        'xy': fill the whole surface with one image repeated right and down.
+    """
+    # shortcut
+    imagerect = image.get_rect()
+    # converting size into tuple of two ints if necessary
+    if type(size) == pg.Rect:
+        size = size.size
+    # creating a surface to draw everything on and return it
+    temp = pg.Surface(size)
+    # another shortcut
+    temprect = temp.get_rect()
+    # drawing along the given axis
+    if axis == "x":
+        for each in range(int(temprect.width / imagerect.width) + imagerect.width):
+            temp.blit(image, (each * imagerect.width, pos[0]))
+    elif axis == "y":
+        for each in range(int(temprect.height / imagerect.height) + imagerect.height):
+            temp.blit(image, (pos[1], each * imagerect.height))
+    elif axis == "xy":
+        for j in range(int(temprect.width / imagerect.width) + imagerect.width):
+            for i in range(int(temprect.height / imagerect.height) + imagerect.height):
+                temp.blit(image, (j * imagerect.width, i * imagerect.width))
+
+    return temp
 def scale(surface, factor):# pygame.surface
     """
     scaling a surface by afactor.
