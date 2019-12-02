@@ -24,7 +24,8 @@ class Window:
         """
         initiates pygame to act as a pygame-window.
         'fullscreen' if 'true' it renders the window maximized and borderless.
-        'background' used to fill color to the window background.
+        'background' used to draw to background. might be 'str' or 'tuple'. if
+            'string' then use it as image path and load a pygame.image surface.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
         'preffered_fps' - its in the name.
@@ -51,7 +52,12 @@ class Window:
         self.config = validateDict(config, self.default)# dict
         # additional attributes
         self.fullscreen = self.config["fullscreen"]# bool
-        self.background = self.config["background"]# tuple
+        # creating background
+        if type(self.config["background"]) is str:
+            bg = pg.image.load(self.config["background"])
+        elif type(self.config["background"]) is tuple:
+            bg = self.config["background"]
+        self.background = bg# tuple / pygame.image
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
