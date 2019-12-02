@@ -3,6 +3,7 @@ from .utils import (
     validateDict,
     getDisplay,
     getAnchors,
+    repeatBG,
     draw
 )
 from .controller import Controller
@@ -16,16 +17,15 @@ class Window:
         "title": "No Title",
         "resizable": False,
         "fullscreen": False,
-        "background": (0, 0, 0),
+        "background": LIBPATH["windowbg"],
+        "backgroundrepeat": None,
         "icon": LIBPATH["windowicon"],
         "fps": 30
     }
     def __init__(self, config={}):
         """
         initiates pygame to act as a pygame-window.
-        'fullscreen' if 'true' it renders the window maximized and borderless.
-        'background' used to draw to background. might be 'str' or 'tuple'. if
-            'string' then use it as image path and load a pygame.image surface.
+        'size' window size in a tuple for short reference only.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
         'preffered_fps' - its in the name.
@@ -35,14 +35,17 @@ class Window:
         'mode' is for switching trough modes like 'moving' or 'paused'.
         'controller' decided to put it into the window. its been updated in the
         'window.events()'-method.
-        '_events' with each game-loop this list will become the new
-            pygame.events.
         'display' holds the actual pygame window.
         'screenshot' this surface can be used to simulate frozen screens like
             in menus. its refreshed by calling 'self.screenShot()'
-        'size' window size in a tuple for short reference only.
         'anchors' is used for quick-pointing a part of the rect. for example:
             draw(object, self, self.anchors["midcenter"]).
+        'fullscreen' if 'true' it renders the window maximized and borderless.
+        'background' used to draw to background. might be 'str' or 'tuple'. if
+            'string' then use it as image path and load a pygame.image surface.
+        'bgrepeat' str with either 'x' 'y' or 'xy'.
+        '_events' with each game-loop this list will become the new
+            pygame.events.
         """
         # centering window
         os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -51,13 +54,7 @@ class Window:
         # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
         # additional attributes
-        self.fullscreen = self.config["fullscreen"]# bool
-        # creating background
-        if type(self.config["background"]) is str:
-            bg = pg.image.load(self.config["background"])
-        elif type(self.config["background"]) is tuple:
-            bg = self.config["background"]
-        self.background = bg# tuple / pygame.image
+        self.size = self.config["size"]# tuple
         self.title = self.config["title"]# str
         self.icon = self.config["icon"]# str / pygame.surface
         self.clock = pg.time.Clock()# pygame.clock
@@ -66,17 +63,23 @@ class Window:
         self.paused = False# bool
         self.mode = "moving"# str
         self.controller = Controller()# controller (pygame.joystick.joystick)
-        self._events = []# list
         # display related stuff
         self.display = getDisplay(# pygame.surface
             self.config["size"],
             resizable = self.config["resizable"]
         )
         self.screenshot = None# none / pygame.surface
-        self.size = self.config["size"]# tuple
-        self.anchors = getAnchors(self.size)# dict
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
+        self.anchors = getAnchors(self.size)# dict
+        # background related
+        self.fullscreen = self.config["fullscreen"]# bool
+        self.bgrepeat = self.config["backgroundrepeat"]# str
+        self.background = self.__createBackground(# pygame.surface
+            self.config["background"]
+        )
+        # event related
+        self._events = []# list
     # game routines
     def update(self):
         """updates stuff at apps loop-end."""
@@ -96,6 +99,23 @@ class Window:
             # create a screenshot
             self.screenshot = self.display.copy()
     # display stuff
+    def __createBackground(self, bg):
+        """creates background based on background properties."""
+        # declaring background type
+        if type(bg) is str:
+            bg = pg.image.load(bg)
+        elif type(bg) is tuple:
+            pass
+        # checking background repeat
+        if type(bg) is pg.Surface:
+            if self.config["backgroundrepeat"]:
+                bg = repeatBG(
+                    bg,
+                    self.size,
+                    self.bgrepeat
+                )
+
+        return bg
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
         draw(object, self.display, position)
