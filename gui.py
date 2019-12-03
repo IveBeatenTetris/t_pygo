@@ -102,17 +102,23 @@ class InfoBar(pg.Surface):
         """
         'parent' rect of the bigger surface for calculating positional
             properties.
+        'background' can be tuple of 3 ints or none. if 'none' then render the
+            background transparent.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
         # declaring parent for positional properties
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
+        self.background = self.config["background"]# none / tuple
         # initiating surface
         pg.Surface.__init__(self, (
             self.config["rect"][2],
             self.config["rect"][3]
-        ))
+        ), pg.SRCALPHA)
         self.rect = self.config["rect"]# pygame.rect
+        # drawing
+        if self.background:
+            draw(self.background, self)
 class Interface(pg.Surface):
     """
     acts like a big surface to stat drawing the element tree from a json-file.
