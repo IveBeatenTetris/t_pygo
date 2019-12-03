@@ -160,9 +160,9 @@ def convertRect(rect, parent):# pygame.rect
         new_rect[1] = rect[1]
     elif type(rect[1]) is str:
         # overwriting cfg rect y
-        if rect[1] == "left":
+        if rect[1] == "top":
             new_rect[1] = 0
-        elif rect[1] == "right":
+        elif rect[1] == "bottom":
             new_rect[1] = parent.height - new_rect[3]
 
     return pg.Rect(new_rect)
@@ -264,12 +264,13 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     else:
         destination.blit(object.image, position)
     return destination
-def drawBorder(surface, rect, border):# pygame surface
+def drawBorder(surface, rect, border):# pygame.surface
     """
     drawing a border to the given surface and return it.
     syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
     example: config = (1, 'solid', (255, 255, 255)).
-    usage: surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0, 0, 0))).
+    usage:
+        surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0, 0, 0))).
     """
     size, line, color = border
 
@@ -297,15 +298,15 @@ def getAnchors(room):# dict
         "left": 0,
         "center": int(room[0] / 2),
         "right": room[0],
-        "topleft": (0 , 0),
-        "topcenter": (int(room[0] / 2) , 0),
-        "topright": (room[0] , 0),
+        "topleft": (0, 0),
+        "topcenter": (int(room[0] / 2), 0),
+        "topright": (room[0], 0),
         "midleft": (0 , int(room[1] / 2)),
-        "midcenter": (int(room[0] / 2) , int(room[1] / 2)),
-        "midright": (room[0] , int(room[1] / 2)),
-        "bottomleft": (0 , room[1]),
-        "bottomcenter": (int(room[0] / 2) , room[1]),
-        "bottomright": (room[0] , room[1])
+        "midcenter": (int(room[0] / 2), int(room[1] / 2)),
+        "midright": (room[0], int(room[1] / 2)),
+        "bottomleft": (0, room[1]),
+        "bottomcenter": (int(room[0] / 2), room[1]),
+        "bottomright": (room[0], room[1])
     }
     return anchors
 def getDisplay(size, **kwargs):# pygame.display.surface
@@ -326,7 +327,7 @@ def getDisplay(size, **kwargs):# pygame.display.surface
 
     return display
 def getFonts():# list
-	"""return a list with pygame-fonts."""
+	"""return a list with pygame fonts."""
 	return pygame.font.get_fonts()
 def getFrames(image, framesize):# list
     """
@@ -356,9 +357,12 @@ def getFrames(image, framesize):# list
     del(clip, rect)
 
     return frames
+def getMouse():
+    """returns pygame.mouse position."""
+    return pg.mouse.get_pos()
 def repeatBG(image, size, axis="xy", pos=(0, 0)):# pygame.surface
     """
-    returns a pygame.surface where the given image will be drawn repeatedly.
+    returns a pygame surface where the given image will be drawn repeatedly.
     'axis':
         'x' repeat the image along the horizontal line.
         'y' repeat the image along the vertival line.
