@@ -92,33 +92,38 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
-class InfoBar(pg.Surface):
-    """used for displaying information in a small bar."""
+class GuiMaster(pg.Surface):
+    """
+    'name' name of the element as str.
+    'parent' rect of the bigger surface for calculating positional
+        properties.
+    'background' can be tuple of 3 ints or none. if 'none' then render the
+        background transparent.
+    """
     default = {
+        "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 200, 25),
         "background": (10, 10, 10)
     }
     def __init__(self, config={}):
-        """
-        'parent' rect of the bigger surface for calculating positional
-            properties.
-        'background' can be tuple of 3 ints or none. if 'none' then render the
-            background transparent.
-        """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
+        self.name = self.config["name"]# str
         # declaring parent for positional properties
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
         self.background = self.config["background"]# none / tuple
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
         # initiating surface
-        pg.Surface.__init__(self, (
-            self.config["rect"][2],
-            self.config["rect"][3]
-        ), pg.SRCALPHA)
-        self.rect = self.config["rect"]# pygame.rect
-        # drawing
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing to surface
         if self.background:
             draw(self.background, self)
+class InfoBar(GuiMaster):
+    """used for displaying information in a small bar."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class Interface(pg.Surface):
     """
     acts like a big surface to stat drawing the element tree from a json-file.
@@ -185,24 +190,12 @@ class Interface(pg.Surface):
         self.rect.size = size
         # rebuilding
         self.__build()
-class MenuBar(pg.Surface):
+class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
-    default = {
-        "rect": [0, 0, 200, 25],
-        "background": (10, 10, 10)
-    }
     def __init__(self, config={}):
-        """
-        'background' a tuple of 3 ints to fill the surface with.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.rect = pg.Rect(self.config["rect"])# pygame.rect
-        self.background = self.config["background"]# tuple
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size)
-        # drawing to surface
-        draw(self.background, self)
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class MiniMap(pg.Surface):
     """display a miniature version of an area around the players position."""
     default = {
@@ -256,29 +249,12 @@ class Overlay(pg.Surface):
         pg.Surface.__init__(self, self.config["size"])
         # setting opacity if there is one
         self.set_alpha(self.config["opacity"])
-class Panel(pg.Surface):
+class Panel(GuiMaster):
     """displays a panel in the interface."""
-    default = {
-        "name": "Unnamed Panel",
-        "rect": pg.Rect(0, 0, 100, 100),
-        "background": None
-    }
     def __init__(self, config={}):
-        """
-        this panel acts as a surface ready to been drawn to another surface.
-        'name' used to identify specific panels.
-        'background' if not none it it will fill in the background color.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.name = self.config["name"]# str
-        self.rect = self.config["rect"]# pygame.rect
-        self.background = self.config["background"]# tuple
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # drawing background
-        if self.background:
-            draw(self.background, self)
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class Text(pg.sprite.Sprite):
     """text surface. ready to be drawn."""
     default = {
