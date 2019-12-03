@@ -92,6 +92,27 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
+class InfoBar(pg.Surface):
+    """used for displaying information in a small bar."""
+    default = {
+        "rect": pg.Rect(0, 0, 200, 25),
+        "background": (10, 10, 10)
+    }
+    def __init__(self, config={}):
+        """
+        'parent' rect of the bigger surface for calculating positional
+            properties.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        # declaring parent for positional properties
+        self.parent = pg.display.get_surface().get_rect()# pygame.rect
+        # initiating surface
+        pg.Surface.__init__(self, (
+            self.config["rect"][2],
+            self.config["rect"][3]
+        ))
+        self.rect = self.config["rect"]# pygame.rect
 class Interface(pg.Surface):
     """
     acts like a big surface to stat drawing the element tree from a json-file.
@@ -143,6 +164,8 @@ class Interface(pg.Surface):
                 # creating elements
                 if elem["type"] == "menubar":
                     self.elements.append(MenuBar(c))
+                if elem["type"] == "infobar":
+                    self.elements.append(InfoBar(c))
                 elif elem["type"] == "panel":
                     self.elements.append(Panel(c))
         # drawing each element to interface

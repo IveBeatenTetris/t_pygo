@@ -7,6 +7,7 @@ from .entity import Player
 from .camera import Camera
 from .gui import (
     Button,
+    InfoBar,
     Interface,
     MenuBar,
     MiniMap,
