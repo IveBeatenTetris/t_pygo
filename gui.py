@@ -7,6 +7,7 @@ from .utils import (
     getAnchors,
     wrapText,
     drawBorder,
+    convertRect,
     scale
 )
 from .camera import Camera
@@ -91,6 +92,80 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
+class Interface(pg.Surface):
+    """
+    acts like a big surface to stat drawing the element tree from a json-file.
+    'elements' a list of all gui elements in the correct drawing order.
+    """
+    def __init__(self, name):
+        """draws its size from the running window."""
+        # combine path + name to get the asset by its tail
+        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if js["type"] == "interface":
+                self.config = js
+        # taking rect from pygame.display
+        self.rect = pg.display.get_surface().get_rect()# pygame.rect
+        self.elements = []# list
+        self.__build()
+    def __build(self):
+        """
+        building interface structure from file description. filling
+            'self.elements' width gui elements.
+        """
+        # shortcuts
+        cfg = self.config
+        # clearing this list because we will rebuild everything in it
+        self.elements = []
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # building interface by computing a json file
+        if "layout" in cfg:
+            for elem in cfg["layout"]:
+                # resetting properties with each loop
+                c = {
+                    "type": None,
+                    "name": "Unnamed",
+                    "rect": pg.Rect(0, 0, 0, 0),
+                    "background": None,
+                }
+                # overwriting properties
+                if "type" in elem:
+                    c["type"] = elem["type"]
+                if "name" in elem:
+                    c["name"] = elem["name"]
+                if "rect" in elem:
+                    # since we suport percentage and positional strings in
+                    # rect-lists we need to calculate a new rect with valid
+                    # values for drawing
+                    c["rect"] = convertRect(elem["rect"], self.rect)
+                if "background" in elem:
+                    c["background"] = tuple(elem["background"])
+                # creating elements
+                if elem["type"] == "menubar":
+                    self.elements.append(MenuBar(c))
+                elif elem["type"] == "panel":
+                    self.elements.append(Panel(c))
+        # drawing each element to interface
+        for e in self.elements:
+            draw(e, self, e.rect)
+class MenuBar(pg.Surface):
+    """a menu bar to draw pull down menus from."""
+    default = {
+        "rect": [0, 0, 200, 25],
+        "background": (10, 10, 10)
+    }
+    def __init__(self, config={}):
+        """
+        'background' a tuple of 3 ints to fill the surface with.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        self.background = self.config["background"]# tuple
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size)
+        # drawing to surface
+        draw(self.background, self)
 class MiniMap(pg.Surface):
     """display a miniature version of an area around the players position."""
     default = {
@@ -144,6 +219,29 @@ class Overlay(pg.Surface):
         pg.Surface.__init__(self, self.config["size"])
         # setting opacity if there is one
         self.set_alpha(self.config["opacity"])
+class Panel(pg.Surface):
+    """displays a panel in the interface."""
+    default = {
+        "name": "Unnamed Panel",
+        "rect": pg.Rect(0, 0, 100, 100),
+        "background": None
+    }
+    def __init__(self, config={}):
+        """
+        this panel acts as a surface ready to been drawn to another surface.
+        'name' used to identify specific panels.
+        'background' if not none it it will fill in the background color.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.name = self.config["name"]# str
+        self.rect = self.config["rect"]# pygame.rect
+        self.background = self.config["background"]# tuple
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing background
+        if self.background:
+            draw(self.background, self)
 class Text(pg.sprite.Sprite):
     """text surface. ready to be drawn."""
     default = {
@@ -289,113 +387,3 @@ class TextBox(pg.Surface):
     def setPosition(self, pos):
         """updating rect position."""
         self.rect.topleft = pos
-class Interface(pg.Surface):
-    """surface for displaying multiple gui panels."""
-    def __init__(self, name, size=(320, 240)):
-        """
-        generates multiple gui panels and drawing them to its surface.
-        'config' dict from json-file with additional properties.
-        'panels' a dict of panel objects ready to been drawn to screen.
-        """
-        # combine path + name to get the asset by its tail
-        for each in loadAssets(PATH["interface"] + "\\" + name):# dict
-            if each["type"] == "interface":
-                self.config = each
-        self.path = self.config["filepath"]# str
-        self.image = pg.image.load(# pygame.surface
-            self.path + "\\" + self.config["image"]
-        )
-        # initiating surface
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect = self.get_rect()# pygame.rect
-        self.panels = self.__createPanels()# dict
-        # drawing panels to interface
-        self.__build()
-    def __build(self):
-        """building panels."""
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-
-        for panel in self.panels:
-            draw(panel, self, panel.rect)
-    def __createPanels(self):
-        """creating panels and append them to a returning dict."""
-        panels = []
-
-        if "panels" in self.config:
-            for p in self.config["panels"]:
-                # updating properties with 'image' and 'name'
-                p.update({"image": self.image})
-                panels.append(Panel(p))
-
-        return panels
-    def update(self):
-        """calling this method with each game loop."""
-        # rebuilding panel
-        self.__build()
-class Panel(pg.Surface):
-    """displays a panel in the interface."""
-    default = {
-        "name": "No Panel Name",
-        "rect": [0, 0, 100, 75],
-        "iconrect": [0, 0, 0, 0],
-        "image": pg.image.load(LIBPATH["noimage"]),
-        "background": None
-    }
-    def __init__(self, config={}):
-        """
-        this panel acts as a surface ready to been drawn to another surface.
-        'name' used to identify specific panels.
-        'iconrect' needed to draw the correct position of the icon set to the
-            icon.
-        'icon' surface for drawing the icon surface.
-        'background' if not none it it will fill in the background color.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.name = self.config["name"]# str
-        self.rect = pg.Rect(self.config["rect"])# pygame.rect
-        self.iconrect = pg.Rect(self.config["iconrect"])# pygame.rect
-        self.image = self.config["image"]# pygame.surface
-        self.icon = pg.Surface(self.iconrect.size, pg.SRCALPHA)# pygame.surface
-        self.background = self.config["background"]# none / tuple
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        self.__build()
-    def __build(self):
-        """building the surface object."""
-        if self.background:
-            # filling surface
-            draw(tuple(self.background), self)
-        else:
-            # reinitiating surface
-            pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # drawing on icon
-        draw(self.image, self.icon, self.iconrect)
-        # drawing icon to panel
-        draw(self.icon, self)
-    def update(self):
-        """calling this method with each game loop."""
-        # rebuilding panel
-        self.__build()
-    def draw(self, object, position=(0, 0)):
-        """drawing something to the panel."""
-        draw(object, self, position)
-class MenuBar(pg.Surface):
-    """a menu bar to draw pull down menus from."""
-    default = {
-        "rect": [0, 0, 200, 25],
-        "background": (10, 10, 10)
-    }
-    def __init__(self, config={}):
-        """
-        'background' a tuple of 3 ints to fill the surface with.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.rect = pg.Rect(self.config["rect"])# pygame.rect
-        self.background = self.config["background"]# tuple
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size)
-        # drawing to surface
-        draw(self.background, self)
