@@ -249,7 +249,7 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     elif type(object) is dict:
         for each in object:
             destination.blit(object[each], position)
-    elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface:
+    elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface or issubclass(type(object), pg.Surface):
         destination.blit(object, position, special_flags=blendmode)
     elif object.__class__.__bases__[0] is pg.sprite.Sprite:
         destination.blit(object.image, position, special_flags=blendmode)
@@ -263,6 +263,7 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
     # might puke out an error on giving anything else than pg.sprite.Sprite
     else:
         destination.blit(object.image, position)
+
     return destination
 def drawBorder(surface, rect, border):# pygame.surface
     """
