@@ -190,6 +190,11 @@ class Interface(pg.Surface):
         self.rect.size = size
         # rebuilding
         self.__build()
+    def update(self):
+        """run this method with each main loop."""
+        # drawing each element to interface
+        for e in self.elements:
+            draw(e, self, e.rect)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
