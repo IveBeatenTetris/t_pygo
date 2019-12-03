@@ -111,6 +111,61 @@ def validateDict(config={}, defaults={}):# dict
 
     return validated
 # pygame
+def convertRect(rect, parent):# pygame.rect
+    """
+    returns a pygame.rect converted from the given rect like object.
+    'parent' must be a pygame.rect.
+    'rect' can be pygame.rect or list of 4. each value can be simple 'int' or a
+        'str'.
+    the values for positional arguments (0, 1) are:
+        'left'
+        'right'
+        'top'
+        'bottom'
+    example rects:
+        rect = ["left", 30, "100%", 150]
+        rect = [0, "top", 50, "90%"]
+    """
+    # this one is gonna be updated and converted to a pygame.rect on returning
+    new_rect = [0, 0, 0, 0]
+    # width
+    if type(rect[2]) is int:
+        new_rect[2] = rect[2]
+    elif type(rect[2]) is str:
+        if rect[2][-1] == "%":
+            # convert to int
+            percent = int(rect[2].split("%")[0])
+            # overwriting cfg rect width
+            new_rect[2] = parent.width * percent / 100
+    # height
+    if type(rect[3]) is int:
+        new_rect[3] = rect[3]
+    elif type(rect[3]) is str:
+        if rect[3][-1] == "%":
+            # convert to int
+            percent = int(rect[3].split("%")[0])
+            # overwriting cfg rect height
+            new_rect[3] = parent.height * percent / 100
+    # x
+    if type(rect[0]) is int:
+        new_rect[0] = rect[0]
+    elif type(rect[0]) is str:
+        # overwriting cfg rect x
+        if rect[0] == "left":
+            new_rect[0] = 0
+        elif rect[0] == "right":
+            new_rect[0] = parent.width - new_rect[2]
+    # y
+    if type(rect[1]) is int:
+        new_rect[1] = rect[1]
+    elif type(rect[1]) is str:
+        # overwriting cfg rect y
+        if rect[1] == "left":
+            new_rect[1] = 0
+        elif rect[1] == "right":
+            new_rect[1] = parent.height - new_rect[3]
+
+    return pg.Rect(new_rect)
 def createTiledMap(config, tiles):# dict
     """
     drawing tiles on a pygame surface and returning it in a dict together with
