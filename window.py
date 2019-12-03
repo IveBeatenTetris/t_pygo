@@ -119,16 +119,27 @@ class Window:
     def draw(self, object, position=(0, 0)):
         """draw everything to the windows surface."""
         draw(object, self.display, position)
-    def resize(self, size):
-        """'size' needs to be a tuple."""
-        self.display = getDisplay(# pygame.surface
-            size,
-            resizable = self.config["resizable"],
-            fullscreen = self.fullscreen
-        )
-        self.draw(self.background)
-        self.size = size
-        self.anchors = getAnchors(self.size)
+    def resize(self, size=None):
+        """
+        'size' needs to be a tuple. if no 'size' then return if the window has
+            been resized in a bool.
+        """
+        if size:
+            self.display = getDisplay(# pygame.surface
+                size,
+                resizable = self.config["resizable"],
+                fullscreen = self.fullscreen
+            )
+            self.draw(self.background)
+            self.size = size
+            self.anchors = getAnchors(self.size)
+        else:
+            resized = False
+            for e in self._events:
+                if e.type is pg.VIDEORESIZE:
+                    resized = True
+
+            return resized
     def screenShot(self, surface=None):
         """creates a copy of the all displayed things and save it."""
         if surface:
