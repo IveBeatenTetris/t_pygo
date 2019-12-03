@@ -171,6 +171,14 @@ class Interface(pg.Surface):
         # drawing each element to interface
         for e in self.elements:
             draw(e, self, e.rect)
+    def resize(self, size):
+        """
+        set a new size for interface. needs to be rebuilt.
+        'size' needs to be tuple.
+        """
+        self.rect.size = size
+        # rebuilding
+        self.__build()
 class MenuBar(pg.Surface):
     """a menu bar to draw pull down menus from."""
     default = {
