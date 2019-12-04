@@ -151,8 +151,8 @@ class Interface(pg.Surface):
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # building interface by computing a json file
-        if "layout" in cfg:
-            for elem in cfg["layout"]:
+        if "elements" in cfg:
+            for elem in cfg["elements"]:
                 # resetting properties with each loop
                 c = {
                     "type": None,
