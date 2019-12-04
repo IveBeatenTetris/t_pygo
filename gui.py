@@ -77,8 +77,7 @@ class GuiMaster(pg.Surface):
     default = {
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 200, 25),
-        "background": (10, 10, 10),
-        "elements": []
+        "background": (10, 10, 10)
     }
     def __init__(self, config={}):
         # creating a new dict based on comparison of two
