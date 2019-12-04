@@ -13,6 +13,88 @@ from .utils import (
 from .camera import Camera
 import pygame as pg
 
+# overall functions
+def convertElements(cfg, parent):
+    """
+    using this function to convert a interface element from a json file into a
+        valid interface element object.
+    also works recursively to convert elements within elements and so on.
+    returns a list of valid element objects.
+    'cfg' needs to be a converted dict from json file.
+    'parent' must be pygame.rect.
+    """
+    elements = []
+
+    # building interface by computing a json file
+    if "elements" in cfg:
+        for elem in cfg["elements"]:
+            # resetting properties with each loop
+            c = {
+                "type": None,
+                "name": "Unnamed",
+                "rect": pg.Rect(0, 0, 0, 0),
+                "background": None
+            }
+            # overwriting properties
+            if "type" in elem:
+                c["type"] = elem["type"]
+            if "name" in elem:
+                c["name"] = elem["name"]
+            if "rect" in elem:
+                # since we suport percentage and positional strings in
+                # rect-lists we need to calculate a new rect with valid
+                # values for drawing
+                c["rect"] = convertRect(elem["rect"], parent)
+            if "background" in elem:
+                c["background"] = tuple(elem["background"])
+            # additional properties
+            if "elements" in elem:
+                c.update({"elements": elem["elements"]})
+            if "text" in elem:
+                c.update({"text": elem["text"]})
+            if "fontsize" in elem:
+                c.update({"fontsize": elem["fontsize"]})
+            # appending gui element objects to 'elements' list
+            if elem["type"] == "menubar":
+                elements.append(MenuBar(c))
+            elif elem["type"] == "infobar":
+                elements.append(InfoBar(c))
+            elif elem["type"] == "panel":
+                elements.append(Panel(c))
+            elif elem["type"] == "button":
+                elements.append(Button2(c))
+
+    return elements
+
+class GuiMaster(pg.Surface):
+    """
+    'name' name of the element as str.
+    'parent' rect of the bigger surface for calculating positional
+        properties.
+    'background' can be tuple of 3 ints or none. if 'none' then render the
+        background transparent.
+    """
+    default = {
+        "name": "Unnamed Element",
+        "rect": pg.Rect(0, 0, 200, 25),
+        "background": (10, 10, 10),
+        "elements": []
+    }
+    def __init__(self, config={}):
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.name = self.config["name"]# str
+        # declaring parent for positional properties
+        self.parent = pg.display.get_surface().get_rect()# pygame.rect
+        # filling self.elements with real element objects
+        self.elements = convertElements(self.config, self.parent)# list
+        self.background = self.config["background"]# none / tuple
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing to surface
+        if self.background:
+            draw(self.background, self)
 class Button(pg.sprite.Sprite):
     """interactive gui element."""
     default = {
@@ -92,32 +174,12 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
-class GuiMaster(pg.Surface):
-    """
-    'name' name of the element as str.
-    'parent' rect of the bigger surface for calculating positional
-        properties.
-    'background' can be tuple of 3 ints or none. if 'none' then render the
-        background transparent.
-    """
-    default = {
-        "name": "Unnamed Element",
-        "rect": pg.Rect(0, 0, 200, 25),
-        "background": (10, 10, 10)
-    }
+class Button2(GuiMaster):
+    """interactive gui element."""
     def __init__(self, config={}):
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.name = self.config["name"]# str
-        # declaring parent for positional properties
-        self.parent = pg.display.get_surface().get_rect()# pygame.rect
-        self.background = self.config["background"]# none / tuple
-        self.rect = pg.Rect(self.config["rect"])# pygame.rect
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # drawing to surface
-        if self.background:
-            draw(self.background, self)
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
@@ -144,41 +206,10 @@ class Interface(pg.Surface):
         building interface structure from file description. filling
             'self.elements' width gui elements.
         """
-        # shortcuts
-        cfg = self.config
-        # clearing this list because we will rebuild everything in it
-        self.elements = []
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # building interface by computing a json file
-        if "elements" in cfg:
-            for elem in cfg["elements"]:
-                # resetting properties with each loop
-                c = {
-                    "type": None,
-                    "name": "Unnamed",
-                    "rect": pg.Rect(0, 0, 0, 0),
-                    "background": None,
-                }
-                # overwriting properties
-                if "type" in elem:
-                    c["type"] = elem["type"]
-                if "name" in elem:
-                    c["name"] = elem["name"]
-                if "rect" in elem:
-                    # since we suport percentage and positional strings in
-                    # rect-lists we need to calculate a new rect with valid
-                    # values for drawing
-                    c["rect"] = convertRect(elem["rect"], self.rect)
-                if "background" in elem:
-                    c["background"] = tuple(elem["background"])
-                # creating elements
-                if elem["type"] == "menubar":
-                    self.elements.append(MenuBar(c))
-                if elem["type"] == "infobar":
-                    self.elements.append(InfoBar(c))
-                elif elem["type"] == "panel":
-                    self.elements.append(Panel(c))
+        # filling self.elements with real element objects
+        self.elements = convertElements(self.config, self.rect)# list
         # drawing each element to interface
         for e in self.elements:
             draw(e, self, e.rect)
