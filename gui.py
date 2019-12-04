@@ -182,6 +182,9 @@ class Interface(pg.Surface):
         # drawing each element to interface
         for e in self.elements:
             draw(e, self, e.rect)
+    def draw(self, object, position=(0, 0)):
+        """drawing something to the interface."""
+        draw(object, self, position)
     def resize(self, size):
         """
         set a new size for interface. needs to be rebuilt.
@@ -310,7 +313,7 @@ class Text(pg.sprite.Sprite):
     def __create(self):
         """
         recreate the image-surface of the text. this is necessary since the
-        pygame.font only creates images instead of interactive text-objects.
+        pygame. font only creates images instead of interactive text-objects.
         usually the text-object doesnt have to be recreated anyways.
         """
         if self.wrap:
@@ -322,7 +325,11 @@ class Text(pg.sprite.Sprite):
                 aa = self.antialias
             )
         else:
-            self.image = self.font.render(self.text, self.antialias, self.color)
+            self.image = self.font.render(
+                self.text,
+                self.antialias,
+                self.color
+            )
         self.rect = self.image.get_rect()
     def update(self, cfg={}):
     	"""
