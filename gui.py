@@ -62,6 +62,9 @@ def convertElements(cfg, parent):
                 c["italic"] = elem["italic"]
             if "antialias" in elem:
                 c["antialias"] = elem["antialias"]
+            # event properies
+            if "hover" in elem:
+                c["hover"] = elem["hover"]
             # appending gui element objects to 'elements' list
             if elem["type"] == "menubar":
                 elements.append(MenuBar(c))
@@ -82,8 +85,7 @@ class GuiMaster(pg.Surface):
     default = {
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 200, 25),
-        "background": (10, 10, 10),
-        "hoverbackground": (20, 20, 20)
+        "background": (10, 10, 10)
     }
     def __init__(self, config={}):
         """
@@ -126,12 +128,13 @@ class Button(GuiMaster):
         "fontsize": 16,
         "bold": False,
         "italic": False,
-        "antialias": True
+        "antialias": True,
+        "hover": (20, 20, 20)
     }
     def __init__(self, config={}):
         """
         'text' gui text object. ready to be drawn.
-        'hoverbackground' different color tuple for highlighting on 'hover' event.
+        'hover' different color tuple for highlighting on 'hover' event.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
@@ -146,14 +149,14 @@ class Button(GuiMaster):
             "italic": self.cfg["italic"],
             "color": self.cfg["color"]
         })
-        self.hoverbackground = self.config["hoverbackground"]# tuple
+        self.hover = tuple(self.cfg["hover"])# tuple
         # building / drawing to surface
         self.build()
     def update(self):
         """run this method with each main loop."""
         # determining background
         if self.rect.collidepoint(pg.mouse.get_pos()):
-            bg = self.hoverbackground
+            bg = self.hover
         else:
             bg = self.background
         # drawing background
