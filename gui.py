@@ -328,7 +328,7 @@ class Panel(GuiMaster):
 class Text(pg.sprite.Sprite):
     """text surface. ready to be drawn."""
     default = {
-    	"font": "Verdana",
+    	"font": "Ebrima",
     	"fontsize": 16,
     	"color": (0, 0, 0),
     	"text": "No Text",
