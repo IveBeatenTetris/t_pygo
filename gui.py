@@ -49,11 +49,19 @@ def convertElements(cfg, parent):
                 c["background"] = tuple(elem["background"])
             # additional properties
             if "elements" in elem:
-                c.update({"elements": elem["elements"]})
+                c["elements"] = elem["elements"]
             if "text" in elem:
-                c.update({"text": elem["text"]})
+                c["text"] = elem["text"]
+            if "color" in elem:
+                c["color"] = elem["color"]
             if "fontsize" in elem:
-                c.update({"fontsize": elem["fontsize"]})
+                c["fontsize"] = elem["fontsize"]
+            if "bold" in elem:
+                c["bold"] = elem["bold"]
+            if "italic" in elem:
+                c["italic"] = elem["italic"]
+            if "antialias" in elem:
+                c["antialias"] = elem["antialias"]
             # appending gui element objects to 'elements' list
             if elem["type"] == "menubar":
                 elements.append(MenuBar(c))
@@ -62,88 +70,98 @@ def convertElements(cfg, parent):
             elif elem["type"] == "panel":
                 elements.append(Panel(c))
             elif elem["type"] == "button":
-                elements.append(Button2(c))
+                elements.append(Button(c))
 
     return elements
 
 class GuiMaster(pg.Surface):
     """
-    'name' name of the element as str.
-    'parent' rect of the bigger surface for calculating positional
-        properties.
-    'background' can be tuple of 3 ints or none. if 'none' then render the
-        background transparent.
+    master element for many gui elements to inherit from. comes with diverse
+    events ans additional properties for surfaces.
     """
     default = {
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 200, 25),
-        "background": (10, 10, 10)
+        "background": (10, 10, 10),
+        "hoverbackground": (20, 20, 20)
     }
     def __init__(self, config={}):
+        """
+        'name' name of the element as str.
+        'parent' rect of the bigger surface for calculating positional
+            properties.
+        'background' can be tuple of 3 ints or none. if 'none' then render the
+            background transparent.
+        'anchors' anchorpoints for positional arguments.
+        """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
         self.name = self.config["name"]# str
         # declaring parent for positional properties
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
-        # filling self.elements with real element objects
-        self.elements = convertElements(self.config, self.parent)# list
         self.background = self.config["background"]# none / tuple
-        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        self.rect = self.config["rect"]# pygame.rect
+        self.anchors = getAnchors(self.rect.size)# dict
+        # building surface
+        self.build()
+    def build(self):
+        """rebuilding everything."""
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # drawing to surface
-        if self.background:
-            draw(self.background, self)
-class Button(pg.sprite.Sprite):
+        # updating anchors
+        self.anchors = getAnchors(self.rect.size)
+        # drawing
+        draw(self.background, self)
+    def update(self):
+        """
+        run this method with each main loop. can be overwritten by the calling
+            element.
+        """
+        pass
+class Button(GuiMaster):
     """interactive gui element."""
-    default = {
-        "size": (120, 40),
-        "background": (0, 0, 0),
-        "hoverbackground": (20, 20, 20),
+    cfg = {
         "text": "Button",
-        "textcolor": (255, 255, 255),
+        "color": (200, 200, 200),
         "fontsize": 16,
         "bold": False,
         "italic": False,
-        "position": (0, 0)
+        "antialias": True
     }
     def __init__(self, config={}):
         """
-        'anchors' holds shortcuts for positional arguments like "midcenter" or
-            "topright" etc for documentation look into 'utils.py'.
-        'text' the actual displayed text.
+        'text' gui text object. ready to be drawn.
+        'hoverbackground' different color tuple for highlighting on 'hover' event.
         """
-        # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
-        # initiating sprite
-        pg.sprite.Sprite.__init__(self)
-        self.image = pg.Surface(self.config["size"])# pygame.surface
-        # additional attributes
-        self.rect = self.image.get_rect()# pygame.rect
-        self.rect.topleft = self.config["position"]# tuple
-        self.anchors = getAnchors(self.rect.size)# dict
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
+        # updating 'config' with properties from json file
+        for k, v in config.items():
+            self.cfg[k] = v
+        # assigning attributes
         self.text = Text({# text object
-            "text": self.config["text"],
-            "fontsize": self.config["fontsize"],
-            "bold": self.config["bold"],
-            "italic": self.config["italic"],
-            "color": self.config["textcolor"]
+            "text": self.cfg["text"],
+            "fontsize": self.cfg["fontsize"],
+            "bold": self.cfg["bold"],
+            "italic": self.cfg["italic"],
+            "color": self.cfg["color"]
         })
-        # building the sprite object
-        self.__build()
-    def __build(self):
-        """redrawing everything"""
+        self.hoverbackground = self.config["hoverbackground"]# tuple
+        # building / drawing to surface
+        self.build()
+    def update(self):
+        """run this method with each main loop."""
         # determining background
         if self.rect.collidepoint(pg.mouse.get_pos()):
-            bg = self.config["hoverbackground"]
+            bg = self.hoverbackground
         else:
-            bg = self.config["background"]
-        # drawing on button
-        draw(bg, self.image)
+            bg = self.background
+        # drawing background
+        draw(bg, self)
         # drawing text in the very center of the button
         draw(
             self.text,
-            self.image,
+            self,
             (
                 self.anchors["midcenter"][0] - int(self.text.rect.width / 2),
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
@@ -159,7 +177,7 @@ class Button(pg.sprite.Sprite):
                 hover = True
 
         # rebuilding the surface so the hover effect can pop in
-        self.__build()
+        self.build()
 
         return hover
     def leftClick(self, events):
@@ -173,12 +191,6 @@ class Button(pg.sprite.Sprite):
                     click = True
 
         return click
-class Button2(GuiMaster):
-    """interactive gui element."""
-    def __init__(self, config={}):
-        """."""
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
@@ -199,6 +211,7 @@ class Interface(pg.Surface):
         # taking rect from pygame.display
         self.rect = pg.display.get_surface().get_rect()# pygame.rect
         self.elements = []# list
+        # building surface / drawing
         self.__build()
     def __build(self):
         """
@@ -225,15 +238,31 @@ class Interface(pg.Surface):
         self.__build()
     def update(self):
         """run this method with each main loop."""
-        # drawing each element to interface
         for e in self.elements:
+            # updating each element
+            e.update()
+            # drawing each element to interface
             draw(e, self, e.rect)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
-        """."""
+        """
+        'elements' a list of gui element objects to draw.
+        """
         # inherit from gui master
         GuiMaster.__init__(self, config)
+        # filling self.elements with real element objects
+        self.elements = convertElements(config, self.parent)# list
+        # rebuild surface
+        self.update()
+    def update(self):
+        """run this method with each main loop."""
+        for elem in self.elements:
+            # updating each element
+            if type(elem) is Button:
+                elem.update()
+            # drawing each element
+            draw(elem, self, elem.rect)
 class MiniMap(pg.Surface):
     """display a miniature version of an area around the players position."""
     default = {
