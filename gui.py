@@ -203,10 +203,12 @@ class InfoBar(GuiMaster):
 class Interface(pg.Surface):
     """
     acts like a big surface to stat drawing the element tree from a json-file.
-    'elements' a list of all gui elements in the correct drawing order.
     """
     def __init__(self, name):
-        """draws its size from the running window."""
+        """
+        draws its size from the running window.
+        'elements' a list of all gui elements in the correct drawing order.
+        """
         # combine path + name to get the asset by its tail
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
@@ -328,7 +330,7 @@ class Panel(GuiMaster):
 class Text(pg.sprite.Sprite):
     """text surface. ready to be drawn."""
     default = {
-    	"font": "Ebrima",
+    	"font": "ebrima",
     	"fontsize": 16,
     	"color": (0, 0, 0),
     	"text": "No Text",
