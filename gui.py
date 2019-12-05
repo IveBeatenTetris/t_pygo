@@ -152,6 +152,15 @@ class Button(GuiMaster):
         self.hover = tuple(self.cfg["hover"])# tuple
         # building / drawing to surface
         self.build()
+        # drawing text in the very center of the button
+        draw(
+            self.text,
+            self,
+            (
+                self.anchors["midcenter"][0] - int(self.text.rect.width / 2),
+                self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
+            )
+        )
     def update(self):
         """run this method with each main loop."""
         # determining background
