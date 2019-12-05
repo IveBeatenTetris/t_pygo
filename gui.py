@@ -30,10 +30,9 @@ def convertElement(cfg, parent):
         "background": None
     }
     # overwriting properties
-    if "type" in cfg:
-        c["type"] = cfg["type"]
-    if "name" in cfg:
-        c["name"] = cfg["name"]
+    for name, prop in cfg.items():
+        c[name] = prop
+    # additional properties
     if "rect" in cfg:
         # since we suport percentage and positional strings in
         # rect-lists we need to calculate a new rect with valid
@@ -41,24 +40,6 @@ def convertElement(cfg, parent):
         c["rect"] = convertRect(cfg["rect"], parent)
     if "background" in cfg:
         c["background"] = tuple(cfg["background"])
-    # additional properties
-    if "elements" in cfg:
-        c["elements"] = cfg["elements"]
-    if "text" in cfg:
-        c["text"] = cfg["text"]
-    if "color" in cfg:
-        c["color"] = cfg["color"]
-    if "fontsize" in cfg:
-        c["fontsize"] = cfg["fontsize"]
-    if "bold" in cfg:
-        c["bold"] = cfg["bold"]
-    if "italic" in cfg:
-        c["italic"] = cfg["italic"]
-    if "antialias" in cfg:
-        c["antialias"] = cfg["antialias"]
-    # event properies
-    if "hover" in cfg:
-        c["hover"] = cfg["hover"]
     # appending gui element objects to 'elements' list
     if "type" in cfg:
         # menus
