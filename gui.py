@@ -103,6 +103,28 @@ class GuiMaster(pg.Surface):
             element.
         """
         pass
+    # events
+    def mouseOver(self, events):
+        """return 'true' if the mouse hovers the element."""
+        mouse = pg.mouse.get_pos()
+        hover = False
+
+        #for event in events:
+        if self.rect.collidepoint(mouse):
+            hover = True
+
+        return hover
+    def leftClick(self, events):
+        """returns 'true' if element is left-clicked."""
+        mouse = pg.mouse.get_pos()
+        click = False
+
+        for event in events:
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                if self.mouseOver(events):
+                    click = True
+
+        return click
 class Interface(pg.Surface):
     """
     acts like a big surface to stat drawing the element tree from a json-file.
@@ -261,7 +283,10 @@ class Button(GuiMaster):
             )
         )
     def mouseOver(self, events):
-        """return 'true' if the mouse hovers the button."""
+        """
+        overwriting 'guimaster's 'mouseOver()' method and return 'true' if the
+            mouse hovers the button.
+        """
         mouse = pg.mouse.get_pos()
         hover = False
 
@@ -273,17 +298,6 @@ class Button(GuiMaster):
         self.build()
 
         return hover
-    def leftClick(self, events):
-        """returns 'true' if button is left-clicked."""
-        mouse = pg.mouse.get_pos()
-        click = False
-
-        for event in events:
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                if self.mouseOver(events):
-                    click = True
-
-        return click
 class DropDownMenu(GuiMaster):
     """a drop down menu. draw this on a button call."""
     def __init__(self, config={}):
@@ -405,8 +419,6 @@ class Text(pg.sprite.Sprite):
     def __init__(self, config={}):
         """
         creates a text that can be drawn to any surface.
-        first validates the config dict by camparing it with its default values.
-            validateDict() is going to do that for you.
         'fontsize' its in the name.
         'color' should be tuple by 3 like (50, 110, 95).
         'text' only one-liners right now.
