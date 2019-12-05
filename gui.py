@@ -179,6 +179,7 @@ class Interface(pg.Surface):
                         else:
                             elem.state = False
                             self.__build()
+
                     # drawing depending on button state
                     if elem.state:
                         for menu in self.menus:
@@ -268,8 +269,8 @@ class Button(GuiMaster):
         click = False
 
         for event in events:
-            if self.mouseOver(events):
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                if self.mouseOver(events):
                     click = True
 
         return click
