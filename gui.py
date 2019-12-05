@@ -54,6 +54,8 @@ def convertElement(cfg, parent):
             element = Panel(c)
         elif cfg["type"] == "button":
             element = Button(c)
+        elif cfg["type"] == "text":
+            element = Text(c)
 
     return element
 
