@@ -171,15 +171,15 @@ class Interface(pg.Surface):
             if type(e) is MenuBar:
                 # looking for buttons
                 for elem in e.elements:
-                    # if clicked set active and draw. on false rebuilding
-                    # interface
+                    # if clicked set active and draw
                     if elem.leftClick(events):
                         if not elem.state:
                             elem.state = True
-                        else:
+                    # if clicked somewhere else rebuild interface
+                    elif not elem.mouseOver(events) and pg.mouse.get_pressed()[0]:
+                        if elem.state:
                             elem.state = False
                             self.__build()
-
                     # drawing depending on button state
                     if elem.state:
                         for menu in self.menus:
@@ -255,9 +255,9 @@ class Button(GuiMaster):
         mouse = pg.mouse.get_pos()
         hover = False
 
-        for event in events:
-            if self.rect.collidepoint(mouse):
-                hover = True
+        #for event in events:
+        if self.rect.collidepoint(mouse):
+            hover = True
 
         # rebuilding the surface so the hover effect can pop in
         self.build()
