@@ -157,8 +157,8 @@ class Interface(pg.Surface):
         self.rect.size = size
         # rebuilding
         self.__build()
-    def update(self):
-        """run this method with each main loop."""
+    def update(self, events):
+        """run this method with each main loop. needs 'pygame.events' to run."""
         for e in self.elements:
             # updating each element
             e.update()
@@ -167,7 +167,27 @@ class Interface(pg.Surface):
             # better fps performance
             if type(e) is MenuBar or type(e) is InfoBar:
                 draw(e, self, e.rect)
-
+            # drawing menus when activated
+            if type(e) is MenuBar:
+                # looking for buttons
+                for elem in e.elements:
+                    # if clicked set active and draw. on false rebuilding
+                    # interface
+                    if elem.leftClick(events):
+                        if not elem.state:
+                            elem.state = True
+                        else:
+                            elem.state = False
+                            self.__build()
+                    # drawing depending on button state
+                    if elem.state:
+                        for menu in self.menus:
+                            if menu.name == elem.name:
+                                # drawing right under the menu point
+                                self.draw(menu, (
+                                    elem.rect.left,
+                                    elem.rect.top + elem.rect.height
+                                ))
 class Button(GuiMaster):
     """interactive gui element."""
     cfg = {
