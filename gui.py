@@ -171,7 +171,8 @@ class Interface(pg.Surface):
             if type(e) is MenuBar:
                 # looking for buttons
                 for elem in e.elements:
-                    # if clicked set active and draw
+                    # if clicked set active and if clicked again rebuild
+                    # interface
                     if elem.leftClick(events):
                         if not elem.state:
                             elem.state = True
@@ -239,6 +240,9 @@ class Button(GuiMaster):
         """run this method with each main loop."""
         # determining background
         if self.rect.collidepoint(pg.mouse.get_pos()):
+            bg = self.hover
+        # stays hover backgrounded if mouse moves out of button rect
+        elif self.state:
             bg = self.hover
         else:
             bg = self.background
