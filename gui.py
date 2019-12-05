@@ -77,6 +77,7 @@ class GuiMaster(pg.Surface):
         'background' can be tuple of 3 ints or none. if 'none' then render the
             background transparent.
         'anchors' anchorpoints for positional arguments.
+        'events' list of pygame.events to compute.
         """
         # creating a new dict based on comparison of two
         self.config = validateDict(config, self.default)# dict
@@ -86,6 +87,7 @@ class GuiMaster(pg.Surface):
         self.background = self.config["background"]# none / tuple
         self.rect = self.config["rect"]# pygame.rect
         self.anchors = getAnchors(self.rect.size)# dict
+        self.events = []#list
         # building surface
         self.build()
     def build(self):
@@ -97,14 +99,16 @@ class GuiMaster(pg.Surface):
         # drawing
         if self.background:
             draw(self.background, self)
-    def update(self):
+    def update(self, events):
         """
         run this method with each main loop. can be overwritten by the calling
             element.
+        'events' is a list of pygame.events. this is needed to update the events
+            of this element.
         """
-        pass
+        self.events = events
     # events
-    def mouseOver(self, events):
+    def mouseOver(self):
         """return 'true' if the mouse hovers the element."""
         mouse = pg.mouse.get_pos()
         hover = False
@@ -114,14 +118,14 @@ class GuiMaster(pg.Surface):
             hover = True
 
         return hover
-    def leftClick(self, events):
+    def leftClick(self):
         """returns 'true' if element is left-clicked."""
         mouse = pg.mouse.get_pos()
         click = False
 
-        for event in events:
+        for event in self.events:
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                if self.mouseOver(events):
+                if self.mouseOver():
                     click = True
 
         return click
@@ -135,6 +139,8 @@ class Interface(pg.Surface):
         'elements' a list of all gui elements in the correct drawing order.
         'menus' a list of all accessable menus of the interface ready to be
             called.
+        'events' list of pygame.events. pass this trough every element to update
+            it with momentum events.
         """
         # combine path + name to get the asset by its tail
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
@@ -144,6 +150,7 @@ class Interface(pg.Surface):
         self.rect = pg.display.get_surface().get_rect()# pygame.rect
         self.elements = []# list
         self.menus = []# list
+        self.events = []# list / pygame.events
         # building surface / drawing
         self.__build()
     def __build(self):
@@ -184,9 +191,12 @@ class Interface(pg.Surface):
         self.__build()
     def update(self, events):
         """run this method with each main loop. needs 'pygame.events' to run."""
+        # updating internal events
+        self.events = events
+
         for e in self.elements:
             # updating each element
-            e.update()
+            e.update(events)
             # drawing elements to interface
             # reduced drawing functionallity to 'menubar' and 'infobar' for a
             # better fps performance
@@ -198,14 +208,14 @@ class Interface(pg.Surface):
                 for elem in e.elements:
                     # if clicked set active and if clicked again rebuild
                     # interface
-                    if elem.leftClick(events):
+                    if elem.leftClick():
                         if not elem.state:
                             elem.state = True
                         else:
                             elem.state = False
                             self.__build()
                     # if clicked somewhere else rebuild interface
-                    elif not elem.mouseOver(events) and pg.mouse.get_pressed()[0]:
+                    elif not elem.mouseOver() and pg.mouse.get_pressed()[0]:
                         if elem.state:
                             elem.state = False
                             self.__build()
@@ -261,8 +271,9 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-    def update(self):
-        """run this method with each main loop."""
+    def update(self, events):
+        self.events = events
+        """run this method with each main loop. needs 'pygame.events'."""
         # determining background
         if self.rect.collidepoint(pg.mouse.get_pos()):
             bg = self.hover
@@ -282,7 +293,7 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-    def mouseOver(self, events):
+    def mouseOver(self):
         """
         overwriting 'guimaster's 'mouseOver()' method and return 'true' if the
             mouse hovers the button.
@@ -334,14 +345,12 @@ class MenuBar(GuiMaster):
         if "elements" in config:
             for elem in config["elements"]:
                 self.elements.append(convertElement(elem, self.rect))
-        # rebuild surface
-        self.update()
-    def update(self):
-        """run this method with each main loop."""
+    def update(self, events):
+        """run this method with each main loop. needs 'pygame.events'."""
         for elem in self.elements:
             # updating each element
             if type(elem) is Button:
-                elem.update()
+                elem.update(events)
             # drawing each element
             draw(elem, self, elem.rect)
 class MiniMap(pg.Surface):
