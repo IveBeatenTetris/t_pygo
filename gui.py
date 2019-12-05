@@ -203,6 +203,12 @@ class Button(GuiMaster):
                     click = True
 
         return click
+class DropDownMenu(GuiMaster):
+    """a drop down menu. draw this on a button call."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
