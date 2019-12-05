@@ -143,6 +143,9 @@ class Interface(pg.Surface):
         # drawing each element to interface
         for e in self.elements:
             draw(e, self, e.rect)
+        # drawing menu if activated
+        for m in self.menus:
+            pass
     def draw(self, object, position=(0, 0)):
         """drawing something to the interface."""
         draw(object, self, position)
@@ -177,6 +180,7 @@ class Button(GuiMaster):
         """
         'text' gui text object. ready to be drawn.
         'hover' different color tuple for highlighting on 'hover' event.
+        'state' state of activation. 'true' on click.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
@@ -191,6 +195,7 @@ class Button(GuiMaster):
             "italic": self.cfg["italic"],
             "color": self.cfg["color"]
         })
+        self.state = False# bool
         self.hover = tuple(self.cfg["hover"])# tuple
         # building / drawing to surface
         self.build()
@@ -203,6 +208,9 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
+
+        print(config)
+        print()
     def update(self):
         """run this method with each main loop."""
         # determining background
