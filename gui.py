@@ -14,68 +14,62 @@ from .camera import Camera
 import pygame as pg
 
 # overall functions
-def convertElements(cfg, parent):
+def convertElement(cfg, parent):
     """
     using this function to convert a interface element from a json file into a
-        valid interface element object.
-    also works recursively to convert elements within elements and so on.
-    returns a list of valid element objects.
+        valid interface element object. returns the valid interface element.
     'cfg' needs to be a converted dict from json file.
     'parent' must be pygame.rect.
     """
-    elements = []
-
-    # building interface by computing a json file
+    element = None
+    # resetting properties with each loop
+    c = {
+        "type": None,
+        "name": "Unnamed",
+        "rect": pg.Rect(0, 0, 0, 0),
+        "background": None
+    }
+    # overwriting properties
+    if "type" in cfg:
+        c["type"] = cfg["type"]
+    if "name" in cfg:
+        c["name"] = cfg["name"]
+    if "rect" in cfg:
+        # since we suport percentage and positional strings in
+        # rect-lists we need to calculate a new rect with valid
+        # values for drawing
+        c["rect"] = convertRect(cfg["rect"], parent)
+    if "background" in cfg:
+        c["background"] = tuple(cfg["background"])
+    # additional properties
     if "elements" in cfg:
-        for elem in cfg["elements"]:
-            # resetting properties with each loop
-            c = {
-                "type": None,
-                "name": "Unnamed",
-                "rect": pg.Rect(0, 0, 0, 0),
-                "background": None
-            }
-            # overwriting properties
-            if "type" in elem:
-                c["type"] = elem["type"]
-            if "name" in elem:
-                c["name"] = elem["name"]
-            if "rect" in elem:
-                # since we suport percentage and positional strings in
-                # rect-lists we need to calculate a new rect with valid
-                # values for drawing
-                c["rect"] = convertRect(elem["rect"], parent)
-            if "background" in elem:
-                c["background"] = tuple(elem["background"])
-            # additional properties
-            if "elements" in elem:
-                c["elements"] = elem["elements"]
-            if "text" in elem:
-                c["text"] = elem["text"]
-            if "color" in elem:
-                c["color"] = elem["color"]
-            if "fontsize" in elem:
-                c["fontsize"] = elem["fontsize"]
-            if "bold" in elem:
-                c["bold"] = elem["bold"]
-            if "italic" in elem:
-                c["italic"] = elem["italic"]
-            if "antialias" in elem:
-                c["antialias"] = elem["antialias"]
-            # event properies
-            if "hover" in elem:
-                c["hover"] = elem["hover"]
-            # appending gui element objects to 'elements' list
-            if elem["type"] == "menubar":
-                elements.append(MenuBar(c))
-            elif elem["type"] == "infobar":
-                elements.append(InfoBar(c))
-            elif elem["type"] == "panel":
-                elements.append(Panel(c))
-            elif elem["type"] == "button":
-                elements.append(Button(c))
+        c["elements"] = cfg["elements"]
+    if "text" in cfg:
+        c["text"] = cfg["text"]
+    if "color" in cfg:
+        c["color"] = cfg["color"]
+    if "fontsize" in cfg:
+        c["fontsize"] = cfg["fontsize"]
+    if "bold" in cfg:
+        c["bold"] = cfg["bold"]
+    if "italic" in cfg:
+        c["italic"] = cfg["italic"]
+    if "antialias" in cfg:
+        c["antialias"] = cfg["antialias"]
+    # event properies
+    if "hover" in cfg:
+        c["hover"] = cfg["hover"]
+    # appending gui element objects to 'elements' list
+    if cfg["type"] == "menubar":
+        element = MenuBar(c)
+    elif cfg["type"] == "infobar":
+        element = InfoBar(c)
+    elif cfg["type"] == "panel":
+        element = Panel(c)
+    elif cfg["type"] == "button":
+        element = Button(c)
 
-    return elements
+    return element
 
 class GuiMaster(pg.Surface):
     """
@@ -141,12 +135,20 @@ class Interface(pg.Surface):
     def __build(self):
         """
         building interface structure from file description. filling
-            'self.elements' width gui elements.
+            'self.elements' and 'self.menus' with gui elements.
         """
+        # filling 'self.elements' later with real element objects
+        self.elements = []# list
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # filling self.elements with real element objects
-        self.elements = convertElements(self.config, self.rect)# list
+        # creating menus
+        if "menus" in self.config:
+            for menu, prop in self.config["menus"].items():
+                pass
+        # creating visible gui elements
+        if "elements" in self.config:
+            for elem in self.config["elements"]:
+                self.elements.append(convertElement(elem, self.rect))
         # drawing each element to interface
         for e in self.elements:
             draw(e, self, e.rect)
@@ -273,7 +275,10 @@ class MenuBar(GuiMaster):
         # inherit from gui master
         GuiMaster.__init__(self, config)
         # filling self.elements with real element objects
-        self.elements = convertElements(config, self.parent)# list
+        self.elements = []# list
+        if "elements" in config:
+            for elem in config["elements"]:
+                self.elements.append(convertElement(elem, self.rect))
         # rebuild surface
         self.update()
     def update(self):
