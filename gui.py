@@ -65,7 +65,7 @@ class GuiMaster(pg.Surface):
     default = {
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 200, 25),
-        "background": (10, 10, 10)
+        "background": None
     }
     def __init__(self, config={}):
         """
@@ -93,7 +93,8 @@ class GuiMaster(pg.Surface):
         # updating anchors
         self.anchors = getAnchors(self.rect.size)
         # drawing
-        draw(self.background, self)
+        if self.background:
+            draw(self.background, self)
     def update(self):
         """
         run this method with each main loop. can be overwritten by the calling
@@ -284,9 +285,20 @@ class Button(GuiMaster):
 class DropDownMenu(GuiMaster):
     """a drop down menu. draw this on a button call."""
     def __init__(self, config={}):
-        """."""
+        """
+        'elements' list of elements ready to been drawn to the menu.
+        """
         # inherit from gui master
         GuiMaster.__init__(self, config)
+        self.elements = []# list
+        # filling 'self.elements' with gui objects and draw them
+        if "elements" in config:
+            # appending
+            for elem in config["elements"]:
+                self.elements.append(convertElement(elem, self.rect))
+            # drawing
+            for elem in self.elements:
+                draw(elem, self, elem.rect)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
