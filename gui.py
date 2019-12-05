@@ -60,14 +60,19 @@ def convertElement(cfg, parent):
     if "hover" in cfg:
         c["hover"] = cfg["hover"]
     # appending gui element objects to 'elements' list
-    if cfg["type"] == "menubar":
-        element = MenuBar(c)
-    elif cfg["type"] == "infobar":
-        element = InfoBar(c)
-    elif cfg["type"] == "panel":
-        element = Panel(c)
-    elif cfg["type"] == "button":
-        element = Button(c)
+    if "type" in cfg:
+        # menus
+        if cfg["type"] == "dropdown":
+            element = DropDownMenu(c)
+        # elements
+        elif cfg["type"] == "menubar":
+            element = MenuBar(c)
+        elif cfg["type"] == "infobar":
+            element = InfoBar(c)
+        elif cfg["type"] == "panel":
+            element = Panel(c)
+        elif cfg["type"] == "button":
+            element = Button(c)
 
     return element
 
@@ -122,6 +127,8 @@ class Interface(pg.Surface):
         """
         draws its size from the running window.
         'elements' a list of all gui elements in the correct drawing order.
+        'menus' a list of all accessable menus of the interface ready to be
+            called.
         """
         # combine path + name to get the asset by its tail
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
@@ -130,6 +137,7 @@ class Interface(pg.Surface):
         # taking rect from pygame.display
         self.rect = pg.display.get_surface().get_rect()# pygame.rect
         self.elements = []# list
+        self.menus = []# list
         # building surface / drawing
         self.__build()
     def __build(self):
@@ -139,12 +147,14 @@ class Interface(pg.Surface):
         """
         # filling 'self.elements' later with real element objects
         self.elements = []# list
+        self.menus = []# list
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # creating menus
         if "menus" in self.config:
             for menu, prop in self.config["menus"].items():
-                pass
+                prop.update({"name": menu})
+                self.menus.append(convertElement(prop, self.rect))
         # creating visible gui elements
         if "elements" in self.config:
             for elem in self.config["elements"]:
