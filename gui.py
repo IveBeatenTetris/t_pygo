@@ -175,6 +175,9 @@ class Interface(pg.Surface):
                     if elem.leftClick(events):
                         if not elem.state:
                             elem.state = True
+                        else:
+                            elem.state = False
+                            self.__build()
                     # if clicked somewhere else rebuild interface
                     elif not elem.mouseOver(events) and pg.mouse.get_pressed()[0]:
                         if elem.state:
