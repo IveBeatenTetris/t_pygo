@@ -120,6 +120,55 @@ class GuiMaster(pg.Surface):
             element.
         """
         pass
+class Interface(pg.Surface):
+    """
+    acts like a big surface to stat drawing the element tree from a json-file.
+    """
+    def __init__(self, name):
+        """
+        draws its size from the running window.
+        'elements' a list of all gui elements in the correct drawing order.
+        """
+        # combine path + name to get the asset by its tail
+        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if js["type"] == "interface":
+                self.config = js
+        # taking rect from pygame.display
+        self.rect = pg.display.get_surface().get_rect()# pygame.rect
+        self.elements = []# list
+        # building surface / drawing
+        self.__build()
+    def __build(self):
+        """
+        building interface structure from file description. filling
+            'self.elements' width gui elements.
+        """
+        # initiating surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # filling self.elements with real element objects
+        self.elements = convertElements(self.config, self.rect)# list
+        # drawing each element to interface
+        for e in self.elements:
+            draw(e, self, e.rect)
+    def draw(self, object, position=(0, 0)):
+        """drawing something to the interface."""
+        draw(object, self, position)
+    def resize(self, size):
+        """
+        set a new size for interface. needs to be rebuilt.
+        'size' needs to be tuple.
+        """
+        self.rect.size = size
+        # rebuilding
+        self.__build()
+    def update(self):
+        """run this method with each main loop."""
+        for e in self.elements:
+            # updating each element
+            e.update()
+            # drawing each element to interface
+            draw(e, self, e.rect)
+
 class Button(GuiMaster):
     """interactive gui element."""
     cfg = {
@@ -215,54 +264,6 @@ class InfoBar(GuiMaster):
         """."""
         # inherit from gui master
         GuiMaster.__init__(self, config)
-class Interface(pg.Surface):
-    """
-    acts like a big surface to stat drawing the element tree from a json-file.
-    """
-    def __init__(self, name):
-        """
-        draws its size from the running window.
-        'elements' a list of all gui elements in the correct drawing order.
-        """
-        # combine path + name to get the asset by its tail
-        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
-            if js["type"] == "interface":
-                self.config = js
-        # taking rect from pygame.display
-        self.rect = pg.display.get_surface().get_rect()# pygame.rect
-        self.elements = []# list
-        # building surface / drawing
-        self.__build()
-    def __build(self):
-        """
-        building interface structure from file description. filling
-            'self.elements' width gui elements.
-        """
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # filling self.elements with real element objects
-        self.elements = convertElements(self.config, self.rect)# list
-        # drawing each element to interface
-        for e in self.elements:
-            draw(e, self, e.rect)
-    def draw(self, object, position=(0, 0)):
-        """drawing something to the interface."""
-        draw(object, self, position)
-    def resize(self, size):
-        """
-        set a new size for interface. needs to be rebuilt.
-        'size' needs to be tuple.
-        """
-        self.rect.size = size
-        # rebuilding
-        self.__build()
-    def update(self):
-        """run this method with each main loop."""
-        for e in self.elements:
-            # updating each element
-            e.update()
-            # drawing each element to interface
-            draw(e, self, e.rect)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
