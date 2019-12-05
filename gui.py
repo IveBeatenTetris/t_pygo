@@ -179,7 +179,7 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-    def hover(self, events):
+    def mouseOver(self, events):
         """return 'true' if the mouse hovers the button."""
         mouse = pg.mouse.get_pos()
         hover = False
@@ -198,7 +198,7 @@ class Button(GuiMaster):
         click = False
 
         for event in events:
-            if self.hover(events):
+            if self.mouseOver(events):
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     click = True
 
