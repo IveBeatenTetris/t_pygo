@@ -162,8 +162,11 @@ class Interface(pg.Surface):
         for e in self.elements:
             # updating each element
             e.update()
-            # drawing each element to interface
-            draw(e, self, e.rect)
+            # drawing elements to interface
+            # reduced drawing functionallity to 'menubar' and 'infobar' for a
+            # better fps performance
+            if type(e) is MenuBar or type(e) is InfoBar:
+                draw(e, self, e.rect)
 
 class Button(GuiMaster):
     """interactive gui element."""
@@ -208,9 +211,6 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-
-        print(config)
-        print()
     def update(self):
         """run this method with each main loop."""
         # determining background
