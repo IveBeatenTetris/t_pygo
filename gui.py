@@ -504,6 +504,12 @@ class Text(pg.Surface):
     		pass
 
     	self.__build()
+class Text2(GuiMaster):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class TextBox(pg.Surface):
     """surface for displaying text."""
     default = {
