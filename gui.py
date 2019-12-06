@@ -61,7 +61,7 @@ def convertElement(cfg, parent):
 
 class GuiMaster(pg.Surface):
     """
-    master element for many gui elements to inherit from. comes with diverse
+    master-element for many gui elements to inherit from. comes with diverse
     events ans additional properties for surfaces.
     """
     default = {
@@ -412,12 +412,13 @@ class Panel(GuiMaster):
         """."""
         # inherit from gui master
         GuiMaster.__init__(self, config)
-class Text(pg.sprite.Sprite):
+class Text(pg.Surface):
     """text surface. ready to be drawn."""
     default = {
     	"font": "ebrima",
     	"fontsize": 16,
     	"color": (0, 0, 0),
+        "background": None,
     	"text": "No Text",
     	"antialias": True,
     	"bold": False,
@@ -427,7 +428,7 @@ class Text(pg.sprite.Sprite):
     }
     def __init__(self, config={}):
         """
-        creates a text that can be drawn to any surface.
+        creates a text obejct that can be drawn to any surface.
         'fontsize' its in the name.
         'color' should be tuple by 3 like (50, 110, 95).
         'text' only one-liners right now.
@@ -439,8 +440,7 @@ class Text(pg.sprite.Sprite):
         """
         # comparing both dicts and creating a new one from it
         self.config = validateDict(config, self.default)# dict
-        # initiating
-        pg.sprite.Sprite.__init__(self)
+        # initiating font module
         pg.font.init()
         # additional attributes
         self.fontsize = self.config["fontsize"]# int
@@ -478,6 +478,10 @@ class Text(pg.sprite.Sprite):
                 self.color
             )
         self.rect = self.image.get_rect()
+        # initiating surface
+        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        # drawing to surface
+        draw(self.image, self)
     def update(self, cfg={}):
     	"""
         updates attributes with the given parameters. 'cfg' must be dict.
