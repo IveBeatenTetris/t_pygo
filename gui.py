@@ -459,13 +459,14 @@ class Text(pg.Surface):
         self.wrap = self.config["wrap"]# bool
         self.rect = self.config["rect"]# none / tuple / list
         # image and rect are going to be created there
-        self.__create()
-    def __create(self):
+        self.__build()
+    def __build(self):
         """
         recreate the image-surface of the text. this is necessary since the
         pygame. font only creates images instead of interactive text-objects.
         usually the text-object doesnt have to be recreated anyways.
         """
+        # wrapped text
         if self.wrap:
             self.image = wrapText(
                 self.text,
@@ -480,13 +481,13 @@ class Text(pg.Surface):
                 self.antialias,
                 self.color
             )
-        #self.rect = self.image.get_rect()
-        # initiating surface
+        # determine rect size
         if self.rect:
             size = self.rect.size
         else:
             size = self.image.get_rect().size
             self.rect = self.image.get_rect()
+        # initiating surface
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         # drawing to surface
         if self.background:
@@ -502,7 +503,7 @@ class Text(pg.Surface):
     	except KeyError:
     		pass
 
-    	self.__create()
+    	self.__build()
 class TextBox(pg.Surface):
     """surface for displaying text."""
     default = {
