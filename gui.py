@@ -412,9 +412,9 @@ class Panel(GuiMaster):
         """."""
         # inherit from gui master
         GuiMaster.__init__(self, config)
-class Text(pg.Surface):
+class Text(GuiMaster):
     """text surface. ready to be drawn."""
-    default = {
+    cfg = {
     	"font": "ebrima",
     	"fontsize": 16,
     	"color": (0, 0, 0),
@@ -429,7 +429,6 @@ class Text(pg.Surface):
     def __init__(self, config={}):
         """
         creates a text obejct that can be drawn to any surface.
-        'background' color tuple to fill the background with.
         'fontsize' its in the name.
         'color' should be tuple by 3 like (50, 110, 95).
         'text' only one-liners right now.
@@ -440,12 +439,13 @@ class Text(pg.Surface):
         'rect' dynamically using font-rect if there is no rect given as
             parameter.
         """
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
         # comparing both dicts and creating a new one from it
-        self.config = validateDict(config, self.default)# dict
+        self.config = validateDict(config, self.cfg)# dict
         # initiating font module
         pg.font.init()
         # additional attributes
-        self.background = self.config["background"]# none / tuple
         self.fontsize = self.config["fontsize"]# int
         self.color = self.config["color"]# tuple
         self.text = self.config["text"]# str
@@ -487,8 +487,6 @@ class Text(pg.Surface):
         else:
             size = self.image.get_rect().size
             self.rect = self.image.get_rect()
-        # initiating surface
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
         # drawing to surface
         if self.background:
             draw(self.background, self)
@@ -504,12 +502,6 @@ class Text(pg.Surface):
     		pass
 
     	self.__build()
-class Text2(GuiMaster):
-    """."""
-    def __init__(self, config={}):
-        """."""
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
 class TextBox(pg.Surface):
     """surface for displaying text."""
     default = {
