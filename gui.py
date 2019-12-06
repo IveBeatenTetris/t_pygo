@@ -423,12 +423,13 @@ class Text(pg.Surface):
     	"antialias": True,
     	"bold": False,
     	"italic": False,
-        "size": (100, 100),
+        "rect": None,
         "wrap": False
     }
     def __init__(self, config={}):
         """
         creates a text obejct that can be drawn to any surface.
+        'background' color tuple to fill the background with.
         'fontsize' its in the name.
         'color' should be tuple by 3 like (50, 110, 95).
         'text' only one-liners right now.
@@ -436,13 +437,15 @@ class Text(pg.Surface):
         'font' creates a new pygame.font from an installed system font.
         'wrap' if 'true' then call a function to wrap the text into a given
             rect.
-        'size' tuple of 2 ints. only for reference purpose.
+        'rect' dynamically using font-rect if there is no rect given as
+            parameter.
         """
         # comparing both dicts and creating a new one from it
         self.config = validateDict(config, self.default)# dict
         # initiating font module
         pg.font.init()
         # additional attributes
+        self.background = self.config["background"]# none / tuple
         self.fontsize = self.config["fontsize"]# int
         self.color = self.config["color"]# tuple
         self.text = self.config["text"]# str
@@ -454,7 +457,7 @@ class Text(pg.Surface):
         self.font.set_bold(self.config["bold"])
         self.font.set_italic(self.config["italic"])
         self.wrap = self.config["wrap"]# bool
-        self.size = self.config["size"]# tuple
+        self.rect = self.config["rect"]# none / tuple / list
         # image and rect are going to be created there
         self.__create()
     def __create(self):
@@ -467,7 +470,7 @@ class Text(pg.Surface):
             self.image = wrapText(
                 self.text,
                 self.color,
-                pg.Rect((0, 0), self.size),
+                pg.Rect((0, 0), self.rect.size),
                 self.font,
                 aa = self.antialias
             )
@@ -477,10 +480,17 @@ class Text(pg.Surface):
                 self.antialias,
                 self.color
             )
-        self.rect = self.image.get_rect()
+        #self.rect = self.image.get_rect()
         # initiating surface
-        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        if self.rect:
+            size = self.rect.size
+        else:
+            size = self.image.get_rect().size
+            self.rect = self.image.get_rect()
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
         # drawing to surface
+        if self.background:
+            draw(self.background, self)
         draw(self.image, self)
     def update(self, cfg={}):
     	"""
