@@ -424,7 +424,8 @@ class Text(GuiMaster):
     	"bold": False,
     	"italic": False,
         "rect": None,
-        "wrap": False
+        "wrap": False,
+        "position": None
     }
     def __init__(self, config={}):
         """
@@ -438,6 +439,8 @@ class Text(GuiMaster):
             rect.
         'rect' dynamically using font-rect if there is no rect given as
             parameter.
+        'position' positional argument of the text within the given rect if
+            there is one. can be tuple (0, 0) list [0, 0] or str "center" etc.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
@@ -458,6 +461,7 @@ class Text(GuiMaster):
         self.font.set_italic(self.config["italic"])
         self.wrap = self.config["wrap"]# bool
         self.rect = self.config["rect"]# none / tuple / list
+        self.position = self.config["position"]# none / tuple / list / str
         # image and rect are going to be created there
         self.__build()
     def __build(self):
@@ -487,10 +491,15 @@ class Text(GuiMaster):
         else:
             size = self.image.get_rect().size
             self.rect = self.image.get_rect()
+        # determining position
+        if self.position:
+            pos = self.position
+        else:
+            pos = (0, 0)
         # drawing to surface
         if self.background:
             draw(self.background, self)
-        draw(self.image, self)
+        draw(self.image, self, pos)
     def update(self, cfg={}):
     	"""
         updates attributes with the given parameters. 'cfg' must be dict.
