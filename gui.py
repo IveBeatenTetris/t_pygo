@@ -178,9 +178,9 @@ class Interface(pg.Surface):
         # drawing menu if activated
         for m in self.menus:
             pass
-    def draw(self, object, position=(0, 0)):
+    def draw(self, object, rect):
         """drawing something to the interface."""
-        draw(object, self, position)
+        draw(object, self, rect)
     def resize(self, size):
         """
         set a new size for interface. needs to be rebuilt.
@@ -201,7 +201,7 @@ class Interface(pg.Surface):
             # reduced drawing functionallity to 'menubar' and 'infobar' for a
             # better fps performance
             if type(e) is MenuBar or type(e) is InfoBar:
-                draw(e, self, e.rect)
+                self.draw(e, e.rect)
             # drawing menus when activated
             if type(e) is MenuBar:
                 # looking for buttons
