@@ -107,6 +107,9 @@ class GuiMaster(pg.Surface):
             of this element.
         """
         self.events = events
+    def draw(self, object, rect):
+        """drawing something to the interface."""
+        draw(object, self, rect)
     # events
     def mouseOver(self):
         """return 'true' if the mouse hovers the element."""
