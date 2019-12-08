@@ -343,6 +343,7 @@ class InfoBar(GuiMaster):
         GuiMaster.__init__(self, config)
         # additional attributes
         self.info = {}# dict
+        self.text = Text2({"text": ""})# text object
     def update(self, events):
         """run this method with each main loop."""
         # updating internal events
@@ -351,10 +352,10 @@ class InfoBar(GuiMaster):
         txt = ""
         for k, v in self.info.items():
             txt += k + str(v) + "    "
-        text = Text({"text": txt})
+        self.text.update({"text": txt})
         # drawing background and text to infobar
         #self.draw(self.background, self.rect)
-        self.draw(text)
+        self.draw(self.text)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
@@ -534,6 +535,58 @@ class Text(GuiMaster):
     		pass
 
     	self.__build()
+class Text2(GuiMaster):
+    """text surface. ready to be drawn."""
+    cfg = {
+    	"font": "ebrima",
+    	"fontsize": 16,
+    	"color": (0, 0, 0),
+        "background": None,
+    	"text": "No Text",
+    	"antialias": True,
+    	"bold": False,
+    	"italic": False,
+        "rect": None,
+        "wrap": False,
+        "position": None
+    }
+    def __init__(self, config={}):
+        """
+        creates a text obejct that can be drawn to any surface.
+        """
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
+        # comparing both dicts and creating a new one from it
+        self.config = validateDict(config, self.cfg)# dict
+        # initiating font module
+        pg.font.init()
+        # additional attributes
+        self.fontsize = self.config["fontsize"]# int
+        self.color = self.config["color"]# tuple
+        self.text = self.config["text"]# str
+        self.antialias = self.config["antialias"]# bool
+        self.font = pg.font.SysFont(# pygame.font
+        	self.config["font"],
+        	self.fontsize
+        )
+        self.font.set_bold(self.config["bold"])
+        self.font.set_italic(self.config["italic"])
+        # building / drawing
+        self.__build()
+    def __build(self):
+        """create the element."""
+        self.image = self.font.render(
+            self.text,
+            self.antialias,
+            self.color
+        )
+        if self.background:
+            self.draw(self.background)
+        self.draw(self.image)
+        print(self.image.get_rect())
+    def update(self, events, **kwargs):
+        """run this method with each app loop."""
+        self.__build()
 class TextBox(pg.Surface):
     """surface for displaying text."""
     default = {
