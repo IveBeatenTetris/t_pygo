@@ -107,7 +107,7 @@ class GuiMaster(pg.Surface):
             of this element.
         """
         self.events = events
-    def draw(self, object, rect):
+    def draw(self, object, rect=pg.Rect(0, 0, 0, 0)):
         """drawing something to the interface."""
         draw(object, self, rect)
     # events
@@ -139,7 +139,7 @@ class Interface(pg.Surface):
     def __init__(self, name):
         """
         draws its size from the running window.
-        'elements' a list of all gui elements in the correct drawing order.
+        'elements' a dict of all gui elements in the correct drawing order.
         'menus' a list of all accessable menus of the interface ready to be
             called.
         'events' list of pygame.events. pass this trough every element to update
@@ -163,7 +163,6 @@ class Interface(pg.Surface):
             'self.elements' and 'self.menus' with gui elements.
         """
         # filling 'self.elements' later with real element objects
-        #self.elements = []# list
         self.elements = {}
         self.menus = []
         # initiating surface
@@ -176,7 +175,6 @@ class Interface(pg.Surface):
         # creating visible gui elements
         if "elements" in self.config:
             for elem in self.config["elements"]:
-                #self.elements.append(convertElement(elem, self.rect))
                 e = convertElement(elem, self.rect)
                 self.elements.update({
                     str(e.name): e
@@ -338,9 +336,25 @@ class DropDownMenu(GuiMaster):
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
-        """."""
+        """
+        'info' must be dict. is used to convert information into text later.
+        """
         # inherit from gui master
         GuiMaster.__init__(self, config)
+        # additional attributes
+        self.info = {}# dict
+    def update(self, events):
+        """run this method with each main loop."""
+        # updating internal events
+        self.events = events
+        # building text to draw
+        txt = ""
+        for k, v in self.info.items():
+            txt += k + str(v) + "    "
+        text = Text({"text": txt})
+        # drawing background and text to infobar
+        #self.draw(self.background, self.rect)
+        self.draw(text)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
