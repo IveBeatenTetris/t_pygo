@@ -151,7 +151,8 @@ class Interface(pg.Surface):
                 self.config = js
         # taking rect from pygame.display
         self.rect = pg.display.get_surface().get_rect()# pygame.rect
-        self.elements = []# list
+        #self.elements = []# list
+        self.elements = {}# dict
         self.menus = []# list
         self.events = []# list / pygame.events
         # building surface / drawing
@@ -162,8 +163,9 @@ class Interface(pg.Surface):
             'self.elements' and 'self.menus' with gui elements.
         """
         # filling 'self.elements' later with real element objects
-        self.elements = []# list
-        self.menus = []# list
+        #self.elements = []# list
+        self.elements = {}
+        self.menus = []
         # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # creating menus
@@ -174,9 +176,13 @@ class Interface(pg.Surface):
         # creating visible gui elements
         if "elements" in self.config:
             for elem in self.config["elements"]:
-                self.elements.append(convertElement(elem, self.rect))
+                #self.elements.append(convertElement(elem, self.rect))
+                e = convertElement(elem, self.rect)
+                self.elements.update({
+                    str(e.name): e
+                })
         # drawing each element to interface
-        for e in self.elements:
+        for _, e in self.elements.items():
             draw(e, self, e.rect)
         # drawing menu if activated
         for m in self.menus:
@@ -197,7 +203,7 @@ class Interface(pg.Surface):
         # updating internal events
         self.events = events
 
-        for e in self.elements:
+        for _, e in self.elements.items():
             # updating each element
             e.update(events)
             # drawing elements to interface
