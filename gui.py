@@ -1,6 +1,7 @@
 from .utils import (
     PATH,
     LIBPATH,
+    FONTS,
     draw,
     validateDict,
     loadAssets,
@@ -344,7 +345,10 @@ class InfoBar(GuiMaster):
         GuiMaster.__init__(self, config)
         # additional attributes
         self.info = {}# dict
-        self.text = Text({"text": ""})# text object
+        self.text = Text({# text object
+            "text": "",
+            "fontsize": 12
+        })
     def update(self):
         """run this method with each main loop."""
         # building text to draw
@@ -354,7 +358,10 @@ class InfoBar(GuiMaster):
         self.text.update(text=txt)
         # drawing background and text to infobar
         self.draw(self.background, self.rect)
-        self.draw(self.text)
+        self.draw(self.text, (
+            10,
+            self.anchors["middle"] - int(self.text.rect.height / 2)
+        ))
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
@@ -439,9 +446,9 @@ class Panel(GuiMaster):
 class Text(GuiMaster):
     """text surface. ready to be drawn."""
     cfg = {
-    	"font": "ebrima",
-    	"fontsize": 16,
-    	"color": (0, 0, 0),
+    	"font": FONTS["base"]["name"],
+    	"fontsize": FONTS["base"]["size"],
+    	"color": FONTS["base"]["color"],
         "background": None,
     	"text": "No Text",
     	"antialias": True,
