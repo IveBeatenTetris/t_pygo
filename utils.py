@@ -24,6 +24,23 @@ RESOLUTIONS = {
     "1920x1080": (1920, 1080),
     "800x400": (800, 400)
 }
+FONTS = {
+    "base": {
+        "name": "ebrima",
+        "size": 16,
+        "color": (200, 200, 200)
+    },
+    "sub": {
+        "name": "verdana",
+        "size": 14,
+        "color": (200, 200, 200)
+    },
+    "special": {
+        "name": "console",
+        "size": 20,
+        "color": (200, 200, 200)
+    }
+}
 
 # rules for json parsing
 json_comments =  re.compile(
