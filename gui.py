@@ -480,7 +480,7 @@ class Text(GuiMaster):
         self.__build()
     def __build(self):
         """create the element."""
-        # determine rect size
+        # determine new size
         if not self.rect:
             size = self.font.size(self.text)
         else:
@@ -507,7 +507,12 @@ class Text(GuiMaster):
         # drawing
         if self.background:
             self.draw(self.background)
-        self.draw(self.image)
+        # determine position for text within the rect
+        if self.position:
+            pos = self.position
+        else:
+            pos = (0, 0)
+        self.draw(self.image, pos)
     def update(self, **kwargs):
         """run this method with each app loop."""
         if "text" in kwargs:
