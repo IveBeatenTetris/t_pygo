@@ -14,7 +14,6 @@ from .gui import (
     Overlay,
     Panel,
     Text,
-    Text2,
     TextBox
 )
 from .controller import Controller
