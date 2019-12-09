@@ -251,8 +251,8 @@ class Button(GuiMaster):
     def __init__(self, config={}):
         """
         'text' gui text object. ready to be drawn.
-        'hover' different color tuple for highlighting on 'hover' event.
         'state' state of activation. 'true' on click.
+        'hover' different color tuple for highlighting on 'hover' event.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
@@ -282,9 +282,8 @@ class Button(GuiMaster):
         )
     def update(self):
         """run this method with each main loop. needs 'pygame.events'."""
-        #self.events = events
         # determining background
-        if self.rect.collidepoint(pg.mouse.get_pos()):
+        if self.mouseOver():
             bg = self.hover
         # stays hover backgrounded if mouse moves out of button rect
         elif self.state:
@@ -482,7 +481,10 @@ class Text(GuiMaster):
     def __build(self):
         """create the element."""
         # determine rect size
-        size = self.font.size(self.text)
+        if not self.rect:
+            size = self.font.size(self.text)
+        else:
+            size = self.rect.size
         # initiating surface
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         # wrapped text
