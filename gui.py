@@ -549,7 +549,7 @@ class InfoBar(GuiMaster):
         # building text to draw
         txt = ""
         for k, v in self.info.items():
-            txt += k + str(v) + "    "
+            txt += k + ": " + str(v) + "    "
         self.text.update(text=txt)
         # drawing background and text to infobar
         self.draw(self.background, self.rect)
@@ -801,3 +801,10 @@ class TextBox(pg.Surface):
     def setPosition(self, pos):
         """updating rect position."""
         self.rect.topleft = pos
+class Window(GuiMaster):
+    """a window pop up."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
+        

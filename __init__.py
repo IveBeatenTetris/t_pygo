@@ -11,7 +11,8 @@ from .gui import (
     Overlay,
     Panel,
     Text,
-    TextBox
+    TextBox,
+    Window
 )
 from .map import Tileset, Map
 from .entity import Player
