@@ -455,11 +455,13 @@ class Interface(pg.Surface):
                     if elem.state:
                         for name, menu in self.menus.items():
                             if name == elem.name:
-                                # drawing right under the menu point
-                                self.draw(menu, (
+                                # updating menus rect position
+                                menu.rect.topleft = (
                                     elem.rect.left,
                                     elem.rect.top + elem.rect.height
-                                ))
+                                )
+                                # drawing right under the menu point
+                                self.draw(menu, menu.rect)
 class Button(GuiMaster):
     """interactive gui element."""
     cfg = {
