@@ -563,6 +563,12 @@ class InfoBar(GuiMaster):
             10,
             self.anchors["middle"] - int(self.text.rect.height / 2)
         ))
+class Menu(GuiMaster):
+    """a menu bar to draw pull down menus from."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
+        GuiMaster.__init__(self, config)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
