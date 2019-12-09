@@ -361,7 +361,7 @@ class Interface(pg.Surface):
         """
         draws its size from the running window.
         'elements' a dict of all gui elements in the correct drawing order.
-        'menus' a list of all accessable menus of the interface ready to be
+        'menus' a dict of all accessable menus of the interface ready to be
             called.
         'events' list of pygame.events. pass this trough every element to update
             it with momentum events.
@@ -372,9 +372,8 @@ class Interface(pg.Surface):
                 self.config = js
         # taking rect from pygame.display
         self.rect = pg.display.get_surface().get_rect()# pygame.rect
-        #self.elements = []# list
         self.elements = {}# dict
-        self.menus = []# list
+        self.menus = {}# dict
         self.events = []# list / pygame.events
         # building surface / drawing
         self.build()
@@ -387,12 +386,15 @@ class Interface(pg.Surface):
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         # filling 'self.elements' later with real element objects
         self.elements = {}
-        self.menus = []
+        self.menus = {}
         # creating menus
         if "menus" in self.config:
             for menu, prop in self.config["menus"].items():
                 prop.update({"name": menu})
-                self.menus.append(convertElement(prop, self.rect))
+                #self.menus.append(convertElement(prop, self.rect))
+                self.menus.update({
+                    prop["name"]: convertElement(prop, self.rect)
+                })
         # creating visible gui elements
         if "elements" in self.config:
             for elem in self.config["elements"]:
@@ -451,7 +453,7 @@ class Interface(pg.Surface):
                             self.build()
                     # drawing depending on button state
                     if elem.state:
-                        for menu in self.menus:
+                        for _, menu in self.menus.items():
                             if menu.name == elem.name:
                                 # drawing right under the menu point
                                 self.draw(menu, (
@@ -517,18 +519,22 @@ class DropDownMenu(GuiMaster):
     """a drop down menu. draw this on a button call."""
     def __init__(self, config={}):
         """
-        'elements' list of elements ready to been drawn to the menu.
+        'elements' dict of elements ready to been drawn to the menu.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
-        self.elements = []# list
+        self.elements = {}# dict
         # filling 'self.elements' with gui objects and draw them
         if "elements" in config:
             # appending
             for elem in config["elements"]:
-                self.elements.append(convertElement(elem, self.rect))
+                #self.elements.append(convertElement(elem, self.rect))
+                elem = convertElement(elem, self.rect)
+                self.elements.update({
+                    elem.name: elem
+                })
             # drawing
-            for elem in self.elements:
+            for _, elem in self.elements.items():
                 draw(elem, self, elem.rect)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
@@ -807,4 +813,3 @@ class Window(GuiMaster):
         """."""
         # inherit from gui master
         GuiMaster.__init__(self, config)
-        
