@@ -48,10 +48,10 @@ def convertElement(cfg, parent):
     # appending gui element objects to 'elements' list
     if "type" in cfg:
         # menus
-        if cfg["type"] == "dropdown":
-            element = DropDownMenu(c)
+        if cfg["type"] == "menu":
+            element = Menu(c)
         # elements
-        elif cfg["type"] == "menubar":
+        if cfg["type"] == "menubar":
             element = MenuBar(c)
         elif cfg["type"] == "infobar":
             element = InfoBar(c)
@@ -453,8 +453,8 @@ class Interface(pg.Surface):
                             self.build()
                     # drawing depending on button state
                     if elem.state:
-                        for _, menu in self.menus.items():
-                            if menu.name == elem.name:
+                        for name, menu in self.menus.items():
+                            if name == elem.name:
                                 # drawing right under the menu point
                                 self.draw(menu, (
                                     elem.rect.left,
@@ -515,27 +515,6 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-class DropDownMenu(GuiMaster):
-    """a drop down menu. draw this on a button call."""
-    def __init__(self, config={}):
-        """
-        'elements' dict of elements ready to been drawn to the menu.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        self.elements = {}# dict
-        # filling 'self.elements' with gui objects and draw them
-        if "elements" in config:
-            # appending
-            for elem in config["elements"]:
-                #self.elements.append(convertElement(elem, self.rect))
-                elem = convertElement(elem, self.rect)
-                self.elements.update({
-                    elem.name: elem
-                })
-            # drawing
-            for _, elem in self.elements.items():
-                draw(elem, self, elem.rect)
 class InfoBar(GuiMaster):
     """used for displaying information in a small bar."""
     def __init__(self, config={}):
@@ -564,11 +543,34 @@ class InfoBar(GuiMaster):
             self.anchors["middle"] - int(self.text.rect.height / 2)
         ))
 class Menu(GuiMaster):
-    """a menu bar to draw pull down menus from."""
+    """a menu with clickable elements to call menus from."""
     def __init__(self, config={}):
-        """."""
+        """
+        'elements' dict of elements to display and interact with.
+        '__cfg' internal copy of the raw config dict. needed to get to menus
+            elements.
+        """
         # inherit from gui master
         GuiMaster.__init__(self, config)
+        self.elements = {}# dict
+        self.__cfg = config
+        self.__build()
+    def __build(self):
+        """creating the object."""
+        # beginning with a fresh dict
+        self.elements = {}
+
+        # filling 'self.elements' with gui objects and draw them
+        if "elements" in self.__cfg:
+            for elem in self.__cfg["elements"]:
+                elem = convertElement(elem, self.rect)
+                self.elements.update({
+                    elem.name: elem
+                })
+
+        # drawing
+        for _, elem in self.elements.items():
+            draw(elem, self, elem.rect)
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
