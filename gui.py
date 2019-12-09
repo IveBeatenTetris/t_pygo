@@ -302,22 +302,6 @@ class Button(GuiMaster):
                 self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
             )
         )
-    def mouseOver(self):
-        """
-        overwriting 'guimaster's 'mouseOver()' method and return 'true' if the
-            mouse hovers the button.
-        """
-        mouse = pg.mouse.get_pos()
-        hover = False
-
-        #for event in events:
-        if self.rect.collidepoint(mouse):
-            hover = True
-
-        # rebuilding the surface so the hover effect can pop in
-        self.build()
-
-        return hover
 class DropDownMenu(GuiMaster):
     """a drop down menu. draw this on a button call."""
     def __init__(self, config={}):
