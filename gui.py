@@ -5,6 +5,7 @@ from .utils import (
     draw,
     validateDict,
     loadAssets,
+    loadJSON,
     getAnchors,
     wrapText,
     drawBorder,
@@ -464,6 +465,10 @@ class Interface(pg.Surface):
                                 menu.active = True
                                 # drawing right under the menu point
                                 self.draw(menu, menu.rect)
+        for _, m in self.menus.items():
+            # updating each element
+            m.events = events
+            m.update()
 class Button(GuiMaster):
     """interactive gui element."""
     cfg = {
@@ -574,11 +579,28 @@ class Menu(GuiMaster):
                     elem.name: elem
                 })
 
-        # drawing
+        # drawing elements to menu
         y = 0
         for _, elem in self.elements.items():
             draw(elem, self, (self.rect.left, y))
+            elem.rect.top = y
             y += elem.rect.height
+    def update(self):
+        """run this method with each app loop."""
+        # only starting if the menu was called
+        if self.active:
+            # going deeper if the menu is hovered
+            if self.mouseOver():
+                for _, e in self.elements.items():
+                    # temporary list to create a rect for collision checking
+                    rect = [
+                        self.rect.left,
+                        self.rect.top + e.rect.top,
+                        self.rect.width,
+                        e.rect.height
+                    ]
+                    if self.rect.collidepoint(pg.mouse.get_pos()):
+                        pass
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
@@ -715,10 +737,10 @@ class Text(GuiMaster):
     def __build(self):
         """create the element."""
         # determine new size
-        if not self.rect:
-            size = self.font.size(self.text)
-        else:
+        if self.rect:
             size = self.rect.size
+        else:
+            size = self.font.size(self.text)
         # initiating surface
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         # wrapped text
@@ -829,3 +851,60 @@ class Window(GuiMaster):
         """."""
         # inherit from gui master
         GuiMaster.__init__(self, config)
+
+class GuiMaster2(pg.Surface):
+    """
+    master-element for many gui elements to inherit from. comes with diverse
+    events ans additional properties for surfaces.
+    """
+    default = {
+        "name": "Unnamed Element",
+        "rect": pg.Rect(0, 0, 100, 100),
+        "background": None
+    }
+    def __init__(self, config={}):
+        """."""
+        self.config = validateDict(config, self.default)# dict
+        self.rect = self.config["rect"]# pygame.rect
+        self.background = self.config["background"]# none / tuple
+        self.hover = False# bool
+        self.click = False# bool
+        self.build()
+    def build(self):
+        """."""
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        if self.background:
+            self.draw(tuple(self.background))
+    def draw(self, object, position=(0, 0)):
+        """."""
+        draw(object, self, position)
+    def leftClick(self):
+        """."""
+        self.click = False
+
+        if self.mouseOver() and pg.mouse.get_pressed()[0]:
+            self.click = True
+
+        return self.click
+    def mouseOver(self):
+        """."""
+        mouse = pg.mouse.get_pos()
+        self.hover = False
+
+        #for event in events:
+        if self.rect.collidepoint(mouse):
+            self.hover = True
+
+        return self.hover
+    def resize(self, size):
+        """."""
+        self.rect.size = size
+        self.build()
+class Interface2(GuiMaster2):
+    """."""
+    def __init__(self, name):
+        """."""
+        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if js["type"] == "interface":
+                config = js
+        GuiMaster2.__init__(self, config)
