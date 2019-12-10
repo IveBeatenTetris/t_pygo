@@ -575,8 +575,10 @@ class Menu(GuiMaster):
                 })
 
         # drawing
+        y = 0
         for _, elem in self.elements.items():
-            draw(elem, self, elem.rect)
+            draw(elem, self, (self.rect.left, y))
+            y += elem.rect.height
 class MenuBar(GuiMaster):
     """a menu bar to draw pull down menus from."""
     def __init__(self, config={}):
