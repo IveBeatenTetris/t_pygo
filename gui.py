@@ -460,6 +460,8 @@ class Interface(pg.Surface):
                                     elem.rect.left,
                                     elem.rect.top + elem.rect.height
                                 )
+                                # updating menu activation
+                                menu.active = True
                                 # drawing right under the menu point
                                 self.draw(menu, menu.rect)
 class Button(GuiMaster):
@@ -549,13 +551,15 @@ class Menu(GuiMaster):
     def __init__(self, config={}):
         """
         'elements' dict of elements to display and interact with.
+        'active' shows 'true' if called.
         '__cfg' internal copy of the raw config dict. needed to get to menus
             elements.
         """
         # inherit from gui master
         GuiMaster.__init__(self, config)
         self.elements = {}# dict
-        self.__cfg = config
+        self.active = False# bool
+        self.__cfg = config# dict
         self.__build()
     def __build(self):
         """creating the object."""
