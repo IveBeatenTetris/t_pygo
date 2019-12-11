@@ -859,14 +859,25 @@ class GuiMaster2(pg.Surface):
     """
     default = {
         "name": "Unnamed Element",
-        "rect": pg.Rect(0, 0, 100, 100),
-        "background": None
+        "rect": [0, 0, 100, 100],
+        "background": None,
+        "hover": None
     }
     def __init__(self, config={}):
         """."""
         self.config = validateDict(config, self.default)# dict
-        self.rect = self.config["rect"]# pygame.rect
-        self.background = self.config["background"]# none / tuple
+        self.rect = pg.Rect(self.config["rect"])# pygame.rect
+        self.anchors = getAnchors(self.rect.size)# dict
+        if self.config["background"]:
+            background = tuple(self.config["background"])
+        else:
+            background = self.config["background"]
+        self.background = background# none / tuple
+        if self.config["hover"]:
+            hover = tuple(self.config["hover"])
+        else:
+            hover = self.config["hover"]
+        self.backgroundhover = hover# none / tuple
         self.hover = False# bool
         self.click = False# bool
         self.build()
@@ -874,7 +885,7 @@ class GuiMaster2(pg.Surface):
         """."""
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         if self.background:
-            self.draw(tuple(self.background))
+            self.draw(self.background)
     def draw(self, object, position=(0, 0)):
         """."""
         draw(object, self, position)
@@ -899,12 +910,112 @@ class GuiMaster2(pg.Surface):
     def resize(self, size):
         """."""
         self.rect.size = size
+        self.anchors = getAnchors(self.rect.size)
         self.build()
+    def update(self):
+        """."""
+        if self.mouseOver():
+            if self.backgroundhover:
+                self.draw(self.backgroundhover)
+        else:
+            if self.background:
+                self.draw(self.background)
+class Button2(GuiMaster2):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        GuiMaster2.__init__(self, config)
+        self.text = Text2(config)
+    def update(self):
+        """."""
+        if self.mouseOver():
+            if self.backgroundhover:
+                self.draw(self.backgroundhover)
+                self.draw(self.text)
+        else:
+            if self.background:
+                self.draw(self.background)
+                self.draw(self.text)
 class Interface2(GuiMaster2):
     """."""
     def __init__(self, name):
         """."""
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
-                config = js
+                self.cfg = js# dict
+        GuiMaster2.__init__(self, self.cfg)
+        self.elements = self.createElements()# list
+        self.update()
+    def createElements(self):
+        """."""
+        elements = []
+        c = self.cfg
+
+        if "elements" in c:
+            for e in c["elements"]:
+                if "type" in e:
+                    if e["type"] == "button":
+                        elements.append(Button2(e))
+
+        return elements
+    def update(self):
+        """."""
+        for e in self.elements:
+            e.update()
+            self.draw(e, e.rect)
+class Panel2(GuiMaster2):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        # inherit from gui master
         GuiMaster2.__init__(self, config)
+class Text2(GuiMaster2):
+    """."""
+    cfg = {
+    	"font": FONTS["base"]["name"],
+    	"fontsize": FONTS["base"]["size"],
+    	"color": FONTS["base"]["color"],
+        "background": None,
+    	"text": "No Text",
+    	"antialias": True,
+    	"bold": False,
+    	"italic": False,
+        "rect": None,
+        "wrap": False,
+        "position": "center"
+    }
+    def __init__(self, config={}):
+        """."""
+        GuiMaster2.__init__(self, config)
+        # resetting background for text
+        self.background = None# none
+        self.build()
+
+        self.config = validateDict(config, self.cfg)# dict
+        pg.font.init()
+        self.text = self.config["text"]# str
+        self.antialias = self.config["antialias"]# bool
+        self.color = self.config["color"]# list / tuple
+        self.position = self.config["position"]# list / tuple / str
+        self.font = pg.font.SysFont(# pygame.font
+        	self.config["font"],
+        	self.config["fontsize"]
+        )
+        self.font.set_bold(self.config["bold"])
+        self.font.set_italic(self.config["italic"])
+        self.image = self.font.render(# pygame.surface
+            self.text,
+            self.antialias,
+            self.color
+        )
+        self.image_rect = self.image.get_rect()# pygame.rect
+        if type(self.position) is str:
+            if self.position == "center":
+                self.image_rect.topleft = (
+                    int(self.rect.width / 2) - int(self.image_rect.width / 2),
+                    int(self.rect.height / 2) - int(self.image_rect.height / 2)
+                )
+        self.draw(self.image, self.image_rect)
+    def update(self, **kwargs):
+        """."""
+        pass
