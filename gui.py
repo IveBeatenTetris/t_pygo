@@ -89,6 +89,8 @@ class App:
         )
         # event related
         self._events = []# list
+
+        globals()["app"] = self
     # game routines
     def update(self):
         """updates stuff at apps loop-end."""
@@ -252,7 +254,6 @@ class GuiMaster(pg.Surface):
     def __init__(self, config={}):
         """."""
         self.config = validateDict(config, self.default)# dict
-        self.app = self.config["app"]# none / app object
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
         if type(self.config["rect"]) is list:
             rect = pg.Rect(convertRect(self.config["rect"], self.parent))
@@ -422,7 +423,7 @@ class InfoBar(GuiMaster):
                 elif i == "appsize":
                     info += "AppSize: " + str(self.parent.size) + " "
                 elif i == "fps":
-                    info += "FPS: " + str(self.app.fps) + " "
+                    info += "FPS: " + str(globals()["app"].fps) + " "
 
         return info
     def update(self):
