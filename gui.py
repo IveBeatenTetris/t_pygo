@@ -19,562 +19,6 @@ from .controller import Controller
 import pygame as pg
 import sys, os
 
-# overall functions
-def convertElement(cfg, parent):
-    """
-    using this function to convert a interface element from a json file into a
-        valid interface element object. returns the valid interface element.
-    'cfg' needs to be a converted dict from json file.
-    'parent' must be pygame.rect.
-    """
-    element = None
-    # resetting properties with each loop
-    c = {
-        "type": None,
-        "name": "Unnamed",
-        "rect": pg.Rect(0, 0, 0, 0),
-        "background": None
-    }
-    # overwriting properties
-    for name, prop in cfg.items():
-        c[name] = prop
-    # additional properties
-    if "rect" in cfg:
-        # since we suport percentage and positional strings in
-        # rect-lists we need to calculate a new rect with valid
-        # values for drawing
-        c["rect"] = convertRect(cfg["rect"], parent)
-    if "background" in cfg:
-        c["background"] = tuple(cfg["background"])
-    # appending gui element objects to 'elements' list
-    if "type" in cfg:
-        # menus
-        if cfg["type"] == "menu":
-            element = Menu(c)
-        # elements
-        if cfg["type"] == "menubar":
-            element = MenuBar(c)
-        elif cfg["type"] == "infobar":
-            element = InfoBar(c)
-        elif cfg["type"] == "panel":
-            element = Panel(c)
-        elif cfg["type"] == "button":
-            element = Button(c)
-        elif cfg["type"] == "text":
-            element = Text(c)
-
-    return element
-
-class GuiMaster(pg.Surface):
-    """
-    master-element for many gui elements to inherit from. comes with diverse
-    events ans additional properties for surfaces.
-    """
-    default = {
-        "name": "Unnamed Element",
-        "rect": pg.Rect(0, 0, 200, 25),
-        "background": None
-    }
-    def __init__(self, config={}):
-        """
-        'name' name of the element as str.
-        'parent' rect of the bigger surface for calculating positional
-            properties.
-        'background' can be tuple of 3 ints or none. if 'none' then render the
-            background transparent.
-        'anchors' anchorpoints for positional arguments.
-        'events' list of pygame.events to compute.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.name = self.config["name"]# str
-        # declaring parent for positional properties
-        self.parent = pg.display.get_surface().get_rect()# pygame.rect
-        self.background = self.config["background"]# none / tuple
-        self.rect = self.config["rect"]# pygame.rect
-        self.anchors = getAnchors(self.rect.size)# dict
-        self.events = []#list
-        # building surface
-        self.build()
-    def build(self):
-        """rebuilding everything."""
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # updating anchors
-        self.anchors = getAnchors(self.rect.size)
-        # drawing
-        if self.background:
-            draw(self.background, self)
-    def update(self):
-        """
-        run this method with each main loop. can be overwritten by the calling
-            element.
-        """
-        pass
-    def draw(self, object, rect=pg.Rect(0, 0, 0, 0)):
-        """drawing something to the interface."""
-        draw(object, self, rect)
-    # events
-    def mouseOver(self):
-        """return 'true' if the mouse hovers the element."""
-        mouse = pg.mouse.get_pos()
-        hover = False
-
-        #for event in events:
-        if self.rect.collidepoint(mouse):
-            hover = True
-
-        return hover
-    def leftClick(self):
-        """returns 'true' if element is left-clicked."""
-        mouse = pg.mouse.get_pos()
-        click = False
-
-        for event in self.events:
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                if self.mouseOver():
-                    click = True
-
-        return click
-class Interface(pg.Surface):
-    """
-    acts like a big surface to stat drawing the element tree from a json-file.
-    """
-    def __init__(self, name):
-        """
-        draws its size from the running window.
-        'elements' a dict of all gui elements in the correct drawing order.
-        'menus' a dict of all accessable menus of the interface ready to be
-            called.
-        'events' list of pygame.events. pass this trough every element to update
-            it with momentum events.
-        """
-        # combine path + name to get the asset by its tail
-        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
-            if js["type"] == "interface":
-                self.config = js
-        # taking rect from pygame.display
-        self.rect = pg.display.get_surface().get_rect()# pygame.rect
-        self.elements = {}# dict
-        self.menus = {}# dict
-        self.events = []# list / pygame.events
-        # building surface / drawing
-        self.build()
-    def build(self):
-        """
-        building interface structure from file description. filling
-            'self.elements' and 'self.menus' with gui elements.
-        """
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # filling 'self.elements' later with real element objects
-        self.elements = {}
-        self.menus = {}
-        # creating menus
-        if "menus" in self.config:
-            for menu, prop in self.config["menus"].items():
-                prop.update({"name": menu})
-                #self.menus.append(convertElement(prop, self.rect))
-                self.menus.update({
-                    prop["name"]: convertElement(prop, self.rect)
-                })
-        # creating visible gui elements
-        if "elements" in self.config:
-            for elem in self.config["elements"]:
-                e = convertElement(elem, self.rect)
-                self.elements.update({
-                    str(e.name): e
-                })
-        # drawing each element to interface
-        for _, e in self.elements.items():
-            draw(e, self, e.rect)
-        # drawing menu if activated
-        for m in self.menus:
-            pass
-    def draw(self, object, rect):
-        """drawing something to the interface."""
-        draw(object, self, rect)
-    def resize(self, size):
-        """
-        set a new size for interface. needs to be rebuilt.
-        'size' needs to be tuple.
-        """
-        # updating rect size
-        self.rect.size = size
-        # rebuilding
-        self.build()
-    def update(self, events):
-        """run this method with each main loop. needs 'pygame.events' to run."""
-        # updating internal events
-        self.events = events
-
-        for _, e in self.elements.items():
-            # updating each element
-            e.events = events
-            e.update()
-            # drawing elements to interface
-            # reduced drawing functionallity to 'menubar' and 'infobar' for a
-            # better fps performance
-            if type(e) is MenuBar or type(e) is InfoBar:
-                self.draw(e, e.rect)
-            # drawing menus when activated
-            if type(e) is MenuBar:
-                # looking for buttons
-                for elem in e.elements:
-                    # if clicked set active and if clicked again rebuild
-                    # interface
-                    if elem.leftClick():
-                        if not elem.state:
-                            elem.state = True
-                        else:
-                            elem.state = False
-                            self.build()
-                    # if clicked somewhere else rebuild interface
-                    elif not elem.mouseOver() and pg.mouse.get_pressed()[0]:
-                        if elem.state:
-                            elem.state = False
-                            self.build()
-                    # drawing depending on button state
-                    if elem.state:
-                        for name, menu in self.menus.items():
-                            if name == elem.name:
-                                # updating menus rect position
-                                menu.rect.topleft = (
-                                    elem.rect.left,
-                                    elem.rect.top + elem.rect.height
-                                )
-                                # updating menu activation
-                                menu.active = True
-                                # drawing right under the menu point
-                                self.draw(menu, menu.rect)
-        for _, m in self.menus.items():
-            # updating each element
-            m.events = events
-            m.update()
-class Button(GuiMaster):
-    """interactive gui element."""
-    cfg = {
-        "text": "Button",
-        "color": (200, 200, 200),
-        "fontsize": 16,
-        "bold": False,
-        "italic": False,
-        "antialias": True,
-        "hover": (20, 20, 20)
-    }
-    def __init__(self, config={}):
-        """
-        'text' gui text object. ready to be drawn.
-        'state' state of activation. 'true' on click.
-        'hover' different color tuple for highlighting on 'hover' event.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        # updating 'config' with properties from json file
-        for k, v in config.items():
-            self.cfg[k] = v
-        # assigning attributes
-        self.text = Text({# text object
-            "text": self.cfg["text"],
-            "fontsize": self.cfg["fontsize"],
-            "bold": self.cfg["bold"],
-            "italic": self.cfg["italic"],
-            "color": self.cfg["color"]
-        })
-        self.state = False# bool
-        self.hover = tuple(self.cfg["hover"])# tuple
-        # building / drawing to surface
-        self.build()
-    def update(self):
-        """run this method with each main loop. needs 'pygame.events'."""
-        # determining background
-        if self.mouseOver():
-            bg = self.hover
-        # stays hover backgrounded if mouse moves out of button rect
-        elif self.state:
-            bg = self.hover
-        else:
-            bg = self.background
-        # drawing background
-        draw(bg, self)
-        # drawing text in the very center of the button
-        draw(
-            self.text,
-            self,
-            (
-                self.anchors["midcenter"][0] - int(self.text.rect.width / 2),
-                self.anchors["midcenter"][1] - int(self.text.rect.height / 2)
-            )
-        )
-class InfoBar(GuiMaster):
-    """used for displaying information in a small bar."""
-    def __init__(self, config={}):
-        """
-        'info' must be dict. is used to convert information into text later.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        # additional attributes
-        self.info = {}# dict
-        self.text = Text({# text object
-            "text": "",
-            "fontsize": 12
-        })
-    def update(self):
-        """run this method with each main loop."""
-        # building text to draw
-        txt = ""
-        for k, v in self.info.items():
-            txt += k + ": " + str(v) + "    "
-        self.text.update(text=txt)
-        # drawing background and text to infobar
-        self.draw(self.background, self.rect)
-        self.draw(self.text, (
-            10,
-            self.anchors["middle"] - int(self.text.rect.height / 2)
-        ))
-class Menu(GuiMaster):
-    """a menu with clickable elements to call menus from."""
-    def __init__(self, config={}):
-        """
-        'elements' dict of elements to display and interact with.
-        'active' shows 'true' if called.
-        '__cfg' internal copy of the raw config dict. needed to get to menus
-            elements.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        self.elements = {}# dict
-        self.active = False# bool
-        self.__cfg = config# dict
-        self.__build()
-    def __build(self):
-        """creating the object."""
-        # beginning with a fresh dict
-        self.elements = {}
-
-        # filling 'self.elements' with gui objects and draw them
-        if "elements" in self.__cfg:
-            for elem in self.__cfg["elements"]:
-                elem = convertElement(elem, self.rect)
-                self.elements.update({
-                    elem.name: elem
-                })
-
-        # drawing elements to menu
-        y = 0
-        for _, elem in self.elements.items():
-            draw(elem, self, (self.rect.left, y))
-            elem.rect.top = y
-            y += elem.rect.height
-    def update(self):
-        """run this method with each app loop."""
-        # only starting if the menu was called
-        if self.active:
-            # going deeper if the menu is hovered
-            if self.mouseOver():
-                for _, e in self.elements.items():
-                    # temporary list to create a rect for collision checking
-                    rect = [
-                        self.rect.left,
-                        self.rect.top + e.rect.top,
-                        self.rect.width,
-                        e.rect.height
-                    ]
-                    if self.rect.collidepoint(pg.mouse.get_pos()):
-                        pass
-class MenuBar(GuiMaster):
-    """a menu bar to draw pull down menus from."""
-    def __init__(self, config={}):
-        """
-        'elements' a list of gui element objects to draw.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        # filling self.elements with real element objects
-        self.elements = []# list
-        if "elements" in config:
-            for elem in config["elements"]:
-                self.elements.append(convertElement(elem, self.rect))
-    def update(self):
-        """run this method with each main loop. needs 'pygame.events'."""
-        for elem in self.elements:
-            # updating each element
-            if type(elem) is Button:
-                elem.events = self.events
-                elem.update()
-            # drawing each element
-            draw(elem, self, elem.rect)
-class Panel(GuiMaster):
-    """displays a panel in the interface."""
-    def __init__(self, config={}):
-        """."""
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-class Text(GuiMaster):
-    """text surface. ready to be drawn."""
-    cfg = {
-    	"font": FONTS["base"]["name"],
-    	"fontsize": FONTS["base"]["size"],
-    	"color": FONTS["base"]["color"],
-        "background": None,
-    	"text": "No Text",
-    	"antialias": True,
-    	"bold": False,
-    	"italic": False,
-        "rect": None,
-        "wrap": False,
-        "position": None
-    }
-    def __init__(self, config={}):
-        """
-        creates a text obejct that can be drawn to any surface.
-        'fontsize' its in the name.
-        'color' should be tuple by 3 like (50, 110, 95).
-        'text' only one-liners right now.
-        'antialias' if 'false' the font will appear pixelated.
-        'font' creates a new pygame.font from an installed system font.
-        'wrap' if 'true' then call a function to wrap the text into a given
-            rect.
-        'rect' dynamically using font-rect if there is no rect given as
-            parameter.
-        'position' positional argument of the text within the given rect if
-            there is one. can be tuple (0, 0) list [0, 0] or str "center" etc.
-        """
-        # inherit from gui master
-        GuiMaster.__init__(self, config)
-        # comparing both dicts and creating a new one from it
-        self.config = validateDict(config, self.cfg)# dict
-        # initiating font module
-        pg.font.init()
-        # additional attributes
-        self.fontsize = self.config["fontsize"]# int
-        self.color = self.config["color"]# tuple
-        self.text = self.config["text"]# str
-        self.antialias = self.config["antialias"]# bool
-        self.font = pg.font.SysFont(# pygame.font
-        	self.config["font"],
-        	self.fontsize
-        )
-        self.font.set_bold(self.config["bold"])
-        self.font.set_italic(self.config["italic"])
-        self.wrap = self.config["wrap"]# bool
-        self.rect = self.config["rect"]# none / tuple / list
-        self.position = self.config["position"]# none / tuple / list / str
-        # building / drawing
-        self.__build()
-    def __build(self):
-        """create the element."""
-        # determine new size
-        if self.rect:
-            size = self.rect.size
-        else:
-            size = self.font.size(self.text)
-        # initiating surface
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        # wrapped text
-        if self.wrap:
-            self.image = wrapText(
-                self.text,
-                self.color,
-                pg.Rect((0, 0), self.rect.size),
-                self.font,
-                aa = self.antialias
-            )
-        # non-wrapped text
-        else:
-            self.image = self.font.render(
-                self.text,
-                self.antialias,
-                self.color
-            )
-            self.rect = self.image.get_rect()
-        # drawing background
-        if self.background:
-            self.draw(self.background)
-        # determine position for text within the rect
-        if self.position:
-            pos = self.position
-        else:
-            pos = (0, 0)
-        # drawing text
-        self.draw(self.image, pos)
-    def update(self, **kwargs):
-        """run this method with each app loop."""
-        if "text" in kwargs:
-            self.text = kwargs["text"]
-        self.__build()
-class TextBox(pg.Surface):
-    """surface for displaying text."""
-    default = {
-        "text": "Default Text",
-        "type": "textbox",
-        "font": "verdana",
-        "fontsize": 16,
-        "size": (300, 100),
-        "position": (0, 0),
-        "bold": False,
-        "italic": False,
-        "wrap": True,
-        "color": (255, 255, 255),
-        "background": (0, 0, 0),
-        "padding": None
-    }
-    def __init__(self, config={}):
-        """
-        'type' declares if the object is gonna be build as 'textbox' or
-            'speechbubble'
-        'call' bool to check if the textbox is called or not.
-        'padding' text padding from the corners of the textbox rect.
-        'text' holds a whole text object with warpped or non-wrapped text.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.type = self.config["type"]# str
-        self.call = False# bool
-        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
-        self.rect = self.get_rect()# pygame.rect
-        self.rect.topleft = self.config["position"]
-        # additional attributes
-        self.padding = self.config["padding"]# none / int
-        self.text = Text({# text object
-            "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
-            "fontsize": self.config["fontsize"],
-            "font": self.config["font"],
-            "bold": self.config["bold"],
-            "italic": self.config["italic"],
-            "color": self.config["color"],
-            "size": self.calculateRect(self.rect).size,
-            "wrap": self.config["wrap"]
-        })
-        self.__build()
-    def __build(self):
-        """composing surface."""
-        # drawing background
-        draw(self.config["background"], self)
-        # drawing text depending on margins
-        if self.padding:
-            if type(self.padding) is int:
-                pos = (self.padding, self.padding)
-            elif type(self.padding) is list or type(self.padding) is list:
-                pos = self.padding
-        else:
-            pos = (0, 0)
-        draw(self.text, self, pos)
-    def calculateRect(self, rect):
-        """recalculating rect size based on padding and margin"""
-        p = self.padding
-
-        if p:
-            if type(p) is int:
-                rect.width = rect.width - (p * 2)
-                #rect.height = rect.height - (p * 2)
-
-        return rect
-    def setPosition(self, pos):
-        """updating rect position."""
-        self.rect.topleft = pos
-
 class App:
     """pygames window module with extended features."""
     default = {
@@ -793,7 +237,7 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
-class GuiMaster2(pg.Surface):
+class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
     events ans additional properties for surfaces.
@@ -870,7 +314,7 @@ class GuiMaster2(pg.Surface):
             if self.background:
                 self.draw(self.background)
 # all these following elements draw from GuiMaster
-class Interface2(pg.Surface):
+class Interface(pg.Surface):
     """."""
     default = {
         "app": None,
@@ -916,13 +360,14 @@ class Interface2(pg.Surface):
                 e["app"] = self.app
                 if "type" in e:
                     if e["type"] == "panel":
-                        elements.append(Panel2(e))
+                        elements.append(Panel(e))
                     elif e["type"] == "button":
-                        elements.append(Button2(e))
+                        e["position"] = "center"
+                        elements.append(Button(e))
                     elif e["type"] == "menubar":
-                        elements.append(MenuBar2(e))
+                        elements.append(MenuBar(e))
                     elif e["type"] == "infobar":
-                        elements.append(InfoBar2(e))
+                        elements.append(InfoBar(e))
 
         return elements
     def draw(self, object, position=(0, 0)):
@@ -951,16 +396,18 @@ class Interface2(pg.Surface):
                     drawing = True
                     e.update()
 
-            if type(e) is Button2:
+            if type(e) is Button:
+                drawing = True
+            if type(e) is InfoBar:
                 drawing = True
 
             if drawing:
                 self.draw(e, e.rect)
-class InfoBar2(GuiMaster2):
+class InfoBar(GuiMaster):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
+        GuiMaster.__init__(self, config)
         self.cfg = config# dict
         self.info = self.createInfo()# str
     def createInfo(self):
@@ -975,22 +422,38 @@ class InfoBar2(GuiMaster2):
                 elif i == "appsize":
                     info += "AppSize: " + str(self.parent.size) + " "
                 elif i == "fps":
-                    info += "FPS: " + str() + " "
+                    info += "FPS: " + str(self.app.fps) + " "
 
         return info
     def update(self):
         """."""
+        bg = self.background
+
         self.info = self.createInfo()
-class Menu2(GuiMaster2):
+        self.text = Text({# text object
+            "text": self.info,
+            "fontsize": 12
+        })
+
+        if self.mouseOver():
+            if self.backgroundhover:
+                bg = self.backgroundhover
+
+        self.draw(bg)
+        self.draw(self.text, (
+            10,
+            self.anchors["middle"] - int(self.text.rect.height / 2)
+        ))
+class Menu(GuiMaster):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
-class MenuBar2(GuiMaster2):
+        GuiMaster.__init__(self, config)
+class MenuBar(GuiMaster):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
+        GuiMaster.__init__(self, config)
         self.cfg = config# dict
         self.menus = self.createMenus()# list
     def createMenus(self):
@@ -1000,31 +463,36 @@ class MenuBar2(GuiMaster2):
 
         if "menus" in c:
             for m in c["menus"]:
-                menus.append(Menu2(m))
+                menus.append(Menu(m))
 
         return menus
-class Button2(GuiMaster2):
+class Button(GuiMaster):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
-        self.text = Text2(config)
+        GuiMaster.__init__(self, config)
+        if "position" in config:
+            pos = config["position"]
+        else:
+            pos = (0, 0)
+        self.textposition = pos# tuple
+        self.text = Text(config)
     def update(self):
         """."""
         if self.mouseOver():
             if self.backgroundhover:
                 self.draw(self.backgroundhover)
-                self.draw(self.text)
+                self.draw(self.text, self.textposition)
         else:
             if self.background:
                 self.draw(self.background)
-                self.draw(self.text)
-class Panel2(GuiMaster2):
+                self.draw(self.text, self.textposition)
+class Panel(GuiMaster):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
-class Text2(GuiMaster2):
+        GuiMaster.__init__(self, config)
+class Text(GuiMaster):
     """."""
     cfg = {
     	"font": FONTS["base"]["name"],
@@ -1036,44 +504,55 @@ class Text2(GuiMaster2):
     	"bold": False,
     	"italic": False,
         "rect": None,
-        "wrap": False,
-        "position": "center"
+        "wrap": None,
+        "position": (0, 0)
     }
     def __init__(self, config={}):
         """."""
-        GuiMaster2.__init__(self, config)
-        # resetting background for text
-        self.background = None# none
-        self.build()
+        GuiMaster.__init__(self, config)
+        config = validateDict(config, self.cfg)# dict
 
-        self.config = validateDict(config, self.cfg)# dict
+        self.text = config["text"]# str
+        self.color = config["color"]# none / list / tuple
+        self.antialias = config["antialias"]# bool
+        self.wrap = config["wrap"]# none / int / tuple
+
         pg.font.init()
-        self.text = self.config["text"]# str
-        self.antialias = self.config["antialias"]# bool
-        self.color = self.config["color"]# list / tuple
-        self.position = self.config["position"]# list / tuple / str
         self.font = pg.font.SysFont(# pygame.font
-        	self.config["font"],
-        	self.config["fontsize"]
+        	config["font"],
+        	config["fontsize"]
         )
-        self.font.set_bold(self.config["bold"])
-        self.font.set_italic(self.config["italic"])
-        self.image = self.font.render(# pygame.surface
-            self.text,
-            self.antialias,
-            self.color
-        )
-        self.image_rect = self.image.get_rect()# pygame.rect
-        if type(self.position) is str:
-            if self.position == "center":
-                self.image_rect.topleft = (
-                    int(self.rect.width / 2) - int(self.image_rect.width / 2),
-                    int(self.rect.height / 2) - int(self.image_rect.height / 2)
-                )
-        self.draw(self.image, self.image_rect)
-    def update(self, **kwargs):
+        self.font.set_bold(config["bold"])
+        self.font.set_italic(config["italic"])
+
+        self.recreate()
+        self.draw(self.image)
+    def recreate(self):
         """."""
-        pass
+        # resetting background
+        self.background = None
+
+        if not self.wrap:
+            self.image = self.font.render(
+                self.text,
+                self.antialias,
+                self.color
+            )
+            self.rect.size = self.image.get_rect().size
+            self.build()
+        else:
+            if type(self.wrap) is int:
+                rect = (0, 0, self.wrap, self.rect.height)
+            elif type(self.wrap) is tuple:
+                rect = (0, 0, self.wrap[0], self.wrap[1])
+
+            self.image = wrapText(
+                self.text,
+                self.color,
+                pg.Rect(rect),
+                self.font,
+                aa = self.antialias
+            )
 class Window(GuiMaster):
     """a window pop up."""
     def __init__(self, config={}):
@@ -1134,3 +613,73 @@ class Overlay(pg.Surface):
         pg.Surface.__init__(self, self.config["size"])
         # setting opacity if there is one
         self.set_alpha(self.config["opacity"])
+class TextBox(pg.Surface):
+    """surface for displaying text."""
+    default = {
+        "text": "Default Text",
+        "type": "textbox",
+        "font": "verdana",
+        "fontsize": 16,
+        "size": (300, 100),
+        "position": (0, 0),
+        "bold": False,
+        "italic": False,
+        "wrap": True,
+        "color": (255, 255, 255),
+        "background": (0, 0, 0),
+        "padding": None
+    }
+    def __init__(self, config={}):
+        """
+        'type' declares if the object is gonna be build as 'textbox' or
+            'speechbubble'
+        'call' bool to check if the textbox is called or not.
+        'padding' text padding from the corners of the textbox rect.
+        'text' holds a whole text object with warpped or non-wrapped text.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.type = self.config["type"]# str
+        self.call = False# bool
+        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        self.rect = self.get_rect()# pygame.rect
+        self.rect.topleft = self.config["position"]
+        # additional attributes
+        self.padding = self.config["padding"]# none / int
+        self.text = Text({# text object
+            "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
+            "fontsize": self.config["fontsize"],
+            "font": self.config["font"],
+            "bold": self.config["bold"],
+            "italic": self.config["italic"],
+            "color": self.config["color"],
+            "size": self.calculateRect(self.rect).size,
+            "wrap": self.config["wrap"]
+        })
+        self.__build()
+    def __build(self):
+        """composing surface."""
+        # drawing background
+        draw(self.config["background"], self)
+        # drawing text depending on margins
+        if self.padding:
+            if type(self.padding) is int:
+                pos = (self.padding, self.padding)
+            elif type(self.padding) is list or type(self.padding) is list:
+                pos = self.padding
+        else:
+            pos = (0, 0)
+        draw(self.text, self, pos)
+    def calculateRect(self, rect):
+        """recalculating rect size based on padding and margin"""
+        p = self.padding
+
+        if p:
+            if type(p) is int:
+                rect.width = rect.width - (p * 2)
+                #rect.height = rect.height - (p * 2)
+
+        return rect
+    def setPosition(self, pos):
+        """updating rect position."""
+        self.rect.topleft = pos

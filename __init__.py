@@ -5,7 +5,7 @@ from .gui import (
     App,
     Button,
     InfoBar,
-    Interface2,
+    Interface,
     MenuBar,
     MiniMap,
     Overlay,
