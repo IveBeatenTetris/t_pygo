@@ -245,7 +245,6 @@ class GuiMaster(pg.Surface):
     events ans additional properties for surfaces.
     """
     default = {
-        "app": None,
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 100, 100),
         "background": None,
@@ -314,7 +313,6 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
-# all these following elements draw from GuiMaster
 class Interface(pg.Surface):
     """."""
     default = {
@@ -324,13 +322,12 @@ class Interface(pg.Surface):
         "background": None,
         "hover": None
     }
-    def __init__(self, name, app=None):
+    def __init__(self, name):
         """."""
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js# dict
         self.config = validateDict(self.cfg, self.default)# dict
-        self.app = app
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
         if type(self.config["rect"]) is list:
             rect = pg.Rect(convertRect(self.config["rect"], self.parent))
@@ -358,7 +355,6 @@ class Interface(pg.Surface):
 
         if "elements" in c:
             for e in c["elements"]:
-                e["app"] = self.app
                 if "type" in e:
                     if e["type"] == "panel":
                         elements.append(Panel(e))
@@ -378,16 +374,17 @@ class Interface(pg.Surface):
         """."""
         self.rect.size = size
         self.anchors = getAnchors(self.rect.size)
-        self.build()
         self.elements = self.createElements()
+        self.build()
+
         for e in self.elements:
             e.update()
             self.draw(e, e.rect)
     def update(self):
         """."""
-        drawing = False
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
+        drawing = False
 
         for e in self.elements:
             e.update()
@@ -395,7 +392,7 @@ class Interface(pg.Surface):
             if e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
                     drawing = True
-                    e.update()
+                    #e.update()
 
             if type(e) is Button:
                 drawing = True
@@ -404,6 +401,28 @@ class Interface(pg.Surface):
 
             if drawing:
                 self.draw(e, e.rect)
+# all these following elements draw from GuiMaster
+class Button(GuiMaster):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        GuiMaster.__init__(self, config)
+        if "position" in config:
+            pos = config["position"]
+        else:
+            pos = (0, 0)
+        self.textposition = pos# tuple
+        self.text = Text(config)
+    def update(self):
+        """."""
+        if self.mouseOver():
+            if self.backgroundhover:
+                self.draw(self.backgroundhover)
+                self.draw(self.text, self.textposition)
+        else:
+            if self.background:
+                self.draw(self.background)
+                self.draw(self.text, self.textposition)
 class InfoBar(GuiMaster):
     """."""
     def __init__(self, config={}):
@@ -456,38 +475,50 @@ class MenuBar(GuiMaster):
         """."""
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
+        self.options = {}# dict
         self.menus = self.createMenus()# list
     def createMenus(self):
         """."""
         c = self.cfg
+        options = {}
         menus = []
+        i = 10
 
         if "menus" in c:
-            for m in c["menus"]:
+            for name, m in c["menus"].items():
+                m["fontsize"] = 14
+                m["name"] = name
+                m["text"] = name
+                m["background"] = (i, i*2, int(i*2.5))
+                self.options[name] = self.createOption(m)
                 menus.append(Menu(m))
+                i += 10
 
         return menus
-class Button(GuiMaster):
-    """."""
-    def __init__(self, config={}):
+    def createOption(self, config):
         """."""
-        GuiMaster.__init__(self, config)
-        if "position" in config:
-            pos = config["position"]
-        else:
-            pos = (0, 0)
-        self.textposition = pos# tuple
-        self.text = Text(config)
+        text = Text({
+            "text": config["text"],
+            "fontsize": config["fontsize"]
+        })
+        size = (
+            text.rect.width + 20,
+            self.rect.height
+        )
+        surface = pg.Surface(size, pg.SRCALPHA)
+        draw(text, surface, "center")
+
+        return surface
     def update(self):
         """."""
-        if self.mouseOver():
-            if self.backgroundhover:
-                self.draw(self.backgroundhover)
-                self.draw(self.text, self.textposition)
-        else:
-            if self.background:
-                self.draw(self.background)
-                self.draw(self.text, self.textposition)
+        pos = [0, 0]
+
+        if self.background:
+            self.draw(self.background)
+        for _, b in self.options.items():
+            #b.update()
+            self.draw(b, pos)
+            pos[0] += b.get_rect().width
 class Panel(GuiMaster):
     """."""
     def __init__(self, config={}):
