@@ -384,19 +384,21 @@ class Interface(pg.Surface):
         """."""
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
-        drawing = False
 
         for e in self.elements:
             e.update()
+            drawing = False
 
             if e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
                     drawing = True
-                    #e.update()
+                    e.update()
 
             if type(e) is Button:
                 drawing = True
-            if type(e) is InfoBar:
+            elif type(e) is InfoBar:
+                drawing = True
+            elif type(e) is MenuBar:
                 drawing = True
 
             if drawing:
@@ -511,14 +513,21 @@ class MenuBar(GuiMaster):
         return surface
     def update(self):
         """."""
+        mouse = pg.mouse.get_pos()
         pos = [0, 0]
 
         if self.background:
             self.draw(self.background)
-        for _, b in self.options.items():
-            #b.update()
-            self.draw(b, pos)
-            pos[0] += b.get_rect().width
+
+        for _, o in self.options.items():
+            rect = o.get_rect()
+            rect.topleft = pos
+            if self.mouseOver():
+                if rect.collidepoint(mouse):
+                    if self.backgroundhover:
+                        self.fill(self.backgroundhover, rect)
+            self.draw(o, rect)
+            pos[0] += o.get_rect().width
 class Panel(GuiMaster):
     """."""
     def __init__(self, config={}):
