@@ -341,7 +341,7 @@ class Interface(pg.Surface):
         self.background = background# none / tuple
         pg.Surface.__init__(self, rect.size)
         self.anchors = getAnchors(self.rect.size)# dict
-        self.elements = self.createElements()# list
+        self.elements = self.createElements()# dict
         self.build()
     def build(self):
         """."""
@@ -350,21 +350,29 @@ class Interface(pg.Surface):
             self.draw(self.background)
     def createElements(self):
         """."""
-        elements = []
+        elements = {}
         c = self.cfg
+        i = 0
 
         if "elements" in c:
             for e in c["elements"]:
+                if not "name" in e:
+                    name = "Unnamed"
+                    """if i > 0:
+                        name = name + str(i)
+                        i += 1"""
+                else:
+                    name = e["name"]
                 if "type" in e:
                     if e["type"] == "panel":
-                        elements.append(Panel(e))
+                        elements[name] = Panel(e)
                     elif e["type"] == "button":
                         e["position"] = "center"
-                        elements.append(Button(e))
+                        elements[name] = Button(e)
                     elif e["type"] == "menubar":
-                        elements.append(MenuBar(e))
+                        elements[name] = MenuBar(e)
                     elif e["type"] == "infobar":
-                        elements.append(InfoBar(e))
+                        elements[name] = InfoBar(e)
 
         return elements
     def draw(self, object, position=(0, 0)):
@@ -377,7 +385,7 @@ class Interface(pg.Surface):
         self.elements = self.createElements()
         self.build()
 
-        for e in self.elements:
+        for _, e in self.elements.items():
             e.update()
             self.draw(e, e.rect)
     def update(self):
@@ -385,7 +393,7 @@ class Interface(pg.Surface):
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
 
-        for e in self.elements:
+        for _, e in self.elements.items():
             e.update()
             drawing = False
 
