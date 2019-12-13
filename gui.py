@@ -397,16 +397,20 @@ class Interface(pg.Surface):
             e.update()
             draw_element = False
 
-            if type(e) is Button:
+            if type(e) is Panel:
+                pass
+            elif type(e) is Button:
                 draw_element = True
             elif type(e) is InfoBar:
                 draw_element = True
             elif type(e) is MenuBar:
                 draw_element = True
                 for name, option in e.options.items():
-                    print(option.leftClick())
-            elif type(e) is Panel:
-                pass
+                    if option.leftClick():
+                        self.draw(e.menus[name], (
+                            option.rect.left,
+                            option.rect.top + e.rect.height
+                        ))
             elif e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
                     draw_element = True
@@ -482,6 +486,8 @@ class Menu(GuiMaster):
     def __init__(self, config={}):
         """."""
         GuiMaster.__init__(self, config)
+        self.rect = pg.Rect(0, 0, 200, 200)
+        self.build()
 class MenuBar(GuiMaster):
     """."""
     def __init__(self, config={}):
@@ -506,7 +512,9 @@ class MenuBar(GuiMaster):
                 m["background"] = self.background
                 m["backgroundhover"] = self.backgroundhover
                 self.options[name] = self.createOption(m)
-                menus[name] = Menu(m)
+                menus[name] = Menu({
+                    "background": self.background
+                })
                 x += self.options[name].get_rect().width
 
         return menus
