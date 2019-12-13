@@ -451,11 +451,11 @@ class InfoBar(GuiMaster):
         if "info" in c:
             for i in c["info"]:
                 if i == "mouse":
-                    info += "Mouse: " + str(pg.mouse.get_pos()) + " "
+                    info += "Mouse: " + str(pg.mouse.get_pos()) + "     "
                 elif i == "appsize":
-                    info += "AppSize: " + str(self.parent.size) + " "
+                    info += "AppSize: " + str(self.parent.size) + "     "
                 elif i == "fps":
-                    info += "FPS: " + str(globals()["app"].fps) + " "
+                    info += "FPS: " + str(globals()["app"].fps) + "     "
 
         return info
     def update(self):
