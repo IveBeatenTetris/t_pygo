@@ -248,7 +248,8 @@ class GuiMaster(pg.Surface):
         "name": "Unnamed Element",
         "rect": pg.Rect(0, 0, 100, 100),
         "background": None,
-        "hover": None
+        "hover": None,
+        "drag": False
     }
     def __init__(self, config={}):
         """."""
@@ -272,6 +273,7 @@ class GuiMaster(pg.Surface):
         self.backgroundhover = hover# none / tuple
         self.hover = False# bool
         self.click = False# bool
+        self.dragable = self.config["drag"]# bool
         #self.focus = False# bool
         self.build()
     def build(self):
@@ -279,6 +281,10 @@ class GuiMaster(pg.Surface):
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         if self.background:
             self.draw(self.background)
+    def drag(self):
+        """."""
+        if self.leftClick():
+            self.rect.center = pg.mouse.get_pos()
     def draw(self, object, position=(0, 0)):
         """."""
         draw(object, self, position)
@@ -394,6 +400,8 @@ class Interface(pg.Surface):
         mpos = pg.mouse.get_pos()
 
         for _, e in self.elements.items():
+            if e.dragable:
+                e.drag()
             e.update()
             draw_element = False
 
@@ -512,9 +520,12 @@ class MenuBar(GuiMaster):
                 m["background"] = self.background
                 m["backgroundhover"] = self.backgroundhover
                 self.options[name] = self.createOption(m)
+
                 menus[name] = Menu({
-                    "background": self.background
+                    "background": self.background,
+                    #"options":
                 })
+
                 x += self.options[name].get_rect().width
 
         return menus
