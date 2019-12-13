@@ -400,6 +400,9 @@ class Interface(pg.Surface):
                 drawing = True
             elif type(e) is MenuBar:
                 drawing = True
+                for name, option in e.options.items():
+                    if option.hover:
+                        pass
 
             if drawing:
                 self.draw(e, e.rect)
@@ -478,23 +481,25 @@ class MenuBar(GuiMaster):
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
         self.options = {}# dict
-        self.menus = self.createMenus()# list
+        self.menus = self.createMenus()# dict
     def createMenus(self):
         """."""
         c = self.cfg
         options = {}
-        menus = []
-        i = 10
+        menus = {}
+        x = 0
 
         if "menus" in c:
             for name, m in c["menus"].items():
+                m["x"] = x
                 m["fontsize"] = 14
                 m["name"] = name
                 m["text"] = name
-                m["background"] = (i, i*2, int(i*2.5))
+                m["background"] = self.background
+                m["backgroundhover"] = self.backgroundhover
                 self.options[name] = self.createOption(m)
-                menus.append(Menu(m))
-                i += 10
+                menus[name] = Menu(m)
+                x += self.options[name].get_rect().width
 
         return menus
     def createOption(self, config):
@@ -507,7 +512,15 @@ class MenuBar(GuiMaster):
             text.rect.width + 20,
             self.rect.height
         )
-        surface = pg.Surface(size, pg.SRCALPHA)
+        #surface = pg.Surface(size, pg.SRCALPHA)
+        surface = GuiMaster({
+            "rect": [
+                config["x"],
+                0,
+                text.rect.width + 20,
+                self.rect.height
+            ]
+        })
         draw(text, surface, "center")
 
         return surface
@@ -520,6 +533,7 @@ class MenuBar(GuiMaster):
             self.draw(self.background)
 
         for _, o in self.options.items():
+            o.update()
             rect = o.get_rect()
             rect.topleft = pos
             if self.mouseOver():
