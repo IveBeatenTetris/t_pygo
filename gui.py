@@ -395,24 +395,24 @@ class Interface(pg.Surface):
 
         for _, e in self.elements.items():
             e.update()
-            drawing = False
-
-            if e.mouseOver():
-                if mrel[0] != 0 or mrel[1] != 0:
-                    drawing = True
-                    e.update()
+            draw_element = False
 
             if type(e) is Button:
-                drawing = True
+                draw_element = True
             elif type(e) is InfoBar:
-                drawing = True
+                draw_element = True
             elif type(e) is MenuBar:
-                drawing = True
+                draw_element = True
                 for name, option in e.options.items():
-                    if option.hover:
-                        pass
+                    print(option.leftClick())
+            elif type(e) is Panel:
+                pass
+            elif e.mouseOver():
+                if mrel[0] != 0 or mrel[1] != 0:
+                    draw_element = True
+                    e.update()
 
-            if drawing:
+            if draw_element:
                 self.draw(e, e.rect)
 # all these following elements draw from GuiMaster
 class Button(GuiMaster):
