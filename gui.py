@@ -665,49 +665,68 @@ class Menu(GuiMaster):
         self.rect = pg.Rect(0, 0, 200, 200)
         self.build()
 class MenuBar(GuiMaster):
-    """."""
+    """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        use 'update()' to refresh object.
+
+        'cfg' building instructions to draw from.
+        'options' dict of all displayable options to click at.
+        'menus' option belonging dict of menus to draw when the equivalent
+            option has been clicked at.
+        """
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
         self.options = {}# dict
         self.menus = self.createMenus()# dict
-    def createMenus(self):
-        """."""
+    def createMenus(self):# dict
+        """
+        returns a dict of menu objects to draw when a specific option was
+        pressed.
+        """
         c = self.cfg
-        options = {}
+        #options = {}
         menus = {}
+        # needed to calculate horizontal position of options
         x = 0
 
+        # for every menu in the config dict
         if "menus" in c:
             for name, m in c["menus"].items():
+                # updating some properties to pass then
                 m["x"] = x
                 m["fontsize"] = 14
                 m["name"] = name
                 m["text"] = name
                 m["background"] = self.background
                 m["backgroundhover"] = self.backgroundhover
+                # add an option object for that menu
                 self.options[name] = self.createOption(m)
-
+                # append the menu object and adjusting some properties
                 menus[name] = Menu({
                     "background": self.background,
                     #"options":
                 })
-
+                # update coordinate to draw
                 x += self.options[name].get_rect().width
 
         return menus
-    def createOption(self, config):
-        """."""
+    def createOption(self, config):# guimaster
+        """
+        returns a pygame.sruface as an menu option.
+        """
+        # text object
         text = Text({
             "text": config["text"],
             "fontsize": config["fontsize"]
         })
+        # rect size of the surface
         size = (
             text.rect.width + 20,
             self.rect.height
         )
-        #surface = pg.Surface(size, pg.SRCALPHA)
+        # using guimaster as surface
         surface = GuiMaster({
             "rect": [
                 config["x"],
@@ -716,26 +735,36 @@ class MenuBar(GuiMaster):
                 self.rect.height
             ]
         })
+        # drawing text to surface
         draw(text, surface, "center")
 
         return surface
     def update(self):
-        """."""
+        """
+        overwrites parental method. used to redraw background updating options
+            properties checks its events and draws the option to the menubar.
+        """
         mouse = pg.mouse.get_pos()
+        # used to calculate options position to draw
         pos = [0, 0]
-
+        # drawing backgroundi f there is one
         if self.background:
             self.draw(self.background)
-
+        # for every option
         for _, o in self.options.items():
+            # update option for event echecking
             o.update()
+            # temporary rect for drawing position later
             rect = o.get_rect()
             rect.topleft = pos
+            # on hover draw hover background if set
             if self.mouseOver():
                 if rect.collidepoint(mouse):
                     if self.backgroundhover:
                         self.fill(self.backgroundhover, rect)
+            # drawing option to menubar
             self.draw(o, rect)
+            # updating position to draw next option
             pos[0] += o.get_rect().width
 class Panel(GuiMaster):
     """."""
