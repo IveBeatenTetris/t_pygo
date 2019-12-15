@@ -274,6 +274,7 @@ class GuiMaster(pg.Surface):
         self.hover = False# bool
         self.click = False# bool
         self.dragable = self.config["drag"]# bool
+        self.draggedAt = None# none / tuple
         #self.focus = False# bool
         self.build()
     def build(self):
@@ -281,19 +282,32 @@ class GuiMaster(pg.Surface):
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         if self.background:
             self.draw(self.background)
-    def drag(self):
-        """."""
-        if self.leftClick():
-            self.rect.center = pg.mouse.get_pos()
     def draw(self, object, position=(0, 0)):
         """."""
         draw(object, self, position)
     def leftClick(self):
         """."""
-        self.click = False
+        mpos = pg.mouse.get_pos()
 
-        if self.mouseOver() and pg.mouse.get_pressed()[0]:
-            self.click = True
+        for evt in globals()["app"]._events:
+            if self.mouseOver():
+                if evt.type is pg.MOUSEBUTTONDOWN:
+                    self.click = True
+                    if self.dragable:
+                        self.draggedAt = (
+                            mpos[0] - self.rect.x,
+                            mpos[1] - self.rect.y
+                        )
+                elif evt.type is pg.MOUSEBUTTONUP:
+                    self.click = False
+                    if self.dragable:
+                        self.draggedAt = None
+
+        if self.dragable and self.click:
+            self.rect.topleft = (
+                mpos[0] - self.draggedAt[0],
+                mpos[1] - self.draggedAt[1]
+            )
 
         return self.click
     def mouseOver(self):
@@ -301,7 +315,6 @@ class GuiMaster(pg.Surface):
         mouse = pg.mouse.get_pos()
         self.hover = False
 
-        #for event in events:
         if self.rect.collidepoint(mouse):
             self.hover = True
 
@@ -399,10 +412,14 @@ class Interface(pg.Surface):
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
 
+        #if self.background:
+            #self.draw(self.background)
+
         for _, e in self.elements.items():
-            if e.dragable:
-                e.drag()
+            #if e.dragable:
+                #e.drag()
             e.update()
+            e.leftClick()
             draw_element = False
 
             if type(e) is Panel:
