@@ -20,7 +20,19 @@ import pygame as pg
 import sys, os
 
 class App:
-    """pygames window module with extended features."""
+    """
+    pygames window module with extended features. can be accessed by calling
+        'globals()["app"]'.
+    for the active event list use the internal one instead of calling the
+        method 'events()' again to refresh events:
+        'globals()["app"]._events' good.
+        'globals()["app"].events()' bad.
+
+    'defaults' is a dict of standard properties. on initiation the given
+        parameter 'config' is beeing compared to the default dict. if some given
+        properties are missing they are simply replaced with default values.
+        the result is a validated dict to draw initiation instructions.
+    """
     default = {
         "size": (320, 240),
         "title": "No Title",
@@ -33,28 +45,31 @@ class App:
     }
     def __init__(self, config={}):
         """
-        initiates pygame to act as a pygame-window.
+        initiates pygame to act as an app window.
+
         'size' window size in a tuple for short reference only.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
-        'preffered_fps' - its in the name.
+        'clock' pygame clock for tracking fps.
+        'preffered_fps' user defined maximal frames per second.
         'fps' is gonna be updated from the windows update-method.
         'paused' is a switch for showing a gui and closing it. handled by
             'self.pause()'.
         'mode' is for switching trough modes like 'moving' or 'paused'.
         'controller' decided to put it into the window. its been updated in the
-        'window.events()'-method.
+            'window.events()'-method.
         'display' holds the actual pygame window.
         'screenshot' this surface can be used to simulate frozen screens like
             in menus. its refreshed by calling 'self.screenShot()'
         'anchors' is used for quick-pointing a part of the rect. for example:
             draw(object, self, self.anchors["midcenter"]).
         'fullscreen' if 'true' it renders the window maximized and borderless.
+        'bgrepeat' str with either 'x' 'y' or 'xy'.
         'background' used to draw to background. might be 'str' or 'tuple'. if
             'string' then use it as image path and load a pygame.image surface.
-        'bgrepeat' str with either 'x' 'y' or 'xy'.
         '_events' with each game-loop this list will become the new
-            pygame.events.
+            pygame.events. use this instead of calling 'app.events()'. this
+            would only refresh the event list. resulting in loss of some events.
         """
         # centering window
         os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -89,12 +104,17 @@ class App:
         )
         # event related
         self._events = []# list
-
+        # adding app to globals for accessing out of boundaries
         globals()["app"] = self
     # game routines
     def update(self):
-        """updates stuff at apps loop-end."""
+        """
+        call this method on each main loop end to refresh its contents and
+            visuals.
+        """
+        # refreshing display
         pg.display.update()
+        # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
     def quit(self):
@@ -102,15 +122,19 @@ class App:
         pg.quit()
         sys.exit()
     def pause(self):
-        """pauses the game or continues it."""
+        """
+        pauses the game or continues it. also freezes screen to simulate
+            stopping by taking a display copied surface. internal property
+            'self.paused' is gonna be togled on/off.
+        """
         if self.paused is True:
             self.paused = False
         else:
             self.paused = True
-            # create a screenshot
+            # make a screenshot
             self.screenshot = self.display.copy()
     # display stuff
-    def __createBackground(self, bg):
+    def __createBackground(self, bg):# pygame.surface
         """creates background based on background properties."""
         # declaring background type
         if type(bg) is str:
@@ -120,6 +144,8 @@ class App:
         # checking background repeat
         if type(bg) is pg.Surface:
             if self.config["backgroundrepeat"]:
+                # creating surfact with repeated background
+                # 'bgrepeat' is the indicator ('x', 'y', 'xy')
                 bg = repeatBG(
                     bg,
                     self.size,
@@ -128,40 +154,58 @@ class App:
 
         return bg
     def draw(self, object, position=(0, 0)):
-        """draw everything to the windows surface."""
+        """draw something to windows 'display' surface."""
         draw(object, self.display, position)
     def resize(self, size=None):
         """
-        'size' needs to be a tuple. if no 'size' then return if the window has
-            been resized in a bool.
+        resizes the window.
+
+        'size' needs to be a tuple. if no 'size parameter' is given this method
+            serves as a 'resized-event' checker and returns 'true' or 'false'.
         """
+        # on given parameter
         if size:
+            # make new display surface
             self.display = getDisplay(# pygame.surface
                 size,
                 resizable = self.config["resizable"],
                 fullscreen = self.fullscreen
             )
+            # drawing background
             self.draw(self.background)
+            # overwriting internal size (only for referencing)
             self.size = size
+            # creating anchors
             self.anchors = getAnchors(self.size)
+        # with no given parameter
         else:
-            resized = False
+            # return a tuple when resized or not
+            resized = None
+
             for e in self._events:
                 if e.type is pg.VIDEORESIZE:
-                    resized = True
+                    resized = e.size
 
             return resized
     def screenShot(self, surface=None):
-        """creates a copy of the all displayed things and save it."""
+        """
+        makes a visual copy of the actual display and stores it in
+            'self.screenshot'.
+        if 'surface' is given then sotre a copy of that instead.
+            """
         if surface:
             self.screenshot = surface.copy()
         else:
             self.screenshot = self.display.copy()
     # event related methodes
-    def events(self):# pygame.event
-        """pygame events. updates the controller with events."""
+    def events(self):# list
+        """
+        going trough some pygame events and returns a list of all active events.
+        also updates the controller with events.
+        """
         events = []
         keys = self.pressedKeys()
+
         # keyboard and mouse events
         for event in pg.event.get():
             # quit application
@@ -177,6 +221,7 @@ class App:
                 pass
             # finalizing event list
             events.append(event)
+
         # applying these events to the window-event list
         self._events = events
         # updating controller element if there is one
@@ -184,11 +229,11 @@ class App:
             self.controller.update(events)
 
         return events
-    def pressedKeys(self):
-        """return pygame-event's pressed-keys."""
+    def pressedKeys(self):# list
+        """return pygame-event's pressed keys (list)."""
         return pg.key.get_pressed()
-    def keys(self):
-        """might look for a more efficient way to check for hitten keys."""
+    def keys(self):# dict
+        """might look for a more efficient way to check for pressed keys."""
         keys = {
             "return": False,
             "esc": False,
@@ -213,9 +258,9 @@ class App:
                 keys["e"] = True
 
         return keys
-    def mouseWheel(self):
-        """mouse wheel event checking. returns a string."""
-        wheel = "none"
+    def mouseWheel(self):# str
+        """mouse wheel event checking. returns 'none' or str ('up', 'down')."""
+        wheel = None
 
         for event in self._events:
             if event.type is pg.MOUSEBUTTONDOWN and event.button == 4:
@@ -235,7 +280,7 @@ class App:
         icon = pg.transform.scale(icon, (32, 32))
         pg.display.set_icon(icon)
     def changeTitle(self, title):
-        """change the window-title. 'title' should be a string."""
+        """change the window title. 'title' should be a string."""
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
