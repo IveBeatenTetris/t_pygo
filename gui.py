@@ -418,7 +418,7 @@ class GuiMaster(pg.Surface):
 class Interface(pg.Surface):
     """
     this object serves as a big screen surface to draw all its gui elements on.
-    the final product can then simply be drawn to the apps idsplay surface.
+    the final product can then simply be drawn to the apps display surface.
 
     'default' properties for this object.
     """
@@ -433,6 +433,14 @@ class Interface(pg.Surface):
         """
         'name' parameter must been given so its associated json file can be
             loaded and converted into a validatable dict.
+        'config' building instructions to draw from.
+        'parent' window sized rect relative to pygame.display.
+        'rect' dimensions of that element in a pygame.rect.
+        'background' a color tuple to fill the surface with. standard is none
+            (transparent surface).
+        'elements' a dict of all gui elements to handle and draw. can be
+            accessed by using its name as index:
+                self.elements["my_button"]
         """
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
@@ -450,22 +458,29 @@ class Interface(pg.Surface):
         else:
             background = self.config["background"]
         self.background = background# none / tuple
-        pg.Surface.__init__(self, rect.size)
+        # creating elements
         self.elements = self.createElements()# dict
+        # building surface object
         self.build()
     def build(self):
-        """."""
+        """building the surface object."""
+        # initiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing background if there is one
         if self.background:
             self.draw(self.background)
     def createElements(self):
-        """."""
+        """
+        returns a dict of allready initiated gui elements ready to been drawn.
+        'c' simply acts as the dict pulled from a json-file accessed by a name.
+        """
         elements = {}
         c = self.cfg
         i = 0
 
         if "elements" in c:
             for e in c["elements"]:
+                # adding 'name' property to config dict for the element
                 if not "name" in e:
                     name = "Unnamed"
                     """if i > 0:
@@ -473,11 +488,12 @@ class Interface(pg.Surface):
                         i += 1"""
                 else:
                     name = e["name"]
+                # looking for 'type' property
                 if "type" in e:
+                    # adding elements depending on type
                     if e["type"] == "panel":
                         elements[name] = Panel(e)
                     elif e["type"] == "button":
-                        e["position"] = "center"
                         elements[name] = Button(e)
                     elif e["type"] == "menubar":
                         elements[name] = MenuBar(e)
@@ -486,32 +502,44 @@ class Interface(pg.Surface):
 
         return elements
     def draw(self, object, position=(0, 0)):
-        """."""
+        """standard drawing method."""
         draw(object, self, position)
     def resize(self, size):
-        """."""
+        """
+        resizes the interface rect and surface and rebuilds everything
+            afterwards.
+        """
+        # updating rect size
         self.rect.size = size
+        # recreate all elements because of parental resizing
         self.elements = self.createElements()
+        # start rebuilding surface
         self.build()
-
+        # redrawing all elements
         for _, e in self.elements.items():
-            e.update()
             self.draw(e, e.rect)
     def update(self):
-        """."""
+        """
+        calling this method on each main loop end to update all its visuals and
+            beyond.
+        some gui elements are only be redrawn under special circumstances like
+            a mouse hover or a click.
+        """
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
 
         #if self.background:
             #self.draw(self.background)
 
+        # for every element
         for _, e in self.elements.items():
-            #if e.dragable:
-                #e.drag()
+            # updating element
             e.update()
+            # provoke a left click event to check its state in the main loop
             e.leftClick()
+            # standard way for drawing. if 'false' then dont draw this element
             draw_element = False
-
+            # some elements always are redrawn
             if type(e) is Panel:
                 pass
             elif type(e) is Button:
@@ -519,18 +547,24 @@ class Interface(pg.Surface):
             elif type(e) is InfoBar:
                 draw_element = True
             elif type(e) is MenuBar:
+                # handles a little different since it has child elements to
+                # deal with
                 draw_element = True
+                # for every child
                 for name, option in e.options.items():
+                    # if left clicked
                     if option.leftClick():
+                        # draw its menu right under the option itself
                         self.draw(e.menus[name], (
                             option.rect.left,
                             option.rect.top + e.rect.height
                         ))
+            # if its a different element only redraw it when the mouse hovers it
             elif e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
                     draw_element = True
                     e.update()
-
+            # only redrawing if previous cases match
             if draw_element:
                 self.draw(e, e.rect)
 # all these following elements draw from GuiMaster
@@ -542,7 +576,7 @@ class Button(GuiMaster):
         if "position" in config:
             pos = config["position"]
         else:
-            pos = (0, 0)
+            pos = "center"
         self.textposition = pos# tuple
         self.text = Text(config)
     def update(self):
@@ -594,7 +628,7 @@ class InfoBar(GuiMaster):
         self.draw(bg)
         self.draw(self.text, (
             10,
-            self.rect.centery - int(self.text.rect.height / 2)
+            int(self.rect.height / 2) - int(self.text.rect.height / 2)
         ))
 class Menu(GuiMaster):
     """."""
