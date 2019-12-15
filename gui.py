@@ -47,6 +47,8 @@ class App:
         """
         initiates pygame to act as an app window.
 
+        'config' validated dict by comparison of a user set dict of properties
+            and the elements default ones.
         'size' window size in a tuple for short reference only.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
@@ -61,8 +63,6 @@ class App:
         'display' holds the actual pygame window.
         'screenshot' this surface can be used to simulate frozen screens like
             in menus. its refreshed by calling 'self.screenShot()'
-        'anchors' is used for quick-pointing a part of the rect. for example:
-            draw(object, self, self.anchors["midcenter"]).
         'fullscreen' if 'true' it renders the window maximized and borderless.
         'bgrepeat' str with either 'x' 'y' or 'xy'.
         'background' used to draw to background. might be 'str' or 'tuple'. if
@@ -95,7 +95,6 @@ class App:
         self.screenshot = None# none / pygame.surface
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
-        self.anchors = getAnchors(self.size)# dict
         # background related
         self.fullscreen = self.config["fullscreen"]# bool
         self.bgrepeat = self.config["backgroundrepeat"]# str
@@ -175,8 +174,6 @@ class App:
             self.draw(self.background)
             # overwriting internal size (only for referencing)
             self.size = size
-            # creating anchors
-            self.anchors = getAnchors(self.size)
         # with no given parameter
         else:
             # return a tuple when resized or not
@@ -287,7 +284,9 @@ class App:
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
-    events ans additional properties for surfaces.
+    events an additional properties/methodes for surfaces.
+
+    'default' properties for this object.
     """
     default = {
         "name": "Unnamed Element",
@@ -297,7 +296,32 @@ class GuiMaster(pg.Surface):
         "drag": False
     }
     def __init__(self, config={}):
-        """."""
+        """
+        to see recently made changes to your analoge-created element you need to
+            call its 'update()' method.
+
+        'config' build instructions.
+        'parent' window surface rect.
+        'rect' elements dimensions. positional statements are:
+            x,y
+            top, left, bottom, right
+            topleft, bottomleft, topright, bottomright
+            midtop, midleft, midbottom, midright
+            center, centerx, centery
+            size, width, height
+            w,h
+        'background' can be 'none' or 'tuple'. used to fill the background of
+            the surface with a color.
+        'hoverbackground' surface background can be filled with this color if
+            there is a given color tuple.
+        'hover' bool - used for checking the hover-state of the mouse relative
+            to the element.
+        'click' same for this attribute. 'true' on click until not released.
+        'dragable' used to check if the element is gonna be dragged and dropped.
+        'draggedat' needed to calculate the elements rect position on dragging
+            with mouse.
+        """
+        # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
         if type(self.config["rect"]) is list:
@@ -305,7 +329,6 @@ class GuiMaster(pg.Surface):
         else:
             rect = self.config["rect"]
         self.rect = rect# pygame.rect
-        self.anchors = getAnchors(self.rect.size)# dict
         if self.config["background"]:
             background = tuple(self.config["background"])
         else:
@@ -319,44 +342,52 @@ class GuiMaster(pg.Surface):
         self.hover = False# bool
         self.click = False# bool
         self.dragable = self.config["drag"]# bool
-        self.draggedAt = None# none / tuple
-        #self.focus = False# bool
+        self.draggedat = None# none / tuple
+        # building element
         self.build()
     def build(self):
-        """."""
+        """building the element. can be overwritten by is calling gui member."""
+        # reinitiating surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # drawing background if there is one
         if self.background:
             self.draw(self.background)
     def draw(self, object, position=(0, 0)):
-        """."""
+        """standard drawing method for elemenet. can be overwritten by user."""
         draw(object, self, position)
-    def leftClick(self):
-        """."""
+    def leftClick(self):# bool
+        """
+        returns the state of this element beeing left clicked or not. it also
+            drags and drops the element if this is enabled by user. can but
+            should not be overwritten by user.
+        """
         mpos = pg.mouse.get_pos()
-
+        # looking for mousebutton events from pygame
         for evt in globals()["app"]._events:
             if self.mouseOver():
+                # on press make dragable if necessary
                 if evt.type is pg.MOUSEBUTTONDOWN:
                     self.click = True
                     if self.dragable:
-                        self.draggedAt = (
+                        self.draggedat = (
                             mpos[0] - self.rect.x,
                             mpos[1] - self.rect.y
                         )
+                # else set 'click' false and 'draggedat' none again
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.click = False
                     if self.dragable:
-                        self.draggedAt = None
-
+                        self.draggedat = None
+        # if dragable recalculate rect position
         if self.dragable and self.click:
             self.rect.topleft = (
-                mpos[0] - self.draggedAt[0],
-                mpos[1] - self.draggedAt[1]
+                mpos[0] - self.draggedat[0],
+                mpos[1] - self.draggedat[1]
             )
 
         return self.click
-    def mouseOver(self):
-        """."""
+    def mouseOver(self):# bool
+        """returns 'true' if mosue is over this element. can be overwritten."""
         mouse = pg.mouse.get_pos()
         self.hover = False
 
@@ -365,12 +396,19 @@ class GuiMaster(pg.Surface):
 
         return self.hover
     def resize(self, size):
-        """."""
+        """
+        resizeing the object by the given 'size' parameter. must be tuple of
+            two ints. rebuilding element afterwards.
+        """
         self.rect.size = size
-        self.anchors = getAnchors(self.rect.size)
         self.build()
     def update(self):
-        """."""
+        """
+        run this method every main loop to auto update the elements visuals.
+        usually redraws the background on mouse hover if 'self.backgroundhover'
+            is defined.
+        can be overwritten by user but also iverwrites auto-background-applying.
+        """
         if self.mouseOver():
             if self.backgroundhover:
                 self.draw(self.backgroundhover)
@@ -378,7 +416,12 @@ class GuiMaster(pg.Surface):
             if self.background:
                 self.draw(self.background)
 class Interface(pg.Surface):
-    """."""
+    """
+    this object serves as a big screen surface to draw all its gui elements on.
+    the final product can then simply be drawn to the apps idsplay surface.
+
+    'default' properties for this object.
+    """
     default = {
         "app": None,
         "name": "Unnamed Element",
@@ -387,10 +430,14 @@ class Interface(pg.Surface):
         "hover": None
     }
     def __init__(self, name):
-        """."""
+        """
+        'name' parameter must been given so its associated json file can be
+            loaded and converted into a validatable dict.
+        """
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js# dict
+        # creating a validated dict
         self.config = validateDict(self.cfg, self.default)# dict
         self.parent = pg.display.get_surface().get_rect()# pygame.rect
         if type(self.config["rect"]) is list:
@@ -404,7 +451,6 @@ class Interface(pg.Surface):
             background = self.config["background"]
         self.background = background# none / tuple
         pg.Surface.__init__(self, rect.size)
-        self.anchors = getAnchors(self.rect.size)# dict
         self.elements = self.createElements()# dict
         self.build()
     def build(self):
@@ -445,7 +491,6 @@ class Interface(pg.Surface):
     def resize(self, size):
         """."""
         self.rect.size = size
-        self.anchors = getAnchors(self.rect.size)
         self.elements = self.createElements()
         self.build()
 
@@ -549,7 +594,7 @@ class InfoBar(GuiMaster):
         self.draw(bg)
         self.draw(self.text, (
             10,
-            self.anchors["middle"] - int(self.text.rect.height / 2)
+            self.rect.centery - int(self.text.rect.height / 2)
         ))
 class Menu(GuiMaster):
     """."""
