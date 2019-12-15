@@ -500,7 +500,7 @@ class Interface(pg.Surface):
                     elif e["type"] == "infobar":
                         elements[name] = InfoBar(e)
 
-        return elements
+        return elements# dict
     def draw(self, object, position=(0, 0)):
         """standard drawing method."""
         draw(object, self, position)
@@ -603,17 +603,30 @@ class Button(GuiMaster):
         # redraw text anyways
         self.draw(self.text, self.textposition)
 class InfoBar(GuiMaster):
-    """."""
+    """
+    this bar is used for displaying usefull information about the app and its
+        contents.
+    """
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        use 'update()' to refresh object.
+
+        'cfg' building instructions to draw from. it also declares what to
+            display.
+        'info' str of the information to display.
+        """
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
-        self.info = self.createInfo()# str
-    def createInfo(self):
-        """."""
+        self.info = ""# str
+    def createInfo(self):# str
+        """
+        creation of information to display. returns a str.
+        """
         c = self.cfg
         info = ""
 
+        # reading user defined information to display
         if "info" in c:
             for i in c["info"]:
                 if i == "mouse":
@@ -625,19 +638,20 @@ class InfoBar(GuiMaster):
 
         return info
     def update(self):
-        """."""
+        """overwrites parental 'update()' method. calling to refresh element."""
         bg = self.background
-
+        # recreating info text
         self.info = self.createInfo()
+        # creating text object
         self.text = Text({# text object
             "text": self.info,
             "fontsize": 12
         })
-
+        # on mouse over determine another background to draw if set
         if self.mouseOver():
             if self.backgroundhover:
                 bg = self.backgroundhover
-
+        # drawing background and info text
         self.draw(bg)
         self.draw(self.text, (
             10,
