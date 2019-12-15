@@ -569,9 +569,17 @@ class Interface(pg.Surface):
                 self.draw(e, e.rect)
 # all these following elements draw from GuiMaster
 class Button(GuiMaster):
-    """."""
+    """
+    resembles a button element with a text and common mouse interactive events.
+    """
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        use 'update()' to refresh object.
+
+        'textposition' standard is 'center'. can also be tuple of two ints.
+        'text' a buttons text object ready to been drawn.
+        """
         GuiMaster.__init__(self, config)
         if "position" in config:
             pos = config["position"]
@@ -580,15 +588,20 @@ class Button(GuiMaster):
         self.textposition = pos# tuple
         self.text = Text(config)
     def update(self):
-        """."""
+        """
+        overwrites the standard method. call this method everytime you need to
+            refresh the element.
+        """
+        # on mouse over look for different color
         if self.mouseOver():
             if self.backgroundhover:
                 self.draw(self.backgroundhover)
-                self.draw(self.text, self.textposition)
+        # look for standard background
         else:
             if self.background:
                 self.draw(self.background)
-                self.draw(self.text, self.textposition)
+        # redraw text anyways
+        self.draw(self.text, self.textposition)
 class InfoBar(GuiMaster):
     """."""
     def __init__(self, config={}):
