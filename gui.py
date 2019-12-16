@@ -424,7 +424,6 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
-"""//TODO make inteface guimaster"""
 class Interface(pg.Surface):
     """
     this object serves as a big screen surface to draw all its gui elements on.
@@ -601,12 +600,20 @@ class Button(GuiMaster):
         'text' a buttons text object ready to been drawn.
         """
         GuiMaster.__init__(self, config)
+        # calculating text position
         if "position" in config:
             pos = config["position"]
         else:
             pos = "center"
         self.textposition = pos# tuple
         self.text = Text(config)
+        # translating rect if it has 'auto' or percentage statements
+        if "rect" in config:
+            rect = convertRect(config["rect"], self.text.rect)
+        else:
+            rect = self.rect
+        self.rect = rect# pygame.rect
+        self.build()
     def update(self):
         """
         overwrites the standard method. call this method everytime you need to
@@ -865,7 +872,9 @@ class Text(GuiMaster):
 class Window(GuiMaster):
     """a window pop up."""
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        """
         GuiMaster.__init__(self, config)
 # not yet converted
 class MiniMap(pg.Surface):
