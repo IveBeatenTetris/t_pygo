@@ -285,6 +285,7 @@ class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
     events an additional properties/methodes for surfaces.
+    use 'self.update()' to rfresh contents.
 
     'default' properties for this object.
     """
@@ -415,6 +416,7 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
+"""//TODO make inteface guimaster"""
 class Interface(pg.Surface):
     """
     this object serves as a big screen surface to draw all its gui elements on.
@@ -575,7 +577,6 @@ class Button(GuiMaster):
     def __init__(self, config={}):
         """
         uses 'guimaster' as its parent with additional methodes and attributes.
-        use 'update()' to refresh object.
 
         'textposition' standard is 'center'. can also be tuple of two ints.
         'text' a buttons text object ready to been drawn.
@@ -610,7 +611,6 @@ class InfoBar(GuiMaster):
     def __init__(self, config={}):
         """
         uses 'guimaster' as its parent with additional methodes and attributes.
-        use 'update()' to refresh object.
 
         'cfg' building instructions to draw from. it also declares what to
             display.
@@ -669,7 +669,6 @@ class MenuBar(GuiMaster):
     def __init__(self, config={}):
         """
         uses 'guimaster' as its parent with additional methodes and attributes.
-        use 'update()' to refresh object.
 
         'cfg' building instructions to draw from.
         'options' dict of all displayable options to click at.
@@ -772,7 +771,11 @@ class Panel(GuiMaster):
         """."""
         GuiMaster.__init__(self, config)
 class Text(GuiMaster):
-    """."""
+    """
+    a displayable text object.
+
+    'cfg' properties for this object.
+    """
     cfg = {
     	"font": FONTS["base"]["name"],
     	"fontsize": FONTS["base"]["size"],
@@ -787,15 +790,18 @@ class Text(GuiMaster):
         "position": (0, 0)
     }
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        """
         GuiMaster.__init__(self, config)
+        # creating a new validated dict to read and build from
         config = validateDict(config, self.cfg)# dict
-
+        # additional attributes
         self.text = config["text"]# str
         self.color = config["color"]# none / list / tuple
         self.antialias = config["antialias"]# bool
         self.wrap = config["wrap"]# none / int / tuple
-
+        # initiating and adjusting pygame.font
         pg.font.init()
         self.font = pg.font.SysFont(# pygame.font
         	config["font"],
@@ -803,15 +809,15 @@ class Text(GuiMaster):
         )
         self.font.set_bold(config["bold"])
         self.font.set_italic(config["italic"])
-
+        # calling 'recreate()' as a way to build the text object
         self.recreate()
-        self.draw(self.image)
     def recreate(self):
-        """."""
-        # resetting background
+        """used to rebuild the text object."""
+        # resetting background tweak
         self.background = None
-
+        # without wrapping properties
         if not self.wrap:
+            # creating non-wrapped text here
             self.image = self.font.render(
                 self.text,
                 self.antialias,
@@ -819,12 +825,15 @@ class Text(GuiMaster):
             )
             self.rect.size = self.image.get_rect().size
             self.build()
+        # with wrapping properties
         else:
+            # if a int is given then use it as width parameter for wrapping
             if type(self.wrap) is int:
                 rect = (0, 0, self.wrap, self.rect.height)
+            # if tuple of two ints then use both as wwidth and height statement
             elif type(self.wrap) is tuple:
                 rect = (0, 0, self.wrap[0], self.wrap[1])
-
+            # creating wrapped text here
             self.image = wrapText(
                 self.text,
                 self.color,
@@ -832,11 +841,12 @@ class Text(GuiMaster):
                 self.font,
                 aa = self.antialias
             )
+        # drawing text image to text object surface
+        self.draw(self.image)
 class Window(GuiMaster):
     """a window pop up."""
     def __init__(self, config={}):
         """."""
-        # inherit from gui master
         GuiMaster.__init__(self, config)
 # not yet converted
 class MiniMap(pg.Surface):
