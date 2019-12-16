@@ -514,14 +514,17 @@ class Interface(pg.Surface):
     def draw(self, object, position=(0, 0)):
         """standard drawing method."""
         draw(object, self, position)
-    def resize(self, size):
+    def resize(self, size=None):
         """
         resizes the interface rect and surface and rebuilds everything
             afterwards.
+        if 'size' is not given then only refresh the interface.
         """
-        # updating rect size
-        self.rect.size = size
-        # recreate all elements because of parental resizing
+        if size:
+            # updating rect size
+            self.rect.size = size
+        # recreate all elements because of parental resizing or overdrawing
+        # menu elements
         self.elements = self.createElements()
         # start rebuilding surface
         self.build()
@@ -549,10 +552,7 @@ class Interface(pg.Surface):
             draw_element = False
             # some elements always are redrawn
             if type(e) is Panel:
-                # only drawing if mouse moves over it
-                if mrel[0] != 0 or mrel[1] != 0:
-                    #draw_element = True
-                    e.update()
+                pass
             elif type(e) is Button:
                 draw_element = True
             elif type(e) is InfoBar:
@@ -571,6 +571,8 @@ class Interface(pg.Surface):
                         # toggle if option was active
                         if option.state == "active":
                             option.toggle()
+                            # rebuilding interface so menu can be overdrawn
+                            self.resize()
                     # only render menus if options state was activated
                     if option.state == "active":
                         # draw its menu right under the option itself
