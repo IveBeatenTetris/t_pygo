@@ -139,9 +139,11 @@ def convertRect(rect, parent):# pygame.rect
         'right'
         'top'
         'bottom'
+    values for size arguments can be an integer or a string ('auto' or 'i%').
     example rects:
         rect = ["left", 30, "100%", 150]
         rect = [0, "top", 50, "90%"]
+        rect = [250, "bottom", "auto", "90%"]
     """
     # this one is gonna be updated and converted to a pygame.rect on returning
     new_rect = [0, 0, 0, 0]
@@ -149,7 +151,9 @@ def convertRect(rect, parent):# pygame.rect
     if type(rect[2]) is int:
         new_rect[2] = rect[2]
     elif type(rect[2]) is str:
-        if rect[2][-1] == "%":
+        if rect[2] == "auto":
+            new_rect[2] = parent.width
+        elif rect[2][-1] == "%":
             # convert to int
             percent = int(rect[2].split("%")[0])
             # overwriting cfg rect width
@@ -158,7 +162,9 @@ def convertRect(rect, parent):# pygame.rect
     if type(rect[3]) is int:
         new_rect[3] = rect[3]
     elif type(rect[3]) is str:
-        if rect[3][-1] == "%":
+        if rect[3] == "auto":
+            new_rect[3] = parent.height
+        elif rect[3][-1] == "%":
             # convert to int
             percent = int(rect[3].split("%")[0])
             # overwriting cfg rect height
