@@ -523,9 +523,9 @@ class Interface(pg.Surface):
         if size:
             # updating rect size
             self.rect.size = size
-        # recreate all elements because of parental resizing or overdrawing
-        # menu elements
-        self.elements = self.createElements()
+            # recreate all elements because of parental resizing or overdrawing
+            # menu elements
+            self.elements = self.createElements()
         # start rebuilding surface
         self.build()
         # redrawing all elements
