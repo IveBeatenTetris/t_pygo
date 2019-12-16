@@ -155,7 +155,7 @@ class App:
     def draw(self, object, position=(0, 0)):
         """draw something to windows 'display' surface."""
         draw(object, self.display, position)
-    def resize(self, size=None):
+    def resize(self, size=None):# bool
         """
         resizes the window.
 
@@ -194,6 +194,8 @@ class App:
             self.screenshot = surface.copy()
         else:
             self.screenshot = self.display.copy()
+
+        return self.screenshot
     # event related methodes
     def events(self):# list
         """
@@ -287,7 +289,7 @@ class GuiMaster(pg.Surface):
     events an additional properties/methodes for surfaces.
     use 'self.update()' to rfresh contents.
 
-    'default' properties for this object.
+    'default' default properties for this object.
     """
     default = {
         "name": "Unnamed Element",
@@ -591,29 +593,42 @@ class Interface(pg.Surface):
 class Button(GuiMaster):
     """
     resembles a button element with a text and common mouse interactive events.
+
+    'cfg' default properties for this object.
     """
+    cfg = {
+        "margin": 20,
+        "textposition": "center"
+    }
     def __init__(self, config={}):
         """
         uses 'guimaster' as its parent with additional methodes and attributes.
 
+        'cfg' need some additional properties from user.
+        'margin' auto margin applying to text position so it doesnt look
+            crunchy.
         'textposition' standard is 'center'. can also be tuple of two ints.
         'text' a buttons text object ready to been drawn.
+        'rect' overwriting original rect if user has given his own.
         """
         GuiMaster.__init__(self, config)
-        # calculating text position
-        if "position" in config:
-            pos = config["position"]
-        else:
-            pos = "center"
-        self.textposition = pos# tuple
+        # creating a dict based of comparison of config{} and default{}
+        self.cfg = validateDict(config, self.cfg)# dict
+        # additional attributes
+        self.margin = self.cfg["margin"]# int / list
+        self.textposition = self.cfg["textposition"]# str / tuple
         self.text = Text(config)
-        # translating rect if it has 'auto' or percentage statements
+        # translating rect if it has 'auto' or percentage strings
         if "rect" in config:
-            rect = convertRect(config["rect"], self.text.rect)
-        else:
-            rect = self.rect
-        self.rect = rect# pygame.rect
+            self.rect = convertRect(config["rect"], self.text.rect)
+            self.calcTextPos()
+        # rebuilding surface to apply new rect
         self.build()
+    def calcTextPos(self):
+        """recalculates buttons size and its texts position in it."""
+        if type(self.margin) is int:
+            self.rect.width += self.margin
+            self.rect.height += self.margin
     def update(self):
         """
         overwrites the standard method. call this method everytime you need to
