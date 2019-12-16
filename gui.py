@@ -321,6 +321,8 @@ class GuiMaster(pg.Surface):
         'dragable' used to check if the element is gonna be dragged and dropped.
         'draggedat' needed to calculate the elements rect position on dragging
             with mouse.
+        'state' use this to check an elements activation state. works like a
+            bool.
         """
         # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
@@ -344,6 +346,7 @@ class GuiMaster(pg.Surface):
         self.click = False# bool
         self.dragable = self.config["drag"]# bool
         self.draggedat = None# none / tuple
+        self.state = "waiting"# str
         # building element
         self.build()
     def build(self):
@@ -403,6 +406,11 @@ class GuiMaster(pg.Surface):
         """
         self.rect.size = size
         self.build()
+    def toggle(self):
+        """used to toggle 'self.state'."""
+        if self.state == "waiting": s = "active"
+        elif self.state == "active": s = "waiting"
+        self.state = s
     def update(self):
         """
         run this method every main loop to auto update the elements visuals.
@@ -522,16 +530,14 @@ class Interface(pg.Surface):
             self.draw(e, e.rect)
     def update(self):
         """
-        calling this method on each main loop end to update all its visuals and
-            beyond.
+        overwriting parental 'update()' method. calling this method on each main
+            loop end to update all its visuals and beyond.
         some gui elements are only be redrawn under special circumstances like
             a mouse hover or a click.
         """
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
-
-        #if self.background:
-            #self.draw(self.background)
+        mbut = pg.mouse.get_pressed()
 
         # for every element
         for _, e in self.elements.items():
@@ -543,7 +549,10 @@ class Interface(pg.Surface):
             draw_element = False
             # some elements always are redrawn
             if type(e) is Panel:
-                pass
+                # only drawing if mouse moves over it
+                if mrel[0] != 0 or mrel[1] != 0:
+                    #draw_element = True
+                    e.update()
             elif type(e) is Button:
                 draw_element = True
             elif type(e) is InfoBar:
@@ -554,13 +563,21 @@ class Interface(pg.Surface):
                 draw_element = True
                 # for every child
                 for name, option in e.options.items():
-                    # if left clicked
+                    # if left clicked toggle state
                     if option.leftClick():
+                        option.toggle()
+                    # if clicked outside of options rect position
+                    elif not option.rect.collidepoint(mpos) and mbut[0]:
+                        # toggle if option was active
+                        if option.state == "active":
+                            option.toggle()
+                    # only render menus if options state was activated
+                    if option.state == "active":
                         # draw its menu right under the option itself
                         self.draw(e.menus[name], (
-                            option.rect.left,
-                            option.rect.top + e.rect.height
-                        ))
+                                option.rect.left,
+                                option.rect.top + e.rect.height
+                            ))
             # if its a different element only redraw it when the mouse hovers it
             elif e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
