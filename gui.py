@@ -184,7 +184,7 @@ class App:
                     resized = e.size
 
             return resized
-    def screenShot(self, surface=None):
+    def screenShot(self, surface=None):# pygame.surface
         """
         makes a visual copy of the actual display and stores it in
             'self.screenshot'.
@@ -552,13 +552,7 @@ class Interface(pg.Surface):
             # standard way for drawing. if 'false' then dont draw this element
             draw_element = False
             # some elements always are redrawn
-            if type(e) is Panel:
-                pass
-            elif type(e) is Button:
-                draw_element = True
-            elif type(e) is InfoBar:
-                draw_element = True
-            elif type(e) is MenuBar:
+            if type(e) is MenuBar:
                 # handles a little different since it has child elements to
                 # deal with
                 draw_element = True
@@ -581,6 +575,12 @@ class Interface(pg.Surface):
                                 option.rect.left,
                                 option.rect.top + e.rect.height
                             ))
+            elif type(e) is Panel:
+                pass
+            elif type(e) is Button:
+                draw_element = True
+            elif type(e) is InfoBar:
+                draw_element = True
             # if its a different element only redraw it when the mouse hovers it
             elif e.mouseOver():
                 if mrel[0] != 0 or mrel[1] != 0:
