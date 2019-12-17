@@ -515,23 +515,30 @@ class Interface(GuiMaster):
         # recreating the visual output (one image in the end)
         self.recreate()
     def update(self):
-        """overwriting parental 'update()' method to act individually."""
+        """
+        overwriting parental 'update()' method to act individually.
+        recreating of elements is bound to some conditions to reduce fps on an
+            ever drawing surface.
+        """
         mpos = pg.mouse.get_pos()
 
+        # cycling trough elements
         for name, e in self.elements.items():
-            # recreating of elements is bound to some conditions to reduce fps
-            # on an ever drawing surface
+            recreate = False
+
             if type(e) is InfoBar:# unconditional
-                e.update()
-                self.recreate(name)
+                recreate = True
             elif type(e) is Button:# conditional
                 # only refresh on first time hovering in or out
                 if (
                     e.rect.collidepoint(mpos) and not e.hover or
                     not e.rect.collidepoint(mpos) and e.hover
                 ):
-                    e.update()
-                    self.recreate(name)
+                    recreate = True
+            # only recreate element if condition matched previously
+            if recreate:
+                e.update()
+                self.recreate(name)
 # all these following elements draw from GuiMaster
 class Button(GuiMaster):
     """
