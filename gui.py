@@ -426,169 +426,112 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
-class Interface(pg.Surface):
+class Interface(GuiMaster):
     """
     this object serves as a big screen surface to draw all its gui elements on.
     the final product can then simply be drawn to the apps display surface.
-
-    'default' properties for this object.
     """
-    default = {
-        "app": None,
-        "name": "Unnamed Element",
-        "rect": pg.Rect(0, 0, 100, 100),
-        "background": None,
-        "hover": None
-    }
     def __init__(self, name):
         """
-        'name' parameter must been given so its associated json file can be
-            loaded and converted into a validatable dict.
-        'config' building instructions to draw from.
-        'parent' window sized rect relative to pygame.display.
-        'rect' dimensions of that element in a pygame.rect.
-        'background' a color tuple to fill the surface with. standard is none
-            (transparent surface).
-        'elements' a dict of all gui elements to handle and draw. can be
-            accessed by using its name as index:
-                self.elements["my_button"]
+        uses 'guimaster' as its parent with additional methodes and attributes.
         """
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js# dict
-        # creating a validated dict
-        self.config = validateDict(self.cfg, self.default)# dict
-        self.parent = pg.display.get_surface().get_rect()# pygame.rect
-        if type(self.config["rect"]) is list:
-            rect = pg.Rect(convertRect(self.config["rect"], self.parent))
-        else:
-            rect = self.config["rect"]
-        self.rect = rect# pygame.rect
-        if self.config["background"]:
-            background = tuple(self.config["background"])
-        else:
-            background = self.config["background"]
-        self.background = background# none / tuple
-        # creating elements
+        GuiMaster.__init__(self, self.cfg)
         self.elements = self.createElements()# dict
-        # building surface object
-        self.build()
-    def build(self):
-        """building the surface object."""
-        # initiating surface
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # drawing background if there is one
-        if self.background:
-            self.draw(self.background)
-    def createElements(self):
+        self.recreate()
+    def createElements(self, element=None):#dict
         """
         returns a dict of allready initiated gui elements ready to been drawn.
         'c' simply acts as the dict pulled from a json-file accessed by a name.
+        user can pass a specific element to use this for recreation of single
+            elements.
         """
         elements = {}
         c = self.cfg
-        i = 0
+        i = 1
 
         if "elements" in c:
-            for e in c["elements"]:
-                # adding 'name' property to config dict for the element
-                if not "name" in e:
-                    name = "Unnamed"
-                    """if i > 0:
-                        name = name + str(i)
-                        i += 1"""
-                else:
-                    name = e["name"]
-                # looking for 'type' property
-                if "type" in e:
-                    # adding elements depending on type
-                    if e["type"] == "panel":
-                        elements[name] = Panel(e)
-                    elif e["type"] == "button":
-                        elements[name] = Button(e)
-                    elif e["type"] == "menubar":
-                        elements[name] = MenuBar(e)
-                    elif e["type"] == "infobar":
-                        elements[name] = InfoBar(e)
+            # if there is a given element
+            if element:
+                pass
+            # with no specific element given
+            else:
+                for e in c["elements"]:
+                    # adding 'name' property to config dict for the element
+                    if not "name" in e:
+                        name = "Unnamed" + str(i)
+                        i += 1
+                    else:
+                        name = e["name"]
+                    # looking for 'type' property
+                    if "type" in e:
+                        # adding elements depending on type
+                        if e["type"] == "panel":
+                            elements[name] = Panel(e)
+                        elif e["type"] == "button":
+                            elements[name] = Button(e)
+                        elif e["type"] == "menubar":
+                            elements[name] = MenuBar(e)
+                        elif e["type"] == "infobar":
+                            elements[name] = InfoBar(e)
 
         return elements# dict
-    def draw(self, object, position=(0, 0)):
-        """standard drawing method."""
-        draw(object, self, position)
-    def resize(self, size=None):
+    def recreate(self, element=None):
         """
-        resizes the interface rect and surface and rebuilds everything
-            afterwards.
-        if 'size' is not given then only refresh the interface.
-        """
-        if size:
-            # updating rect size
-            self.rect.size = size
-            # recreate all elements because of parental resizing or overdrawing
-            # menu elements
-            self.elements = self.createElements()
-        # start rebuilding surface
-        self.build()
-        # redrawing all elements
-        for _, e in self.elements.items():
-            self.draw(e, e.rect)
-    def update(self):
-        """
-        overwriting parental 'update()' method. calling this method on each main
-            loop end to update all its visuals and beyond.
-        some gui elements are only be redrawn under special circumstances like
-            a mouse hover or a click.
+        rebuilding the displayable surface. 'element' must be the name of the
+            element you want to recreate (string). if none is given then
+            recreate everything.
         """
         mrel = pg.mouse.get_rel()
         mpos = pg.mouse.get_pos()
-        mbut = pg.mouse.get_pressed()
 
-        # for every element
-        for _, e in self.elements.items():
-            # updating element
+        # if 'element' name is given
+        if element:
+            e = self.elements[element]
             e.update()
-            # provoke a left click event to check its state in the main loop
-            e.leftClick()
-            # standard way for drawing. if 'false' then dont draw this element
-            draw_element = False
-            # some elements always are redrawn
-            if type(e) is MenuBar:
-                # handles a little different since it has child elements to
-                # deal with
-                draw_element = True
-                # for every child
-                for name, option in e.options.items():
-                    # if left clicked toggle state
-                    if option.leftClick():
-                        option.toggle()
-                    # if clicked outside of options rect position
-                    elif not option.rect.collidepoint(mpos) and mbut[0]:
-                        # toggle if option was active
-                        if option.state == "active":
-                            option.toggle()
-                            # rebuilding interface so menu can be overdrawn
-                            self.resize()
-                    # only render menus if options state was activated
-                    if option.state == "active":
-                        # draw its menu right under the option itself
-                        self.draw(e.menus[name], (
-                                option.rect.left,
-                                option.rect.top + e.rect.height
-                            ))
-            elif type(e) is Panel:
-                pass
-            elif type(e) is Button:
-                draw_element = True
-            elif type(e) is InfoBar:
-                draw_element = True
-            # if its a different element only redraw it when the mouse hovers it
-            elif e.mouseOver():
-                if mrel[0] != 0 or mrel[1] != 0:
-                    draw_element = True
-                    e.update()
-            # only redrawing if previous cases match
-            if draw_element:
+            self.draw(e, e.rect)
+        else:
+            # drawing background if there is one given
+            if self.background:
+                self.draw(self.background)
+            # for every element
+            for _, e in self.elements.items():
+                e.update()
                 self.draw(e, e.rect)
+    def resize(self, size):
+        """
+        overwriting parental 'resize()' method to act individually.
+        resizes the surface and rebuilds it afterwards. 'size' needs to be a
+            tuple of two ints.
+        """
+        # updating rect
+        self.rect.size = size
+        # rebuilding structure
+        self.build()
+        # recreating elements for adjusting in sizes
+        self.elements = self.createElements()
+        # recreating the visual output (one image in the end)
+        self.recreate()
+    def update(self):
+        """overwriting parental 'update()' method to act individually."""
+        mpos = pg.mouse.get_pos()
+
+        for name, e in self.elements.items():
+            # recreating of elements is bound to some conditions to reduce fps
+            # on an ever drawing surface
+            if type(e) is InfoBar:# unconditional
+                e.update()
+                self.recreate(name)
+            elif type(e) is Button:# conditional
+                # only refresh on first time hovering in or out
+                if (
+                    e.rect.collidepoint(mpos) and not e.hover or
+                    not e.rect.collidepoint(mpos) and e.hover
+                ):
+                    e.update()
+                    self.recreate(name)
 # all these following elements draw from GuiMaster
 class Button(GuiMaster):
     """
@@ -787,7 +730,7 @@ class MenuBar(GuiMaster):
         mouse = pg.mouse.get_pos()
         # used to calculate options position to draw
         pos = [0, 0]
-        # drawing backgroundi f there is one
+        # drawing background if there is one
         if self.background:
             self.draw(self.background)
         # for every option
