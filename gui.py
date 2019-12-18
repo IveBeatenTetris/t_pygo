@@ -836,6 +836,7 @@ class MenuBar(GuiMaster):
                 # crafting option-button related menus
                 self.menus[name] = Menu({
                     "background": (45, 45, 55),
+                    "visible": False,
                     "rect": [
                         x,
                         self.rect.bottom,
