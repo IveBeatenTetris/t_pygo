@@ -368,6 +368,8 @@ class GuiMaster(pg.Surface):
             should not be overwritten by user.
         """
         mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
+
         # looking for mousebutton events from pygame
         for evt in globals()["app"]._events:
             if self.mouseOver():
@@ -379,17 +381,25 @@ class GuiMaster(pg.Surface):
                             mpos[0] - self.rect.x,
                             mpos[1] - self.rect.y
                         )
+                    # toggling state
+                    if self.state == "waiting":
+                        self.state = "active"
                 # else set 'click' false and 'draggedat' none again
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.click = False
                     if self.dragable:
                         self.draggedat = None
+            # toggling state
+            elif not self.mouseOver() and mbut[0]:
+                if self.state == "active":
+                    self.state = "waiting"
         # if dragable recalculate rect position
         if self.dragable and self.click:
             self.rect.topleft = (
                 mpos[0] - self.draggedat[0],
                 mpos[1] - self.draggedat[1]
             )
+
         return self.click
     def mouseOver(self):# bool
         """returns 'true' if mosue is over this element. can be overwritten."""
@@ -525,6 +535,7 @@ class Interface(GuiMaster):
         """
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
+        mbut = pg.mouse.get_pressed()
 
         # cycling trough elements
         for name, e in self.elements.items():
@@ -534,6 +545,9 @@ class Interface(GuiMaster):
             if type(e) is InfoBar:# unconditional
                 recreate = True
             elif type(e) is MenuBar:# conditional
+                # invoking left click so the state can toggle
+                for n, o in e.options.items():
+                    o.leftClick()
                 # tweaking menubar.rect on +1px for height so we can check if
                 # the mouse leaves the rect and update its contents. its not
                 # even visbile. it only serves the purpose for mouse hover
@@ -666,12 +680,10 @@ class InfoBar(GuiMaster):
             int(self.rect.height / 2) - int(self.text.rect.height / 2)
         ))
 class Menu(GuiMaster):
-    """."""
+    """a dropdown menu with clickable options."""
     def __init__(self, config={}):
         """."""
         GuiMaster.__init__(self, config)
-        self.rect = pg.Rect(0, 0, 200, 200)
-        self.build()
 class MenuBar(GuiMaster):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
@@ -680,16 +692,21 @@ class MenuBar(GuiMaster):
 
         'cfg' this dict holds building instructions for the menubar and its
             options.
+        'menus' a dict of dropdown menus to call on a specific option.
         'options' a dict of buttons representing options of the menubar.
         """
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
+        self.menus = {}# dict
         self.options = self.createOptions()# dict
         # drawing first time
         for _, o in self.options.items():
             self.draw(o, o.rect)
     def createOptions(self):
-        """create buttons for the menubar to click at."""
+        """
+        creates buttons for the menubar to click at as well as theyre
+            corresponding menus.
+        """
         c = self.cfg
         options = {}
 
@@ -709,10 +726,20 @@ class MenuBar(GuiMaster):
                     self.rect.height
                 )
                 # updating visuals
-                but.build()
-                but.update()
+                but.build(); but.update()
                 # appending to options dict
                 options[name] = but
+                # crafting option-button related menus
+                self.menus[name] = Menu({
+                    "background": (45, 45, 55),
+                    "rect": [
+                        x,
+                        self.rect.bottom,
+                        150,
+                        250
+                    ]
+                })
+
                 # raising value of x
                 x += but.rect.width
 
