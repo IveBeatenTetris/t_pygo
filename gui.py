@@ -490,7 +490,7 @@ class Interface(GuiMaster):
                         elif e["type"] == "infobar":
                             elements[name] = InfoBar(e)
 
-        return elements# dict
+        return elements
     def recreate(self, element=None):
         """
         rebuilding the displayable surface. 'element' must be the name of the
@@ -533,6 +533,7 @@ class Interface(GuiMaster):
         event checking and recreating of elements is bound to some conditions
             to reduce fps on an ever drawing surface.
         """
+        # mouse events
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
         mbut = pg.mouse.get_pressed()
@@ -542,12 +543,23 @@ class Interface(GuiMaster):
             # if this is set 'true' then the element will be drawn again
             recreate = False
 
-            if type(e) is InfoBar:# unconditional
+            if type(e) is Panel:# conditional
+                # only on click inside or outside
+                if e.leftClick():
+                    recreate = True
+            elif type(e) is InfoBar:# unconditional
                 recreate = True
             elif type(e) is MenuBar:# conditional
-                # invoking left click so the state can toggle
                 for n, o in e.options.items():
+                    # invoking left click so the state can toggle
                     o.leftClick()
+                    # shortcut to named menu
+                    m = e.menus[n]
+                    # triggering menu visibility
+                    if o.state == "active" and not m.visible:
+                        m.visible = True
+                    elif o.state == "waiting" and m.visible:
+                        m.visible = False
                 # tweaking menubar.rect on +1px for height so we can check if
                 # the mouse leaves the rect and update its contents. its not
                 # even visbile. it only serves the purpose for mouse hover
@@ -571,6 +583,19 @@ class Interface(GuiMaster):
             if recreate:
                 e.update()
                 self.recreate(name)
+            # drawing visible menus
+            if type(e)is MenuBar:
+                for n, m in e.menus.items():
+                    # option shortcut
+                    o = e.options[n]
+                    # if option clicked
+                    if o.click:
+                        # toggle visible and draw its menu
+                        m.visible = True
+                        self.draw(m, m.rect)
+                    # if clicked somehwere else while option is still visible
+                    if mbut[0] and m.visible:
+                        m.visible = False
 class Button(GuiMaster):
     """
     resembles a button element with a text and common mouse interactive events.
@@ -682,8 +707,12 @@ class InfoBar(GuiMaster):
 class Menu(GuiMaster):
     """a dropdown menu with clickable options."""
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+        'visible' can be used to toggle rendering of this menu.
+        """
         GuiMaster.__init__(self, config)
+        self.visible = False# bool
 class MenuBar(GuiMaster):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
