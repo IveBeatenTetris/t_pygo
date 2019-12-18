@@ -296,7 +296,8 @@ class GuiMaster(pg.Surface):
         "rect": pg.Rect(0, 0, 100, 100),
         "background": None,
         "hover": None,
-        "drag": False
+        "drag": False,
+        "visible": True
     }
     def __init__(self, config={}):
         """
@@ -325,6 +326,7 @@ class GuiMaster(pg.Surface):
             with mouse.
         'state' use this to check an elements activation state. works like a
             bool.
+        'visible' can be used to toggle rendering of this menu.
         """
         # creating a dict based of comparison of config{} and default{}
         self.config = validateDict(config, self.default)# dict
@@ -349,6 +351,7 @@ class GuiMaster(pg.Surface):
         self.dragable = self.config["drag"]# bool
         self.draggedat = None# none / tuple
         self.state = "waiting"# str
+        self.visible = self.config["visible"]# bool
         # building element
         self.build()
     def build(self):
@@ -435,22 +438,80 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
-class Interface2(pg.Surface):
+class Interface2(GuiMaster):
     """."""
     def __init__(self, name):
         """."""
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
-                self.config = js# dict
-        pg.Surface.__init__(self, globals()["app"].size)
-        self.rect = self.get_rect()# pygame.rect
+                self.cfg = js# dict
+        self.cfg["rect"] = globals()["app"].display.get_rect()
+        GuiMaster.__init__(self, self.cfg)
+        self.elements = self.loadElements()# dict
+        self.drawElements()
+    def drawElements(self, element=None):
+        """."""
+        if element:
+            e = self.elements[element]
+            e.update()
+            self.draw(e, e.rect)
+        else:
+            for n, e in self.elements.items():
+                e.update()
+                self.draw(e, e.rect)
+    def loadElements(self, element=None):
+        """."""
+        elements = {}
+        c = self.cfg
+
+        if "elements" in c:
+            # if there is a given element
+            if element:
+                pass
+            # with no specific element given
+            else:
+                i = 1
+                for e in c["elements"]:
+                    # adding 'name' property to config dict for the element
+                    if not "name" in e:
+                        name = "Unnamed" + str(i)
+                        i += 1
+                    else:
+                        name = e["name"]
+                    # looking for 'type' property
+                    if "type" in e:
+                        # adding elements depending on type
+                        if e["type"] == "panel":
+                            elements[name] = Panel(e)
+                        elif e["type"] == "button":
+                            elements[name] = Button(e)
+                        elif e["type"] == "menubar":
+                            elements[name] = MenuBar(e)
+                        elif e["type"] == "infobar":
+                            elements[name] = InfoBar(e)
+
+        return elements
     def resize(self, size):
         """."""
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect = self.get_rect()
+        self.rect.size = size
+        self.build()
+        self.elements = self.loadElements()
+        self.drawElements()
     def update(self):
         """."""
-        pass
+        mpos = pg.mouse.get_pos()
+
+        for n, e in self.elements.items():
+            if type(e) is InfoBar:
+                self.drawElements(n)
+            elif type(e) is MenuBar:
+                self.drawElements(n)
+            elif (
+                e.rect.collidepoint(mpos) and not e.hover or
+                not e.rect.collidepoint(mpos) and e.hover or
+                e.leftClick()
+            ):
+                self.drawElements(n)
 # all these following elements draw from 'GuiMaster'
 class Interface(GuiMaster):
     """
@@ -725,10 +786,8 @@ class Menu(GuiMaster):
     def __init__(self, config={}):
         """
         uses 'guimaster' as its parent with additional methodes and attributes.
-        'visible' can be used to toggle rendering of this menu.
         """
         GuiMaster.__init__(self, config)
-        self.visible = False# bool
 class MenuBar(GuiMaster):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
