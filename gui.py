@@ -435,6 +435,22 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
+class Interface2(pg.Surface):
+    """."""
+    def __init__(self, name):
+        """."""
+        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if js["type"] == "interface":
+                self.config = js# dict
+        pg.Surface.__init__(self, globals()["app"].size)
+        self.rect = self.get_rect()# pygame.rect
+    def resize(self, size):
+        """."""
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect = self.get_rect()
+    def update(self):
+        """."""
+        pass
 # all these following elements draw from 'GuiMaster'
 class Interface(GuiMaster):
     """
