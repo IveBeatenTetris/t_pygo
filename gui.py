@@ -529,13 +529,19 @@ class Interface(GuiMaster):
 
         # cycling trough elements
         for name, e in self.elements.items():
+            # if this is set 'true' then the element will be drawn again
             recreate = False
 
             if type(e) is InfoBar:# unconditional
                 recreate = True
             elif type(e) is MenuBar:# conditional
+                # tweaking menubar.rect on +1px for height so we can check if
+                # the mouse leaves the rect and update its contents. its not
+                # even visbile. it only serves the purpose for mouse hover
+                phantom_rect = e.rect
+                phantom_rect.height += 1
                 # only render if mouse hovers and moves
-                if e.rect.collidepoint(mpos):
+                if phantom_rect.collidepoint(mpos):
                     if mrel[0] != 0 or mrel[1] != 0:
                         recreate = True
             elif type(e) is Button:# conditional
@@ -678,6 +684,9 @@ class MenuBar(GuiMaster):
         GuiMaster.__init__(self, config)
         self.cfg = config# dict
         self.options = self.createOptions()# dict
+        # drawing first time
+        for _, o in self.options.items():
+            self.draw(o, o.rect)
     def createOptions(self):
         """create buttons for the menubar to click at."""
         c = self.cfg
@@ -690,7 +699,8 @@ class MenuBar(GuiMaster):
                 # making button.rect slightly bigger
                 but = Button({
                     "text": name,
-                    "background": self.background
+                    "background": self.background,
+                    "hover": (55, 55, 65)
                 })
                 but.rect = pg.Rect(
                     x, self.rect.top,
@@ -711,7 +721,12 @@ class MenuBar(GuiMaster):
         overwrites parental method. used to redraw background updating options
             properties checks its events and draws the option to the menubar.
         """
+        mpos = pg.mouse.get_pos()
+        mrel = pg.mouse.get_rel()
+
         for _, o in self.options.items():
+            # refreshing visuals and drawing afterwards
+            o.update()
             self.draw(o, o.rect)
 class Panel(GuiMaster):
     """."""
