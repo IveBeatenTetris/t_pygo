@@ -390,7 +390,6 @@ class GuiMaster(pg.Surface):
                 mpos[0] - self.draggedat[0],
                 mpos[1] - self.draggedat[1]
             )
-
         return self.click
     def mouseOver(self):# bool
         """returns 'true' if mosue is over this element. can be overwritten."""
@@ -545,10 +544,12 @@ class Interface(GuiMaster):
                     if mrel[0] != 0 or mrel[1] != 0:
                         recreate = True
             elif type(e) is Button:# conditional
-                # only recreate on first time hovering in or out
+                # only recreate on first time hovering in out or on click
+                # click also invokes the drag functionallity
                 if (
                     e.rect.collidepoint(mpos) and not e.hover or
-                    not e.rect.collidepoint(mpos) and e.hover
+                    not e.rect.collidepoint(mpos) and e.hover or
+                    e.leftClick()
                 ):
                     recreate = True
 
