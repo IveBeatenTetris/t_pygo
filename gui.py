@@ -459,6 +459,12 @@ class Interface2(GuiMaster):
             for n, e in self.elements.items():
                 e.update()
                 self.draw(e, e.rect)
+    def drawMenu(self, menu):
+        """."""
+        for _, e in self.elements.items():
+            if type(e) is MenuBar:
+                m = e.menus[menu]
+                self.draw(m, m.rect)
     def loadElements(self, element=None):
         """."""
         elements = {}
