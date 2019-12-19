@@ -731,7 +731,79 @@ class Panel(Master):
     def __init__(self, config={}):
         """."""
         Master.__init__(self, config)
+class Text(Master):
+    """
+    a displayable text object.
 
+    'cfg' properties for this object.
+    """
+    cfg = {
+    	"font": FONTS["base"]["name"],
+    	"fontsize": FONTS["base"]["size"],
+    	"color": FONTS["base"]["color"],
+        "background": None,
+    	"text": "No Text",
+    	"antialias": True,
+    	"bold": False,
+    	"italic": False,
+        "rect": None,
+        "wrap": None,
+        "position": (0, 0)
+    }
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+        """
+        Master.__init__(self, config)
+        # creating a new validated dict to read and build from
+        config = validateDict(config, self.cfg)# dict
+        # additional attributes
+        self.text = config["text"]# str
+        self.color = config["color"]# none / list / tuple
+        self.antialias = config["antialias"]# bool
+        self.wrap = config["wrap"]# none / int / tuple
+        # initiating and adjusting pygame.font
+        pg.font.init()
+        self.font = pg.font.SysFont(# pygame.font
+        	config["font"],
+        	config["fontsize"]
+        )
+        self.font.set_bold(config["bold"])
+        self.font.set_italic(config["italic"])
+        # calling 'recreate()' as a way to build the text object
+        self.recreate()
+    def recreate(self):
+        """used to rebuild the text object."""
+        # resetting background tweak
+        self.background = None
+        # without wrapping properties
+        if not self.wrap:
+            # creating non-wrapped text here
+            self.image = self.font.render(
+                self.text,
+                self.antialias,
+                self.color
+            )
+            self.rect.size = self.image.get_rect().size
+            self.createSurface()
+        # with wrapping properties
+        else:
+            # if a int is given then use it as width parameter for wrapping
+            if type(self.wrap) is int:
+                rect = (0, 0, self.wrap, self.rect.height)
+            # if tuple of two ints then use both as wwidth and height statement
+            elif type(self.wrap) is tuple:
+                rect = (0, 0, self.wrap[0], self.wrap[1])
+            # creating wrapped text here
+            self.image = wrapText(
+                self.text,
+                self.color,
+                pg.Rect(rect),
+                self.font,
+                aa = self.antialias
+            )
+        # drawing text image to text object surface
+        self.draw(self.image)
 
 class GuiMaster(pg.Surface):
     """
@@ -1153,79 +1225,7 @@ class Menu(GuiMaster):
         uses 'guimaster' as its parent with additional methodes and attributes.
         """
         GuiMaster.__init__(self, config)
-class Text(GuiMaster):
-    """
-    a displayable text object.
 
-    'cfg' properties for this object.
-    """
-    cfg = {
-    	"font": FONTS["base"]["name"],
-    	"fontsize": FONTS["base"]["size"],
-    	"color": FONTS["base"]["color"],
-        "background": None,
-    	"text": "No Text",
-    	"antialias": True,
-    	"bold": False,
-    	"italic": False,
-        "rect": None,
-        "wrap": None,
-        "position": (0, 0)
-    }
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-        """
-        GuiMaster.__init__(self, config)
-        # creating a new validated dict to read and build from
-        config = validateDict(config, self.cfg)# dict
-        # additional attributes
-        self.text = config["text"]# str
-        self.color = config["color"]# none / list / tuple
-        self.antialias = config["antialias"]# bool
-        self.wrap = config["wrap"]# none / int / tuple
-        # initiating and adjusting pygame.font
-        pg.font.init()
-        self.font = pg.font.SysFont(# pygame.font
-        	config["font"],
-        	config["fontsize"]
-        )
-        self.font.set_bold(config["bold"])
-        self.font.set_italic(config["italic"])
-        # calling 'recreate()' as a way to build the text object
-        self.recreate()
-    def recreate(self):
-        """used to rebuild the text object."""
-        # resetting background tweak
-        self.background = None
-        # without wrapping properties
-        if not self.wrap:
-            # creating non-wrapped text here
-            self.image = self.font.render(
-                self.text,
-                self.antialias,
-                self.color
-            )
-            self.rect.size = self.image.get_rect().size
-            self.build()
-        # with wrapping properties
-        else:
-            # if a int is given then use it as width parameter for wrapping
-            if type(self.wrap) is int:
-                rect = (0, 0, self.wrap, self.rect.height)
-            # if tuple of two ints then use both as wwidth and height statement
-            elif type(self.wrap) is tuple:
-                rect = (0, 0, self.wrap[0], self.wrap[1])
-            # creating wrapped text here
-            self.image = wrapText(
-                self.text,
-                self.color,
-                pg.Rect(rect),
-                self.font,
-                aa = self.antialias
-            )
-        # drawing text image to text object surface
-        self.draw(self.image)
 class Window(GuiMaster):
     """a window pop up."""
     def __init__(self, config={}):
