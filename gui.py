@@ -289,13 +289,88 @@ class App:
 class Master(pg.Surface):
     """."""
     defaults = {
+        "background": None,
+        "dragable": True,
         "size": (200, 150)
     }
     def __init__(self, config={}):
         """."""
-        pass
+        self.config = validateDict(config, self.defaults)# dict
+        self.rect = pg.Rect((0, 0), self.config["size"])# pg.rect
+        self.background = self.config["background"]# none / tuple / pg.surface
+        self.dragable = self.config["dragable"]# bool
+        self.dragged_at = None# none / tuple
+        self.clicked = False# bool
+
+        self.createSurface()
+    def createSurface(self, **kwargs):
+        """."""
+        size = self.config["size"]
+
+        if "size" in kwargs:
+            size = kwargs["size"]
+
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect = self.get_rect()
+
+        if self.background:
+            self.draw(self.background)
+    def draw(self, object, rect=None):
+        """."""
+        if type(object) is tuple or type(object) is list:
+            self.fill(object)
+        elif not rect:
+            rect = object.get_rect()
+            self.blit(object, rect)
+    # events and event checking
+    def click(self):# bool
+        """."""
+        mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
+        clicked = False
+
+        if self.rect.collidepoint(mpos) and mbut[0]:
+            clicked = True
+
+        return clicked
+    def hover(self):# bool
+        """."""
+        mpos = pg.mouse.get_pos()
+        mouse_over = False
+
+        if self.rect.collidepoint(mpos):
+            mouse_over = True
+
+        return mouse_over
     def resize(self, size=None):
         """."""
+        if size:
+            self.createSurface(size=size)
+        else:
+            self.createSurface()
+    def update(self):
+        """."""
+        mbut = pg.mouse.get_pressed()
+        mpos = pg.mouse.get_pos()
+
+        if self.dragable:
+            for evt in globals()["app"]._events:
+                if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
+                    if not self.clicked:
+                        self.dragged_at = (
+                            mpos[0] - self.rect.x,
+                            mpos[1] - self.rect.y
+                        )
+                    self.clicked = True
+                elif evt.type is pg.MOUSEBUTTONUP:
+                    self.clicked = False
+                    self.dragged_at = None
+
+            if self.clicked:
+                self.rect.topleft = (
+                    mpos[0] - self.dragged_at[0],
+                    mpos[1] - self.dragged_at[1]
+                )
 class UI(Master):
     """."""
     def __init__(self, name):
