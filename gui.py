@@ -510,28 +510,36 @@ class Interface2(GuiMaster):
         mbut = pg.mouse.get_pressed()
 
         for n, e in self.elements.items():
-            if type(e) is Panel:
-                pass
-            elif type(e) is InfoBar:
+            if type(e) is InfoBar:
                 self.drawElements(n)
             elif type(e) is MenuBar:
                 self.drawElements(n)
                 for name, o in e.options.items():
-                    if o.leftClick():
+                    menu = e.menus[name]
 
+                    if o.leftClick():
+                        menu.visible = True
+                    else:
+                        menu.visible = False
+
+                    if menu.visible:
+                        # resizing here to clear the menu for drawing a new one
                         self.resize()
-                        if o.state == "active":
-                            self.drawMenu(name)
-                            o.toggle()
-                    """elif not e.hover and mbut[0] and o.state == "active":
-                        #self.resize()
-                        pass"""
+                        self.drawMenu(name)
+
+            elif type(e) is Panel:
+                pass
             elif (
                 e.rect.collidepoint(mpos) and not e.hover or
                 not e.rect.collidepoint(mpos) and e.hover or
                 e.leftClick()
             ):
                 self.drawElements(n)
+class Master(pg.Surface):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        pass
 # all these following elements draw from 'GuiMaster'
 class Interface(GuiMaster):
     """
