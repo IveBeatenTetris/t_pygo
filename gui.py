@@ -295,7 +295,7 @@ class Master(pg.Surface):
     """
     defaults = {
         "background": None,
-        "dragable": True,
+        "dragable": False,
         "hover": None,
         "parent": None,
         "position": (0, 0),
@@ -448,14 +448,53 @@ class Master(pg.Surface):
             if self.bg_hover:
                 self.draw(self.background)
 class UI(Master):
-    """."""
+    """
+    this object serves as a big screen surface to draw all its gui elements on.
+    the final product can then simply be drawn to the apps display surface.
+    """
     def __init__(self, name):
-        """."""
+        """
+        uses 'guimaster' as its parent with additional methodes and attributes.
+
+        'elements' a dict of elements to read and draw.
+        """
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js
         self.cfg["rect"] = pg.display.get_surface().get_rect()
         Master.__init__(self, self.cfg)
+        self.elements = self.loadElements()# dict
+    def loadElements(self, element=None):
+        """
+        load elements from their config dict. if no specific element is given
+            then reload every element.
+        """
+        elements = {}
+        c = self.cfg
+
+        if "elements" in c:
+            # if there is a given element
+            if element:
+                pass
+            # with no specific element given
+            else:
+                i = 1
+                for e in c["elements"]:
+                    # adding 'name' property to config dict for the element
+                    if not "name" in e:
+                        name = "Unnamed" + str(i)
+                        i += 1
+                    else:
+                        name = e["name"]
+                    # looking for 'type' property
+                    if "type" in e:
+                        t = c["type"]
+                        # calling objects by type from cfg
+                        if t == "infobar":
+                            elements[name] = InfoBar2(c)
+
+        return elements
+class
 
 class GuiMaster(pg.Surface):
     """
