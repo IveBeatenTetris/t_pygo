@@ -284,8 +284,6 @@ class App:
             title = str(title)
         pg.display.set_caption(title)
 
-
-
 class Master(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
@@ -299,42 +297,91 @@ class Master(pg.Surface):
         "background": None,
         "dragable": True,
         "hover": None,
+        "parent": None,
+        "position": (0, 0),
         "size": (200, 150)
     }
     def __init__(self, config={}):
-        """."""
+        """
+        to see recently made changes to your analoge-created element you need to
+            call its 'update()' method.
+
+        'config' building instructions.
+        'parent' pygame.rect should be given on calling this element.
+        'rect' elements dimensions. positional statements are:
+            x, y
+            top, left, bottom, right
+            topleft, bottomleft, topright, bottomright
+            midtop, midleft, midbottom, midright
+            center, centerx, centery
+            size, width, height
+            w, h
+        'background' pygame.surface not yet implemeneted. can be used to draw
+            background color. can be tuple or list of 3 integers.
+        'bg_hover' surface background can be filled with this color if there is
+            a given color tuple or list.
+        'dragable' used to check if the element is gonna be dragged and dropped.
+        'dragged_at' needed to calculate the elements rect position on dragging
+            with mouse.
+        'clicked' true on click until not released.
+        'hovered' used for checking the hover state of the mouse relative to
+            the element.
+        """
         self.config = validateDict(config, self.defaults)# dict
-        self.rect = pg.Rect((0, 0), self.config["size"])# pg.rect
+        # choosing parental rect
+        if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
+        else: self.parent = pg.display.get_surface().get_rect()# pg.rect
+        # convert string arguments in position and size
+        self.rect = convertRect(# pg.rect
+            [
+                self.config["position"][0],
+                self.config["position"][1],
+                self.config["size"][0],
+                self.config["size"][1]
+            ],
+            self.parent
+        )
         self.background = self.config["background"]# none / tuple / pg.surface
         self.bg_hover = self.config["hover"]# none / tuple / pg.surface
         self.dragable = self.config["dragable"]# bool
+        # once the element has been clicked 'dragged_at' becomes a position
+        # tuple to calculate the position of this element on drag and drop
         self.dragged_at = None# none / tuple
+        # these are turning true if 'update()' testing their conditions positive
         self.clicked = False# bool
         self.hovered = False# bool
-
+        # first time creating the surface
         self.createSurface()
     def createSurface(self, **kwargs):
-        """."""
-        size = self.config["size"]
-
-        if "size" in kwargs:
-            size = kwargs["size"]
-
+        """recreates the elemens surface on call."""
+        # identifying size to recreate surface
+        if "size" in kwargs: size = kwargs["size"]
+        else: size = self.rect.size
+        # initiating surface and rect
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect = self.get_rect()
-
-        if self.background:
-            self.draw(self.background)
+        # drawing background if element has one
+        if self.background: self.draw(self.background)
     def draw(self, object, rect=None):
-        """."""
+        """
+        draws something to its element surface. if no rect is given then get
+            'self.rect' as drawing position.
+        if 'object' is tuple or list then fill the background with this color
+            instead.
+        """
+        # filling with color if list or tuple
         if type(object) is tuple or type(object) is list:
             self.fill(object)
-        elif not rect:
-            rect = object.get_rect()
+        # blitting to rect
+        else:
+            # draw rect from object if none is given
+            if not rect:
+                rect = object.get_rect()
+            # blitting at rects position
             self.blit(object, rect)
     # events and event checking
     def click(self):# bool
-        """."""
+        """retuns true if clicked."""
         mpos = pg.mouse.get_pos()
         mbut = pg.mouse.get_pressed()
         clicked = False
@@ -344,7 +391,7 @@ class Master(pg.Surface):
 
         return clicked
     def hover(self):# bool
-        """."""
+        """returns true if hovered."""
         mpos = pg.mouse.get_pos()
         mouse_over = False
 
@@ -353,42 +400,51 @@ class Master(pg.Surface):
 
         return mouse_over
     def resize(self, size=None):
-        """."""
+        """
+        resizing and recreating element. if no size is given then just recreate
+            surface.
+        """
         if size:
             self.createSurface(size=size)
         else:
             self.createSurface()
     def update(self):
-        """."""
+        """handles events. call this method at each main loops end."""
         mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
-
+        # if element is dragabe (user defined)
         if self.dragable:
+            # get events from globals()["app"]._events since we make use of
+            # 'mousebuttonup' and 'mousebuttondown' to only trigger the events
+            # if necessary
             for evt in globals()["app"]._events:
+                # on first time clicked
                 if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
                     if not self.clicked:
+                        # calculate clicked position
                         self.dragged_at = (
                             mpos[0] - self.rect.x,
                             mpos[1] - self.rect.y
                         )
                     self.clicked = True
+                # clearing 'dragged_at' if released because no more needed
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.clicked = False
                     self.dragged_at = None
-
+            # calculating rect position if clicked
             if self.clicked:
                 self.rect.topleft = (
                     mpos[0] - self.dragged_at[0],
                     mpos[1] - self.dragged_at[1]
                 )
+        # drawing another background if hovered
         if self.hover():
             self.hovered = True
-
             if self.bg_hover:
                 self.draw(self.bg_hover)
+        # drawing normal background if there is one and leaving
         elif not self.hover() and self.hovered:
             self.hovered = False
-
             if self.bg_hover:
                 self.draw(self.background)
 class UI(Master):
@@ -398,6 +454,7 @@ class UI(Master):
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js
+        self.cfg["parent"] = pg.display.get_surface().get_rect()# pg.rect
         Master.__init__(self, self.cfg)
 
 class GuiMaster(pg.Surface):
