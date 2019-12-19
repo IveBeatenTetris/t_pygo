@@ -299,6 +299,7 @@ class Master(pg.Surface):
         "hover": None,
         "parent": None,
         "position": (0, 0),
+        "rect": None,
         "size": (200, 150)
     }
     def __init__(self, config={}):
@@ -331,16 +332,15 @@ class Master(pg.Surface):
         # choosing parental rect
         if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
         else: self.parent = pg.display.get_surface().get_rect()# pg.rect
-        # convert string arguments in position and size
-        self.rect = convertRect(# pg.rect
-            [
+        if self.config["rect"]: rect = self.config["rect"]
+        else: rect = [
                 self.config["position"][0],
                 self.config["position"][1],
                 self.config["size"][0],
                 self.config["size"][1]
-            ],
-            self.parent
-        )
+            ]
+        self.rect = convertRect(rect, self.parent)# pg.rect
+        # convert string arguments in position and size
         self.background = self.config["background"]# none / tuple / pg.surface
         self.bg_hover = self.config["hover"]# none / tuple / pg.surface
         self.dragable = self.config["dragable"]# bool
@@ -454,7 +454,7 @@ class UI(Master):
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js
-        self.cfg["parent"] = pg.display.get_surface().get_rect()# pg.rect
+        self.cfg["rect"] = pg.display.get_surface().get_rect()
         Master.__init__(self, self.cfg)
 
 class GuiMaster(pg.Surface):
