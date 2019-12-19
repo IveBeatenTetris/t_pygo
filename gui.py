@@ -469,13 +469,19 @@ class UI(Master):
         determines which element will be redrawn. if no element is given then
             redraw everyting.
         """
-        if not element:
+        # if element named
+        if element:
+            self.draw(self.elements[element], self.elements[element].rect)
+        # if no element named
+        else:
+            # setting conditions for element to been redrawn
             for n, e in self.elements.items():
+                # if this is true then the element will be redrawn
                 draw_element = False
-
-                if type(e) is InfoBar:
+                # type specific element conditions
+                if type(e) is InfoBar:# unconditional
                     draw_element = True
-
+                # redraw element if previous conditions matched
                 if draw_element:
                     self.draw(e, e.rect)
     def loadElements(self, element=None):# dict
@@ -503,15 +509,15 @@ class UI(Master):
                     # looking for 'type' property
                     if "type" in e:
                         # calling objects by type from cfg
-                        if c["type"] == "infobar":
+                        if e["type"] == "infobar":
                             elements[name] = InfoBar(e)
-        print(elements)
 
         return elements
     def resize(self, size=None):
         """
-        resizing and recreating element. if no size is given then just recreate
-            surface.
+        overwrites parental 'resize()' method for handling its elements.
+        resizing and recreating element. if no size is given then recreate
+            whole surface.
         """
         # recreating surface
         if size:
@@ -521,7 +527,17 @@ class UI(Master):
         # recreating and drawing elements
         self.elements = self.loadElements()
         self.drawElements()
+    def update(self):
+        """
+        overwrites parental 'update()' method for adding more functionality.
+        """
+        mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
 
+        for n, e in self.elements.items():
+            if type(e) is InfoBar:
+                e.update()
+                self.drawElements(n)
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
