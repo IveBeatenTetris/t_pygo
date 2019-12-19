@@ -505,6 +505,8 @@ class UI(Master):
                             elements[name] = InfoBar(e)
                         elif e["type"] == "menubar":
                             elements[name] = MenuBar(e)
+                        elif e["type"] == "panel":
+                            elements[name] = Panel(e)
 
         return elements
     def resize(self, size=None):
