@@ -497,21 +497,35 @@ class Interface2(GuiMaster):
                             elements[name] = InfoBar(e)
 
         return elements
-    def resize(self, size):
+    def resize(self, size=None):
         """."""
-        self.rect.size = size
+        if size:
+            self.rect.size = size
         self.build()
         self.elements = self.loadElements()
         self.drawElements()
     def update(self):
         """."""
         mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
 
         for n, e in self.elements.items():
-            if type(e) is InfoBar:
+            if type(e) is Panel:
+                pass
+            elif type(e) is InfoBar:
                 self.drawElements(n)
             elif type(e) is MenuBar:
                 self.drawElements(n)
+                for name, o in e.options.items():
+                    if o.leftClick():
+
+                        self.resize()
+                        if o.state == "active":
+                            self.drawMenu(name)
+                            o.toggle()
+                    """elif not e.hover and mbut[0] and o.state == "active":
+                        #self.resize()
+                        pass"""
             elif (
                 e.rect.collidepoint(mpos) and not e.hover or
                 not e.rect.collidepoint(mpos) and e.hover or
