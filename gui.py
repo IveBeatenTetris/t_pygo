@@ -287,7 +287,14 @@ class App:
 
 
 class Master(pg.Surface):
-    """."""
+    """
+    master-element for many gui elements to inherit from. comes with diverse
+    events an additional properties / methodes for surfaces.
+    use 'self.update()' to refresh contents.
+
+    'defaults' default properties for this object. use this to create a basic
+        structure for your element.
+    """
     defaults = {
         "background": None,
         "dragable": True,
@@ -301,6 +308,7 @@ class Master(pg.Surface):
         self.dragable = self.config["dragable"]# bool
         self.dragged_at = None# none / tuple
         self.clicked = False# bool
+        self.hovered = False# bool
 
         self.createSurface()
     def createSurface(self, **kwargs):
@@ -371,6 +379,12 @@ class Master(pg.Surface):
                     mpos[0] - self.dragged_at[0],
                     mpos[1] - self.dragged_at[1]
                 )
+        if self.hover():
+            self.hovered = True
+        elif not self.hover() and self.hovered:
+            self.hovered = False
+
+        print(self.hovered)
 class UI(Master):
     """."""
     def __init__(self, name):
@@ -383,8 +397,8 @@ class UI(Master):
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
-    events an additional properties/methodes for surfaces.
-    use 'self.update()' to rfresh contents.
+    events an additional properties / methodes for surfaces.
+    use 'self.update()' to refresh contents.
 
     'default' default properties for this object.
     """
