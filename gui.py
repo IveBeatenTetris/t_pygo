@@ -441,6 +441,7 @@ class Master(pg.Surface):
             self.hovered = False
             if self.bg_hover:
                 self.draw(self.background)
+# all these following elements draw from 'Master'
 class UI(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
@@ -818,8 +819,133 @@ class Window(Master):
         uses 'Master' as its parent with additional methodes and attributes.
         """
         Master.__init__(self, config)
+# not yet converted
+class MiniMap(pg.Surface):
+    """display a miniature version of an area around the players position."""
+    default = {
+        "map": None,
+        "size": (100, 75)
+    }
+    def __init__(self, config={}):
+        """."""
+        # comparing dicts and creating a new one
+        self.config = validateDict(config, self.default)# dict
+        # initiating surface
+        pg.Surface.__init__(self, self.config["size"])
+        # determining map image
+        if self.config["map"]:# pygame.surface
+            img = self.config["map"].preview
+        else:
+            img = pg.image.load(LIBPATH["noimage"])
+        self.image = img
+        self.rect = pg.Rect((0, 0), self.config["size"])# pygame.rect
+        #draw(self.image, self)
+        draw((0, 0, 0), self)
+    def update(self, screenshot):
+        """updates this class with each game loop."""
+        # if not none
+        if screenshot:
+            # scaling screenshot
+            img = scale(
+                screenshot,
+                (
+                    int(screenshot.get_rect().width / 3),
+                    int(screenshot.get_rect().height / 3)
+                )
+            )
+            #draw((0, 0, 0), self)
+            draw(img, self, "center")
+class Overlay(pg.Surface):
+    """
+    for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
+    that 0 is for none blending while 255 is for full rendering.
+    """
+    default = {
+        "background": (0, 0, 0),
+        "size": (320, 240),
+        "opacity": 255
+    }
+    def __init__(self, config={}):
+        """constructor"""
+        # comparing dicts and creating a new one
+        self.config = validateDict(config, self.default)# dict
+        # initiating surface
+        pg.Surface.__init__(self, self.config["size"])
+        # setting opacity if there is one
+        self.set_alpha(self.config["opacity"])
+class TextBox(pg.Surface):
+    """surface for displaying text."""
+    default = {
+        "text": "Default Text",
+        "type": "textbox",
+        "font": "verdana",
+        "fontsize": 16,
+        "size": (300, 100),
+        "position": (0, 0),
+        "bold": False,
+        "italic": False,
+        "wrap": True,
+        "color": (255, 255, 255),
+        "background": (0, 0, 0),
+        "padding": None
+    }
+    def __init__(self, config={}):
+        """
+        'type' declares if the object is gonna be build as 'textbox' or
+            'speechbubble'
+        'call' bool to check if the textbox is called or not.
+        'padding' text padding from the corners of the textbox rect.
+        'text' holds a whole text object with warpped or non-wrapped text.
+        """
+        # creating a new dict based on comparison of two
+        self.config = validateDict(config, self.default)# dict
+        self.type = self.config["type"]# str
+        self.call = False# bool
+        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
+        self.rect = self.get_rect()# pygame.rect
+        self.rect.topleft = self.config["position"]
+        # additional attributes
+        self.padding = self.config["padding"]# none / int
+        self.text = Text({# text object
+            "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
+            "fontsize": self.config["fontsize"],
+            "font": self.config["font"],
+            "bold": self.config["bold"],
+            "italic": self.config["italic"],
+            "color": self.config["color"],
+            "size": self.calculateRect(self.rect).size,
+            "wrap": self.config["wrap"]
+        })
+        self.__build()
+    def __build(self):
+        """composing surface."""
+        # drawing background
+        draw(self.config["background"], self)
+        # drawing text depending on margins
+        if self.padding:
+            if type(self.padding) is int:
+                pos = (self.padding, self.padding)
+            elif type(self.padding) is list or type(self.padding) is list:
+                pos = self.padding
+        else:
+            pos = (0, 0)
+        draw(self.text, self, pos)
+    def calculateRect(self, rect):
+        """recalculating rect size based on padding and margin"""
+        p = self.padding
+
+        if p:
+            if type(p) is int:
+                rect.width = rect.width - (p * 2)
+                #rect.height = rect.height - (p * 2)
+
+        return rect
+    def setPosition(self, pos):
+        """updating rect position."""
+        self.rect.topleft = pos
 
 
+# older references
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
@@ -1072,7 +1198,6 @@ class Interface2(GuiMaster):
                 e.leftClick()
             ):
                 self.drawElements(n)
-# all these following elements draw from 'GuiMaster'
 class Interface(GuiMaster):
     """
     this object serves as a big screen surface to draw all its gui elements on.
@@ -1233,130 +1358,3 @@ class Interface(GuiMaster):
                     # if clicked somehwere else while option is still visible
                     if mbut[0] and m.visible:
                         m.visible = False
-
-
-
-# not yet converted
-class MiniMap(pg.Surface):
-    """display a miniature version of an area around the players position."""
-    default = {
-        "map": None,
-        "size": (100, 75)
-    }
-    def __init__(self, config={}):
-        """."""
-        # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
-        # initiating surface
-        pg.Surface.__init__(self, self.config["size"])
-        # determining map image
-        if self.config["map"]:# pygame.surface
-            img = self.config["map"].preview
-        else:
-            img = pg.image.load(LIBPATH["noimage"])
-        self.image = img
-        self.rect = pg.Rect((0, 0), self.config["size"])# pygame.rect
-        #draw(self.image, self)
-        draw((0, 0, 0), self)
-    def update(self, screenshot):
-        """updates this class with each game loop."""
-        # if not none
-        if screenshot:
-            # scaling screenshot
-            img = scale(
-                screenshot,
-                (
-                    int(screenshot.get_rect().width / 3),
-                    int(screenshot.get_rect().height / 3)
-                )
-            )
-            #draw((0, 0, 0), self)
-            draw(img, self, "center")
-class Overlay(pg.Surface):
-    """
-    for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
-    that 0 is for none blending while 255 is for full rendering.
-    """
-    default = {
-        "background": (0, 0, 0),
-        "size": (320, 240),
-        "opacity": 255
-    }
-    def __init__(self, config={}):
-        """constructor"""
-        # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
-        # initiating surface
-        pg.Surface.__init__(self, self.config["size"])
-        # setting opacity if there is one
-        self.set_alpha(self.config["opacity"])
-class TextBox(pg.Surface):
-    """surface for displaying text."""
-    default = {
-        "text": "Default Text",
-        "type": "textbox",
-        "font": "verdana",
-        "fontsize": 16,
-        "size": (300, 100),
-        "position": (0, 0),
-        "bold": False,
-        "italic": False,
-        "wrap": True,
-        "color": (255, 255, 255),
-        "background": (0, 0, 0),
-        "padding": None
-    }
-    def __init__(self, config={}):
-        """
-        'type' declares if the object is gonna be build as 'textbox' or
-            'speechbubble'
-        'call' bool to check if the textbox is called or not.
-        'padding' text padding from the corners of the textbox rect.
-        'text' holds a whole text object with warpped or non-wrapped text.
-        """
-        # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
-        self.type = self.config["type"]# str
-        self.call = False# bool
-        pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
-        self.rect = self.get_rect()# pygame.rect
-        self.rect.topleft = self.config["position"]
-        # additional attributes
-        self.padding = self.config["padding"]# none / int
-        self.text = Text({# text object
-            "text": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit... 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...'",
-            "fontsize": self.config["fontsize"],
-            "font": self.config["font"],
-            "bold": self.config["bold"],
-            "italic": self.config["italic"],
-            "color": self.config["color"],
-            "size": self.calculateRect(self.rect).size,
-            "wrap": self.config["wrap"]
-        })
-        self.__build()
-    def __build(self):
-        """composing surface."""
-        # drawing background
-        draw(self.config["background"], self)
-        # drawing text depending on margins
-        if self.padding:
-            if type(self.padding) is int:
-                pos = (self.padding, self.padding)
-            elif type(self.padding) is list or type(self.padding) is list:
-                pos = self.padding
-        else:
-            pos = (0, 0)
-        draw(self.text, self, pos)
-    def calculateRect(self, rect):
-        """recalculating rect size based on padding and margin"""
-        p = self.padding
-
-        if p:
-            if type(p) is int:
-                rect.width = rect.width - (p * 2)
-                #rect.height = rect.height - (p * 2)
-
-        return rect
-    def setPosition(self, pos):
-        """updating rect position."""
-        self.rect.topleft = pos
