@@ -525,6 +525,7 @@ class UI(Master):
             redraw everyting.
         """
         mpos = pg.mouse.get_pos()
+        mrel = pg.mouse.get_rel()
         mbut = pg.mouse.get_pressed()
         # setting drawing-conditions for each element specifically
         for n, e in self.elements.items():
@@ -535,6 +536,11 @@ class UI(Master):
                 draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
+            # everything else
+            elif e.click() or (# conditional
+                e.hover() and (mrel[0] != 0 or mrel[1] != 0)
+            ):
+                self.drawElements(n)
             # drawing if previous conditions matched
             if draw_element:
                 e.update()
@@ -1145,11 +1151,11 @@ class MenuBar(GuiMaster):
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
-class Panel(GuiMaster):
+class Panel(Master):
     """."""
     def __init__(self, config={}):
         """."""
-        GuiMaster.__init__(self, config)
+        Master.__init__(self, config)
 class Text(GuiMaster):
     """
     a displayable text object.
