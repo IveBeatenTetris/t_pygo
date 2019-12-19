@@ -357,23 +357,22 @@ class Master(pg.Surface):
         self.rect.size = self.get_rect().size
         # drawing background if element has one
         if self.background: self.draw(self.background)
-    def draw(self, object, rect=None):
+    def draw(self, object, position=None):
         """
-        draws something to its element surface. if no rect is given then get
-            'self.rect' as drawing position.
+        draws something to its element surface. 'position' must be tuple.
         if 'object' is tuple or list then fill the background with this color
             instead.
         """
         # filling with color if list or tuple
         if type(object) is tuple or type(object) is list:
             self.fill(object)
-        # blitting to rect
+        # drawing to rect
         else:
             # draw rect from object if none is given
-            if not rect:
-                rect = object.get_rect()
-            # blitting at rects position
-            self.blit(object, rect)
+            if not position:
+                position = (0, 0)
+            # drawing to position
+            draw(object, self, position)
     # events and event checking
     def click(self):# bool
         """retuns true if clicked."""
@@ -545,6 +544,60 @@ class UI(Master):
             if draw_element:
                 e.update()
                 self.drawElements(n)
+class Button(Master):
+    """
+    resembles a button element with a text and common mouse interactive events.
+
+    'cfg' default properties for this object.
+    """
+    cfg = {
+        "margin": 20,
+        "textposition": "center"
+    }
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+
+        'cfg' need some additional properties from user.
+        'margin' auto margin applying to text position so it doesnt look
+            crunchy.
+        'textposition' standard is 'center'. can also be tuple of two ints.
+        'text' a buttons text object ready to been drawn.
+        'rect' overwriting original rect if user has given his own.
+        """
+        Master.__init__(self, config)
+        # creating a dict based of comparison of config{} and default{}
+        self.cfg = validateDict(config, self.cfg)# dict
+        # additional attributes
+        self.margin = self.cfg["margin"]# int / list
+        self.textposition = self.cfg["textposition"]# str / tuple
+        self.text = Text(config)
+        # translating rect if it has 'auto' or percentage strings
+        if "rect" in config:
+            self.rect = convertRect(config["rect"], self.text.rect)
+            self.calcTextPos()
+        # rebuilding surface to apply new rect
+        self.createSurface()
+    def calcTextPos(self):
+        """recalculates buttons size and its texts position in it."""
+        if type(self.margin) is int:
+            self.rect.width += self.margin
+            self.rect.height += self.margin
+    def update(self):
+        """
+        overwrites the standard method. call this method everytime you need to
+            refresh the element.
+        """
+        # on mouse over look for different color
+        if self.hover():
+            if self.bg_hover:
+                self.draw(self.bg_hover)
+        # look for standard background
+        else:
+            if self.background:
+                self.draw(self.background)
+        # redraw text anyways
+        self.draw(self.text, self.textposition)
 class InfoBar(Master):
     """
     this bar is used for displaying usefull information about the app and its
@@ -642,7 +695,7 @@ class MenuBar(Master):
                     self.rect.height
                 )
                 # updating visuals
-                but.build(); but.update()
+                but.createSurface(); but.update()
                 # appending to options dict
                 options[name] = but
                 # crafting option-button related menus
@@ -1093,60 +1146,6 @@ class Interface(GuiMaster):
                     # if clicked somehwere else while option is still visible
                     if mbut[0] and m.visible:
                         m.visible = False
-class Button(GuiMaster):
-    """
-    resembles a button element with a text and common mouse interactive events.
-
-    'cfg' default properties for this object.
-    """
-    cfg = {
-        "margin": 20,
-        "textposition": "center"
-    }
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-
-        'cfg' need some additional properties from user.
-        'margin' auto margin applying to text position so it doesnt look
-            crunchy.
-        'textposition' standard is 'center'. can also be tuple of two ints.
-        'text' a buttons text object ready to been drawn.
-        'rect' overwriting original rect if user has given his own.
-        """
-        GuiMaster.__init__(self, config)
-        # creating a dict based of comparison of config{} and default{}
-        self.cfg = validateDict(config, self.cfg)# dict
-        # additional attributes
-        self.margin = self.cfg["margin"]# int / list
-        self.textposition = self.cfg["textposition"]# str / tuple
-        self.text = Text(config)
-        # translating rect if it has 'auto' or percentage strings
-        if "rect" in config:
-            self.rect = convertRect(config["rect"], self.text.rect)
-            self.calcTextPos()
-        # rebuilding surface to apply new rect
-        self.build()
-    def calcTextPos(self):
-        """recalculates buttons size and its texts position in it."""
-        if type(self.margin) is int:
-            self.rect.width += self.margin
-            self.rect.height += self.margin
-    def update(self):
-        """
-        overwrites the standard method. call this method everytime you need to
-            refresh the element.
-        """
-        # on mouse over look for different color
-        if self.mouseOver():
-            if self.backgroundhover:
-                self.draw(self.backgroundhover)
-        # look for standard background
-        else:
-            if self.background:
-                self.draw(self.background)
-        # redraw text anyways
-        self.draw(self.text, self.textposition)
 class Menu(GuiMaster):
     """a dropdown menu with clickable options."""
     def __init__(self, config={}):
