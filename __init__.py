@@ -5,17 +5,14 @@ from .gui import (
     App,
     Button,
     InfoBar,
-    Interface,
-    Interface2,
     MenuBar,
     MiniMap,
     Overlay,
     Panel,
     Text,
     TextBox,
-    Window,
-
-    UI
+    UI,
+    Window
 )
 from .map import Tileset, Map
 from .entity import Player
