@@ -13,7 +13,9 @@ from .gui import (
     Panel,
     Text,
     TextBox,
-    Window
+    Window,
+
+    UI
 )
 from .map import Tileset, Map
 from .entity import Player

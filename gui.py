@@ -283,6 +283,28 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
+
+
+
+class Master(pg.Surface):
+    """."""
+    defaults = {
+        "size": (200, 150)
+    }
+    def __init__(self, config={}):
+        """."""
+        pass
+    def resize(self, size=None):
+        """."""
+class UI(Master):
+    """."""
+    def __init__(self, name):
+        """."""
+        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+            if js["type"] == "interface":
+                self.cfg = js
+        Master.__init__(self, self.cfg)
+
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
@@ -535,11 +557,6 @@ class Interface2(GuiMaster):
                 e.leftClick()
             ):
                 self.drawElements(n)
-class Master(pg.Surface):
-    """."""
-    def __init__(self, config={}):
-        """."""
-        pass
 # all these following elements draw from 'GuiMaster'
 class Interface(GuiMaster):
     """
