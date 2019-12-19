@@ -466,24 +466,16 @@ class UI(Master):
         self.elements = self.loadElements()# dict
     def drawElements(self, element=None):
         """
-        determines which element will be redrawn. if no element is given then
-            redraw everyting.
+        redrawing either everything or one specific element if a name was given.
         """
         # if element named
         if element:
             self.draw(self.elements[element], self.elements[element].rect)
         # if no element named
         else:
-            # setting conditions for element to been redrawn
+            # redrawing everything
             for n, e in self.elements.items():
-                # if this is true then the element will be redrawn
-                draw_element = False
-                # type specific element conditions
-                if type(e) is InfoBar:# unconditional
-                    draw_element = True
-                # redraw element if previous conditions matched
-                if draw_element:
-                    self.draw(e, e.rect)
+                self.draw(e, e.rect)
     def loadElements(self, element=None):# dict
         """
         load elements from their config dict. if no specific element is given
@@ -511,6 +503,8 @@ class UI(Master):
                         # calling objects by type from cfg
                         if e["type"] == "infobar":
                             elements[name] = InfoBar(e)
+                        elif e["type"] == "menubar":
+                            elements[name] = MenuBar(e)
 
         return elements
     def resize(self, size=None):
@@ -530,12 +524,22 @@ class UI(Master):
     def update(self):
         """
         overwrites parental 'update()' method for adding more functionality.
+        determines which element will be redrawn. if no element is given then
+            redraw everyting.
         """
         mpos = pg.mouse.get_pos()
         mbut = pg.mouse.get_pressed()
-
+        # setting drawing-conditions for each element specifically
         for n, e in self.elements.items():
-            if type(e) is InfoBar:
+            # if 'true' then the corresponding element will be drawn
+            draw_element = False
+            # setting condition individually
+            if type(e) is MenuBar:# unconditional
+                draw_element = True
+            elif type(e) is InfoBar:# unconditional
+                draw_element = True
+            # drawing if previous conditions matched
+            if draw_element:
                 e.update()
                 self.drawElements(n)
 class GuiMaster(pg.Surface):
