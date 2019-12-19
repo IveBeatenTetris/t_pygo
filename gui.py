@@ -653,6 +653,13 @@ class InfoBar(Master):
             10,
             int(self.rect.height / 2) - int(self.text.rect.height / 2)
         ))
+class Menu(Master):
+    """a dropdown menu with clickable options."""
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+        """
+        Master.__init__(self, config)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
@@ -1218,13 +1225,7 @@ class Interface(GuiMaster):
                     # if clicked somehwere else while option is still visible
                     if mbut[0] and m.visible:
                         m.visible = False
-class Menu(GuiMaster):
-    """a dropdown menu with clickable options."""
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-        """
-        GuiMaster.__init__(self, config)
+
 
 class Window(GuiMaster):
     """a window pop up."""
