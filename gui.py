@@ -298,6 +298,7 @@ class Master(pg.Surface):
     defaults = {
         "background": None,
         "dragable": True,
+        "hover": None,
         "size": (200, 150)
     }
     def __init__(self, config={}):
@@ -305,6 +306,7 @@ class Master(pg.Surface):
         self.config = validateDict(config, self.defaults)# dict
         self.rect = pg.Rect((0, 0), self.config["size"])# pg.rect
         self.background = self.config["background"]# none / tuple / pg.surface
+        self.bg_hover = self.config["hover"]# none / tuple / pg.surface
         self.dragable = self.config["dragable"]# bool
         self.dragged_at = None# none / tuple
         self.clicked = False# bool
@@ -381,10 +383,14 @@ class Master(pg.Surface):
                 )
         if self.hover():
             self.hovered = True
+
+            if self.bg_hover:
+                self.draw(self.bg_hover)
         elif not self.hover() and self.hovered:
             self.hovered = False
 
-        print(self.hovered)
+            if self.bg_hover:
+                self.draw(self.background)
 class UI(Master):
     """."""
     def __init__(self, name):
