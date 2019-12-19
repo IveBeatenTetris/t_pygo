@@ -449,7 +449,7 @@ class UI(Master):
     """
     def __init__(self, name):
         """
-        uses 'guimaster' as its parent with additional methodes and attributes.
+        uses 'Master' as its parent with additional methodes and attributes.
 
         'elements' a dict of elements to read and draw.
         """
@@ -545,8 +545,139 @@ class UI(Master):
             if draw_element:
                 e.update()
                 self.drawElements(n)
+class InfoBar(Master):
+    """
+    this bar is used for displaying usefull information about the app and its
+        contents.
+    """
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
 
+        'cfg' building instructions to draw from. it also declares what to
+            display.
+        'info' str of the information to display.
+        """
+        print(config)
+        Master.__init__(self, config)
+        self.cfg = config# dict
+        self.info = ""# str
+    def createInfo(self):# str
+        """
+        creation of information to display. returns a str.
+        """
+        c = self.cfg
+        info = ""
 
+        # reading user defined information to display
+        if "info" in c:
+            for i in c["info"]:
+                if i == "mouse":
+                    info += "Mouse: " + str(pg.mouse.get_pos()) + "     "
+                elif i == "appsize":
+                    info += "AppSize: " + str(self.parent.size) + "     "
+                elif i == "fps":
+                    info += "FPS: " + str(globals()["app"].fps) + "     "
+
+        return info
+    def update(self):
+        """overwrites parental 'update()' method. calling to refresh element."""
+        bg = self.background
+        # recreating info text
+        self.info = self.createInfo()
+        # creating text object
+        self.text = Text({# text object
+            "text": self.info,
+            "fontsize": 12
+        })
+        # on mouse over determine another background to draw if set
+        if self.hover():
+            if self.bg_hover:
+                bg = self.bg_hover
+        # drawing background and info text
+        self.draw(bg)
+        self.draw(self.text, (
+            10,
+            int(self.rect.height / 2) - int(self.text.rect.height / 2)
+        ))
+class MenuBar(Master):
+    """a menu bar object with several elements to click at."""
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+
+        'cfg' this dict holds building instructions for the menubar and its
+            options.
+        'menus' a dict of dropdown menus to call on a specific option.
+        'options' a dict of buttons representing options of the menubar.
+        """
+        Master.__init__(self, config)
+        self.cfg = config# dict
+        self.menus = {}# dict
+        self.options = self.createOptions()# dict
+        # drawing first time
+        for _, o in self.options.items():
+            self.draw(o, o.rect)
+    def createOptions(self):
+        """
+        creates buttons for the menubar to click at as well as theyre
+            corresponding menus.
+        """
+        c = self.cfg
+        options = {}
+
+        if "menus" in c:
+            # using 'x' to determine horizontal drawing position
+            x = 0
+            for name, o in c["menus"].items():
+                # making button.rect slightly bigger
+                but = Button({
+                    "text": name,
+                    "background": self.background,
+                    "hover": (55, 55, 65)
+                })
+                but.rect = pg.Rect(
+                    x, self.rect.top,
+                    but.text.rect.width + but.margin,
+                    self.rect.height
+                )
+                # updating visuals
+                but.build(); but.update()
+                # appending to options dict
+                options[name] = but
+                # crafting option-button related menus
+                self.menus[name] = Menu({
+                    "background": (45, 45, 55),
+                    "visible": False,
+                    "rect": [
+                        x,
+                        self.rect.bottom,
+                        150,
+                        250
+                    ]
+                })
+
+                # raising value of x
+                x += but.rect.width
+
+        return options
+    def update(self):
+        """
+        overwrites parental method. used to redraw background updating options
+            properties checks its events and draws the option to the menubar.
+        """
+        mpos = pg.mouse.get_pos()
+        mrel = pg.mouse.get_rel()
+
+        for _, o in self.options.items():
+            # refreshing visuals and drawing afterwards
+            o.update()
+            self.draw(o, o.rect)
+class Panel(Master):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        Master.__init__(self, config)
 
 
 class GuiMaster(pg.Surface):
@@ -1016,61 +1147,6 @@ class Button(GuiMaster):
                 self.draw(self.background)
         # redraw text anyways
         self.draw(self.text, self.textposition)
-class InfoBar(Master):
-    """
-    this bar is used for displaying usefull information about the app and its
-        contents.
-    """
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-
-        'cfg' building instructions to draw from. it also declares what to
-            display.
-        'info' str of the information to display.
-        """
-        print(config)
-        Master.__init__(self, config)
-        self.cfg = config# dict
-        self.info = ""# str
-    def createInfo(self):# str
-        """
-        creation of information to display. returns a str.
-        """
-        c = self.cfg
-        info = ""
-
-        # reading user defined information to display
-        if "info" in c:
-            for i in c["info"]:
-                if i == "mouse":
-                    info += "Mouse: " + str(pg.mouse.get_pos()) + "     "
-                elif i == "appsize":
-                    info += "AppSize: " + str(self.parent.size) + "     "
-                elif i == "fps":
-                    info += "FPS: " + str(globals()["app"].fps) + "     "
-
-        return info
-    def update(self):
-        """overwrites parental 'update()' method. calling to refresh element."""
-        bg = self.background
-        # recreating info text
-        self.info = self.createInfo()
-        # creating text object
-        self.text = Text({# text object
-            "text": self.info,
-            "fontsize": 12
-        })
-        # on mouse over determine another background to draw if set
-        if self.hover():
-            if self.bg_hover:
-                bg = self.bg_hover
-        # drawing background and info text
-        self.draw(bg)
-        self.draw(self.text, (
-            10,
-            int(self.rect.height / 2) - int(self.text.rect.height / 2)
-        ))
 class Menu(GuiMaster):
     """a dropdown menu with clickable options."""
     def __init__(self, config={}):
@@ -1078,84 +1154,6 @@ class Menu(GuiMaster):
         uses 'guimaster' as its parent with additional methodes and attributes.
         """
         GuiMaster.__init__(self, config)
-class MenuBar(GuiMaster):
-    """a menu bar object with several elements to click at."""
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-
-        'cfg' this dict holds building instructions for the menubar and its
-            options.
-        'menus' a dict of dropdown menus to call on a specific option.
-        'options' a dict of buttons representing options of the menubar.
-        """
-        GuiMaster.__init__(self, config)
-        self.cfg = config# dict
-        self.menus = {}# dict
-        self.options = self.createOptions()# dict
-        # drawing first time
-        for _, o in self.options.items():
-            self.draw(o, o.rect)
-    def createOptions(self):
-        """
-        creates buttons for the menubar to click at as well as theyre
-            corresponding menus.
-        """
-        c = self.cfg
-        options = {}
-
-        if "menus" in c:
-            # using 'x' to determine horizontal drawing position
-            x = 0
-            for name, o in c["menus"].items():
-                # making button.rect slightly bigger
-                but = Button({
-                    "text": name,
-                    "background": self.background,
-                    "hover": (55, 55, 65)
-                })
-                but.rect = pg.Rect(
-                    x, self.rect.top,
-                    but.text.rect.width + but.margin,
-                    self.rect.height
-                )
-                # updating visuals
-                but.build(); but.update()
-                # appending to options dict
-                options[name] = but
-                # crafting option-button related menus
-                self.menus[name] = Menu({
-                    "background": (45, 45, 55),
-                    "visible": False,
-                    "rect": [
-                        x,
-                        self.rect.bottom,
-                        150,
-                        250
-                    ]
-                })
-
-                # raising value of x
-                x += but.rect.width
-
-        return options
-    def update(self):
-        """
-        overwrites parental method. used to redraw background updating options
-            properties checks its events and draws the option to the menubar.
-        """
-        mpos = pg.mouse.get_pos()
-        mrel = pg.mouse.get_rel()
-
-        for _, o in self.options.items():
-            # refreshing visuals and drawing afterwards
-            o.update()
-            self.draw(o, o.rect)
-class Panel(Master):
-    """."""
-    def __init__(self, config={}):
-        """."""
-        Master.__init__(self, config)
 class Text(GuiMaster):
     """
     a displayable text object.
