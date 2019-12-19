@@ -298,9 +298,7 @@ class Master(pg.Surface):
         "dragable": False,
         "hover": None,
         "parent": None,
-        "position": (0, 0),
-        "rect": None,
-        "size": (200, 150)
+        "rect": [0, 0, 200, 150]
     }
     def __init__(self, config={}):
         """
@@ -332,14 +330,11 @@ class Master(pg.Surface):
         # choosing parental rect
         if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
         else: self.parent = pg.display.get_surface().get_rect()# pg.rect
-        if self.config["rect"]: rect = self.config["rect"]
-        else: rect = [
-                self.config["position"][0],
-                self.config["position"][1],
-                self.config["size"][0],
-                self.config["size"][1]
-            ]
-        self.rect = convertRect(rect, self.parent)# pg.rect
+        # converting rect
+        if type(self.config["rect"]) is list:# pg.rect
+            self.rect = pg.Rect(convertRect(self.config["rect"], self.parent))
+        elif type(self.config["rect"]) is pg.Rect:# pg.rect
+            self.rect = self.config["rect"]
         # convert string arguments in position and size
         self.background = self.config["background"]# none / tuple / pg.surface
         self.bg_hover = self.config["hover"]# none / tuple / pg.surface
@@ -359,7 +354,7 @@ class Master(pg.Surface):
         else: size = self.rect.size
         # initiating surface and rect
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect = self.get_rect()
+        self.rect.size = self.get_rect().size
         # drawing background if element has one
         if self.background: self.draw(self.background)
     def draw(self, object, rect=None):
@@ -544,6 +539,10 @@ class UI(Master):
             if draw_element:
                 e.update()
                 self.drawElements(n)
+
+
+
+
 class GuiMaster(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
@@ -1011,7 +1010,7 @@ class Button(GuiMaster):
                 self.draw(self.background)
         # redraw text anyways
         self.draw(self.text, self.textposition)
-class InfoBar(GuiMaster):
+class InfoBar(Master):
     """
     this bar is used for displaying usefull information about the app and its
         contents.
@@ -1024,7 +1023,8 @@ class InfoBar(GuiMaster):
             display.
         'info' str of the information to display.
         """
-        GuiMaster.__init__(self, config)
+        print(config)
+        Master.__init__(self, config)
         self.cfg = config# dict
         self.info = ""# str
     def createInfo(self):# str
@@ -1056,9 +1056,9 @@ class InfoBar(GuiMaster):
             "fontsize": 12
         })
         # on mouse over determine another background to draw if set
-        if self.mouseOver():
-            if self.backgroundhover:
-                bg = self.backgroundhover
+        if self.hover():
+            if self.bg_hover:
+                bg = self.bg_hover
         # drawing background and info text
         self.draw(bg)
         self.draw(self.text, (
