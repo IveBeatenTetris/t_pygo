@@ -353,7 +353,7 @@ class Master(pg.Surface):
         # first time creating the surface
         self.createSurface()
     def createSurface(self, **kwargs):
-        """recreates the elemens surface on call."""
+        """recreates the elements surface on call."""
         # identifying size to recreate surface
         if "size" in kwargs: size = kwargs["size"]
         else: size = self.rect.size
@@ -464,7 +464,21 @@ class UI(Master):
         self.cfg["rect"] = pg.display.get_surface().get_rect()
         Master.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
-    def loadElements(self, element=None):
+    def drawElements(self, element=None):
+        """
+        determines which element will be redrawn. if no element is given then
+            redraw everyting.
+        """
+        if not element:
+            for n, e in self.elements.items():
+                draw_element = False
+
+                if type(e) is InfoBar:
+                    draw_element = True
+
+                if draw_element:
+                    self.draw(e, e.rect)
+    def loadElements(self, element=None):# dict
         """
         load elements from their config dict. if no specific element is given
             then reload every element.
@@ -488,13 +502,25 @@ class UI(Master):
                         name = e["name"]
                     # looking for 'type' property
                     if "type" in e:
-                        t = c["type"]
                         # calling objects by type from cfg
-                        if t == "infobar":
-                            elements[name] = InfoBar2(c)
+                        if c["type"] == "infobar":
+                            elements[name] = InfoBar(e)
+        print(elements)
 
         return elements
-class
+    def resize(self, size=None):
+        """
+        resizing and recreating element. if no size is given then just recreate
+            surface.
+        """
+        # recreating surface
+        if size:
+            self.createSurface(size=size)
+        else:
+            self.createSurface()
+        # recreating and drawing elements
+        self.elements = self.loadElements()
+        self.drawElements()
 
 class GuiMaster(pg.Surface):
     """
