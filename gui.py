@@ -811,6 +811,14 @@ class Text(Master):
             )
         # drawing text image to text object surface
         self.draw(self.image)
+class Window(Master):
+    """a window pop up."""
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+        """
+        Master.__init__(self, config)
+
 
 class GuiMaster(pg.Surface):
     """
@@ -1227,13 +1235,7 @@ class Interface(GuiMaster):
                         m.visible = False
 
 
-class Window(GuiMaster):
-    """a window pop up."""
-    def __init__(self, config={}):
-        """
-        uses 'guimaster' as its parent with additional methodes and attributes.
-        """
-        GuiMaster.__init__(self, config)
+
 # not yet converted
 class MiniMap(pg.Surface):
     """display a miniature version of an area around the players position."""
