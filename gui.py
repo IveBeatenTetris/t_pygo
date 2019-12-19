@@ -536,11 +536,11 @@ class UI(Master):
                 draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
-            # everything else
+            # everything else if mouse over and moves or clicks
             elif e.click() or (# conditional
                 e.hover() and (mrel[0] != 0 or mrel[1] != 0)
             ):
-                self.drawElements(n)
+                draw_element = True
             # drawing if previous conditions matched
             if draw_element:
                 e.update()
