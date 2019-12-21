@@ -124,7 +124,9 @@ def convertXmlToDict(xml):# dict
     """converts an xml.elementtree object into da dict and returns it."""
     def convertAttribute(l):# list
         """returns a dict made out of an xml.elementtree."""
+        # 'none' so we can check if it doesnt apply correctly somewhere
         attribute = None
+
         # split to check its contents
         l = l.split(", ")
         # if list has a single value
@@ -134,6 +136,7 @@ def convertXmlToDict(xml):# dict
                 # overwriting single int with a real single int
                 attribute = int(l[0])
             else:
+                # return simple string
                 attribute = l[0]
         else:
             nl = []
@@ -153,6 +156,23 @@ def convertXmlToDict(xml):# dict
             attribute = nl
 
         return attribute
+    def convertChildren(c):
+        """."""
+        children = []
+
+        # cycling through elements
+        for elem in c:
+            # always starting with a type
+            child = {}
+            child["type"] = elem.tag
+            # for every attribute
+            for k, v in elem.attrib.items():
+                # convert attribute to make it usable for our structure
+                child[k] = convertAttribute(v)
+            # appending fresh child to returning list
+            children.append(child)
+
+        return children
     d = {}
     # predicting root and its children elements
     root = xml.getroot()
@@ -163,6 +183,8 @@ def convertXmlToDict(xml):# dict
     for k, v in root.attrib.items():
         # adding value to returning dict
         d[k] = convertAttribute(v)
+    # creating children sub nodes
+    d["elements"] = convertChildren(elements)
 
     return d
 def validateDict(config={}, defaults={}):# dict
