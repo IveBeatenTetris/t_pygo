@@ -126,7 +126,7 @@ def convertXmlToDict(xml):# dict
         """returns a dict made out of an xml.elementtree."""
         attribute = None
         # split to check its contents
-        l = v.split(", ")
+        l = l.split(", ")
         # if list has a single value
         if len(l) == 1:
             # if its an int
