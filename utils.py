@@ -1,5 +1,6 @@
 # dependencies
 import json, os, re, ctypes
+import xml.etree.ElementTree as et
 import pygame as pg
 
 # project and library pathes
@@ -112,6 +113,15 @@ def loadJSON(path):# dict
         js.update({"filename": path.split("\\")[-1]})
 
     return js
+def loadXML(path):
+    """
+    returns a 'xml.etree.ElementTree.ElementTree' object read from a xml file
+        or object-type.
+    """
+    #root = tree.getroot()
+    #print(root.attrib, root.tag)
+    #print(root.getchildren())
+    return et.parse(path)
 # dictionary operations
 def validateDict(config={}, defaults={}):# dict
     """
