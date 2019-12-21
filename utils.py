@@ -133,6 +133,8 @@ def convertXmlToDict(xml):# dict
             if l[0].isdigit():
                 # overwriting single int with a real single int
                 attribute = int(l[0])
+            else:
+                attribute = l[0]
         else:
             nl = []
             # for every item in the splitted list
