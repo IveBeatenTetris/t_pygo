@@ -118,11 +118,51 @@ def loadXML(path):
     returns a 'xml.etree.ElementTree.ElementTree' object read from a xml file
         or object-type.
     """
-    #root = tree.getroot()
-    #print(root.attrib, root.tag)
-    #print(root.getchildren())
     return et.parse(path)
-# dictionary operations
+# convering data types
+def convertXmlToDict(xml):# dict
+    """converts an xml.elementtree object into da dict and returns it."""
+    def convertAttribute(l):# list
+        """returns a dict made out of an xml.elementtree."""
+        attribute = None
+        # split to check its contents
+        l = v.split(", ")
+        # if list has a single value
+        if len(l) == 1:
+            # if its an int
+            if l[0].isdigit():
+                # overwriting single int with a real single int
+                attribute = int(l[0])
+        else:
+            nl = []
+            # for every item in the splitted list
+            for e in l:
+                # if item doesnt represent an integer
+                if not e.isdigit():
+                    # if last letter is '%'
+                    if e[-1] == "%":
+                        pass
+                else:
+                    # make item an integer
+                    e = int(e)
+                # append to temporary list
+                nl.append(e)
+            # this attributes gonna be a list
+            attribute = nl
+
+        return attribute
+    d = {}
+    # predicting root and its children elements
+    root = xml.getroot()
+    elements = root.getchildren()
+    # starting describing the dict
+    d["type"] = root.tag
+    # cycling through roots attributes
+    for k, v in root.attrib.items():
+        # adding value to returning dict
+        d[k] = convertAttribute(v)
+
+    return d
 def validateDict(config={}, defaults={}):# dict
     """
     validate a dictionary by comparing it to the default values from another
