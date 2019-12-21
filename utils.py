@@ -1,5 +1,5 @@
 # dependencies
-import json, os, re, ctypes
+import json, os, re, ctypes, pprint
 import xml.etree.ElementTree as et
 import pygame as pg
 
@@ -50,12 +50,14 @@ json_comments =  re.compile(
 )
 
 # console
-def prettyPrint(data, sort=False, tabs=4):
-    """pretty-print dicts."""
-    if data.__class__ is dict:
+#def prettyPrint(data, sort=False, tabs=4):
+def prettyPrint(data):
+    """pretty-printing."""
+    """if data.__class__ is dict:
         print(json.dumps(data, sort_keys=sort, indent=tabs))
     else:
-        print("Nothing to pretty-print.")
+        print("Nothing to pretty-print.")"""
+    pprint.pprint(data)
 # system
 def getMachineResolution():# tuple
     """return full screen resolution in pixels."""
@@ -90,8 +92,9 @@ def loadAssets(path):# list
                     "type": "image",
                     "filepath": dirs[0]
                 }
-
+            # adding opened file-name to the dict as reference
             config.update({"filename": each})
+            # appending to returning list
             list.append(config)
 
     return list
@@ -162,30 +165,32 @@ def convertXmlToDict(xml):# dict
             attribute = nl
 
         return attribute
-    def convertChildren(c):
-        """."""
-        children = []
+    def convertChildren(children):# list
+        """returns a list children elements. works recursively."""
+        c = []
 
         # cycling through elements
-        for elem in c:
-            # always starting with a type
+        for elem in children:
+            # always starting with a type and predefined element list
             child = {}
             child["type"] = elem.tag
             # for every attribute
             for k, v in elem.attrib.items():
                 # convert attribute to make it usable for our structure
                 child[k] = convertAttribute(v)
+            # converting children elements again
+            child["elements"] = convertChildren(elem.getchildren())
             # appending fresh child to returning list
-            children.append(child)
+            c.append(child)
 
-        return children
+        return c
     d = {}
     # predicting root and its children elements
     root = xml.getroot()
     elements = root.getchildren()
     # starting describing the dict
     d["type"] = root.tag
-    # cycling through roots attributes
+    # converting attributes to go-usable content
     for k, v in root.attrib.items():
         # adding value to returning dict
         d[k] = convertAttribute(v)
