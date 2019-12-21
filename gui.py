@@ -12,7 +12,8 @@ from .utils import (
     convertRect,
     getDisplay,
     repeatBG,
-    scale
+    scale,
+    prettyPrint
 )
 from .camera import Camera
 from .controller import Controller
@@ -456,7 +457,8 @@ class UI(Master):
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js
-        self.cfg["rect"] = pg.display.get_surface().get_rect()
+                self.cfg["rect"] = pg.display.get_surface().get_rect()
+        prettyPrint(self.cfg)
         Master.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
     def drawElements(self, element=None):
@@ -612,7 +614,6 @@ class InfoBar(Master):
             display.
         'info' str of the information to display.
         """
-        print(config)
         Master.__init__(self, config)
         self.cfg = config# dict
         self.info = ""# str
@@ -626,11 +627,11 @@ class InfoBar(Master):
         # reading user defined information to display
         if "info" in c:
             for i in c["info"]:
-                if i == "mouse":
+                if i == "mouse_loc":
                     info += "Mouse: " + str(pg.mouse.get_pos()) + "     "
-                elif i == "appsize":
+                elif i == "app_size":
                     info += "AppSize: " + str(self.parent.size) + "     "
-                elif i == "fps":
+                elif i == "app_fps":
                     info += "FPS: " + str(globals()["app"].fps) + "     "
 
         return info
