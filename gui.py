@@ -357,7 +357,7 @@ class Master(pg.Surface):
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = self.get_rect().size
         # drawing background if element has one
-        if self.background: self.draw(self.background)
+        self.recreateBackground()
     def draw(self, object, position=None):
         """
         draws something to its element surface. 'position' must be tuple.
@@ -541,7 +541,14 @@ class UI(Master):
             redraw everyting.
         """
         mrel = pg.mouse.get_rel()
+        mpos = pg.mouse.get_pos()
         mbut = pg.mouse.get_pressed()
+        # checking if the background needs to be redrawn first
+        recreate = False
+        for n, e in self.elements.items():
+            if e.dragged_at:
+                recreate = True
+                self.recreateBackground()
         # setting drawing-conditions for each element specifically
         for n, e in self.elements.items():
             # if 'True' then the corresponding element will be drawn
@@ -551,8 +558,12 @@ class UI(Master):
                 draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
-            if type(e) is Button:# unconditional
+            elif type(e) is Button:# unconditional
                 draw_element = True
+            elif type(e) is Panel:# conditional
+                # recreating is 'true' if any element is dragged at right now
+                if recreate:
+                    draw_element = True
             # everything else if mouse over and moves or clicks
             elif e.click() or (# conditional
                 e.hover() and (mrel[0] != 0 or mrel[1] != 0)
