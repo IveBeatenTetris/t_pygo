@@ -296,7 +296,7 @@ class Master(pg.Surface):
     """
     defaults = {
         "background": None,
-        "dragable": False,
+        "drag": False,
         "hover": None,
         "parent": None,
         "rect": [0, 0, 200, 150]
@@ -339,7 +339,7 @@ class Master(pg.Surface):
         # convert string arguments in position and size
         self.background = self.config["background"]# none / tuple / pg.surface
         self.bg_hover = self.config["hover"]# none / tuple / pg.surface
-        self.dragable = self.config["dragable"]# bool
+        self.dragable = self.config["drag"]# bool
         # once the element has been clicked 'dragged_at' becomes a position
         # tuple to calculate the position of this element on drag and drop
         self.dragged_at = None# none / tuple
@@ -375,6 +375,37 @@ class Master(pg.Surface):
             # drawing to position
             draw(object, self, position)
     # events and event checking
+    def checkForDrag(self):
+        """
+        caspulted method for initiating dragging of this element if preset by
+            user.
+        """
+        mpos = pg.mouse.get_pos()
+        # if element is dragabe (user defined)
+        if self.dragable:
+            # get events from globals()["app"]._events since we make use of
+            # 'mousebuttonup' and 'mousebuttondown' to only trigger the events
+            # if necessary
+            for evt in globals()["app"]._events:
+                # on first time clicked
+                if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
+                    if not self.clicked:
+                        # calculate clicked position
+                        self.dragged_at = (
+                            mpos[0] - self.rect.x,
+                            mpos[1] - self.rect.y
+                        )
+                    self.clicked = True
+                # clearing 'dragged_at' if released because no more needed
+                elif evt.type is pg.MOUSEBUTTONUP:
+                    self.clicked = False
+                    self.dragged_at = None
+            # calculating rect position if clicked
+            if self.clicked:
+                self.rect.topleft = (
+                    mpos[0] - self.dragged_at[0],
+                    mpos[1] - self.dragged_at[1]
+                )
     def click(self):# bool
         """retuns true if clicked."""
         mpos = pg.mouse.get_pos()
@@ -407,31 +438,8 @@ class Master(pg.Surface):
         """handles events. call this method at each main loops end."""
         mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
-        # if element is dragabe (user defined)
-        if self.dragable:
-            # get events from globals()["app"]._events since we make use of
-            # 'mousebuttonup' and 'mousebuttondown' to only trigger the events
-            # if necessary
-            for evt in globals()["app"]._events:
-                # on first time clicked
-                if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
-                    if not self.clicked:
-                        # calculate clicked position
-                        self.dragged_at = (
-                            mpos[0] - self.rect.x,
-                            mpos[1] - self.rect.y
-                        )
-                    self.clicked = True
-                # clearing 'dragged_at' if released because no more needed
-                elif evt.type is pg.MOUSEBUTTONUP:
-                    self.clicked = False
-                    self.dragged_at = None
-            # calculating rect position if clicked
-            if self.clicked:
-                self.rect.topleft = (
-                    mpos[0] - self.dragged_at[0],
-                    mpos[1] - self.dragged_at[1]
-                )
+        # initiate dragging if represent
+        self.checkForDrag()
         # drawing another background if hovered
         if self.hover():
             self.hovered = True
@@ -504,6 +512,8 @@ class UI(Master):
                             elements[name] = MenuBar(e)
                         elif e["type"] == "panel":
                             elements[name] = Panel(e)
+                        elif e["type"] == "button":
+                            elements[name] = Button(e)
 
         return elements
     def resize(self, size=None):
@@ -526,17 +536,18 @@ class UI(Master):
         determines which element will be redrawn. if no element is given then
             redraw everyting.
         """
-        mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
         mbut = pg.mouse.get_pressed()
         # setting drawing-conditions for each element specifically
         for n, e in self.elements.items():
-            # if 'true' then the corresponding element will be drawn
+            # if 'True' then the corresponding element will be drawn
             draw_element = False
             # setting condition individually
             if type(e) is MenuBar:# unconditional
                 draw_element = True
             elif type(e) is InfoBar:# unconditional
+                draw_element = True
+            if type(e) is Button:# unconditional
                 draw_element = True
             # everything else if mouse over and moves or clicks
             elif e.click() or (# conditional
@@ -591,6 +602,8 @@ class Button(Master):
         overwrites the standard method. call this method everytime you need to
             refresh the element.
         """
+        # initiate dragging if preset
+        self.checkForDrag()
         # on mouse over look for different color
         if self.hover():
             if self.bg_hover:
