@@ -455,7 +455,7 @@ class Master(pg.Surface):
             if self.bg_hover:
                 self.draw(self.background)
 # all these following elements draw from 'Master'
-class UI(Master):
+class Interface(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
     the final product can then simply be drawn to the apps display surface.
@@ -972,10 +972,8 @@ class TextBox(pg.Surface):
     def setPosition(self, pos):
         """updating rect position."""
         self.rect.topleft = pos
-
-
 # older references
-class GuiMaster(pg.Surface):
+class GuiMaster2(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
     events an additional properties / methodes for surfaces.
@@ -1130,7 +1128,7 @@ class GuiMaster(pg.Surface):
         else:
             if self.background:
                 self.draw(self.background)
-class Interface2(GuiMaster):
+class Interface3(GuiMaster2):
     """."""
     def __init__(self, name):
         """."""
@@ -1138,7 +1136,7 @@ class Interface2(GuiMaster):
             if js["type"] == "interface":
                 self.cfg = js# dict
         self.cfg["rect"] = globals()["app"].display.get_rect()
-        GuiMaster.__init__(self, self.cfg)
+        GuiMaster2.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
         self.drawElements()
     def drawElements(self, element=None):
@@ -1227,7 +1225,7 @@ class Interface2(GuiMaster):
                 e.leftClick()
             ):
                 self.drawElements(n)
-class Interface(GuiMaster):
+class Interface2(GuiMaster2):
     """
     this object serves as a big screen surface to draw all its gui elements on.
     the final product can then simply be drawn to the apps display surface.
@@ -1241,7 +1239,7 @@ class Interface(GuiMaster):
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js# dict
-        GuiMaster.__init__(self, self.cfg)
+        GuiMaster2.__init__(self, self.cfg)
         self.elements = self.createElements()# dict
         # first time creating visual surface
         self.recreate()

@@ -5,13 +5,13 @@ from .gui import (
     App,
     Button,
     InfoBar,
+    Interface,
     MenuBar,
     MiniMap,
     Overlay,
     Panel,
     Text,
     TextBox,
-    UI,
     Window
 )
 from .map import Tileset, Map
