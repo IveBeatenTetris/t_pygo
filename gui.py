@@ -410,6 +410,13 @@ class Master(pg.Surface):
                     mpos[0] - self.dragged_at[0],
                     mpos[1] - self.dragged_at[1]
                 )
+        # only setting 'self.clicked'
+        else:
+            for evt in globals()["app"]._events:
+                if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
+                    self.clicked = True
+                elif evt.type is pg.MOUSEBUTTONUP:
+                    self.clicked = False
     def click(self):# bool
         """retuns true if clicked."""
         mpos = pg.mouse.get_pos()
