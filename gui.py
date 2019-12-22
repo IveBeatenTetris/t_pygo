@@ -374,6 +374,10 @@ class Master(pg.Surface):
                 position = (0, 0)
             # drawing to position
             draw(object, self, position)
+    def recreateBackground(self):
+        """redraws the background if there is one."""
+        if self.background:
+            self.draw(self.background)
     # events and event checking
     def checkForDrag(self):
         """
