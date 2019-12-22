@@ -470,7 +470,9 @@ class Interface(Master):
             if js["type"] == "interface":
                 self.cfg = js
                 self.cfg["rect"] = pg.display.get_surface().get_rect()
-        prettyPrint(self.cfg)
+
+        #prettyPrint(self.cfg)
+
         Master.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
     def drawElements(self, element=None):
@@ -715,40 +717,42 @@ class MenuBar(Master):
         """
         c = self.cfg
         options = {}
+        # using 'x' to determine horizontal drawing position
+        x = 0
 
-        if "menus" in c:
-            # using 'x' to determine horizontal drawing position
-            x = 0
-            for name, o in c["menus"].items():
-                # making button.rect slightly bigger
-                but = Button({
-                    "text": name,
-                    "background": self.background,
-                    "hover": (55, 55, 65)
-                })
-                but.rect = pg.Rect(
-                    x, self.rect.top,
-                    but.text.rect.width + but.margin,
-                    self.rect.height
-                )
-                # updating visuals
-                but.createSurface(); but.update()
-                # appending to options dict
-                options[name] = but
-                # crafting option-button related menus
-                self.menus[name] = Menu({
-                    "background": (45, 45, 55),
-                    "visible": False,
-                    "rect": [
-                        x,
-                        self.rect.bottom,
-                        150,
-                        250
-                    ]
-                })
-
-                # raising value of x
-                x += but.rect.width
+        for elem in c["elements"]:
+            # determine name for element
+            if "name" in elem: name = elem["name"]
+            else: name = "[Unnamed]"
+            # creating its button
+            but = Button({
+                "text": name,
+                "background": self.background,
+                "hover": (55, 55, 65)
+            })
+            # making button.rect slightly bigger
+            but.rect = pg.Rect(
+                x, self.rect.top,
+                but.text.rect.width + but.margin,
+                self.rect.height
+            )
+            # updating visuals
+            but.createSurface()
+            # appending to options dict
+            options[name] = but
+            # crafting option-button related menus
+            self.menus[name] = Menu({
+                "background": (45, 45, 55),
+                "visible": False,
+                "rect": [
+                    x,
+                    self.rect.bottom,
+                    150,
+                    250
+                ]
+            })
+            # raising value of x
+            x += but.rect.width
 
         return options
     def update(self):
