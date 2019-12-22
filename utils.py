@@ -50,13 +50,8 @@ json_comments =  re.compile(
 )
 
 # console
-#def prettyPrint(data, sort=False, tabs=4):
 def prettyPrint(data):
     """pretty-printing."""
-    """if data.__class__ is dict:
-        print(json.dumps(data, sort_keys=sort, indent=tabs))
-    else:
-        print("Nothing to pretty-print.")"""
     pprint.pprint(data)
 # system
 def getMachineResolution():# tuple
@@ -140,13 +135,20 @@ def convertXmlToDict(xml):# dict
         l = l.split(", ")
         # if list has a single value
         if len(l) == 1:
-            # if its an int
+            # if  resembles an int
             if l[0].isdigit():
                 # overwriting single int with a real single int
                 attribute = int(l[0])
+            # if its a str
             else:
+                # check if attribute is bool
+                if l[0] == "true" or l[0] == "True":
+                    attribute = True
+                elif l[0] == "false" or l[0] == "False":
+                    attribute = False
                 # return simple string
-                attribute = l[0]
+                else:
+                    attribute = l[0]
         else:
             nl = []
             # for every item in the splitted list
@@ -174,9 +176,8 @@ def convertXmlToDict(xml):# dict
             # always starting with a type and predefined element list
             child = {}
             child["type"] = elem.tag
-            # for every attribute
+            # convert attributes to make it suitable for our structure
             for k, v in elem.attrib.items():
-                # convert attribute to make it usable for our structure
                 child[k] = convertAttribute(v)
             # converting children elements again
             child["elements"] = convertChildren(elem.getchildren())
