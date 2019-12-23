@@ -472,6 +472,8 @@ class Interface(Master):
         uses 'Master' as its parent with additional methodes and attributes.
 
         'elements' a dict of elements to read and draw.
+        'static' storing a static copy of an fully drawn idle interface screen.
+            use this to prevent unnecessary redrawing of every element or menu.
         """
         for js in loadAssets(PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
@@ -482,17 +484,30 @@ class Interface(Master):
 
         Master.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
+        self.static = None# none / pg.surface
+    def createStatic(self, screen=None):
+        """
+        creates a copy of a fully drawn idle interface screen. if a pg.surface
+            is given then make a copy of it instead.
+        """
+        if screen:
+            self.static = screen.copy()
+        else:
+            self.drawElements()
+            self.static = self.copy()
     def drawElements(self, element=None):
         """
         redrawing either everything or one specific element if a name was given.
         """
         # if element named
         if element:
+            element.update()
             self.draw(self.elements[element], self.elements[element].rect)
         # if no element named
         else:
             # redrawing everything
             for n, e in self.elements.items():
+                e.update()
                 self.draw(e, e.rect)
     def loadElements(self, element=None):# dict
         """
@@ -544,6 +559,9 @@ class Interface(Master):
         self.elements = self.loadElements()
         self.drawElements()
     def update(self):
+        """."""
+        pass
+    def update2(self):
         """
         overwrites parental 'update()' method for adding more functionality.
         determines which element will be redrawn. if no element is given then
@@ -554,6 +572,10 @@ class Interface(Master):
         mbut = pg.mouse.get_pressed()
         # checking if the background needs to be redrawn first
         recreate = False
+        # overwriting this when an option has been clicked
+        active_menu = None
+
+        # recreating background if an elemente has been dragged around
         for n, e in self.elements.items():
             if e.dragged_at:
                 recreate = True
@@ -574,14 +596,25 @@ class Interface(Master):
                 if recreate:
                     draw_element = True
             # everything else if mouse over and moves or clicks
-            elif e.click() or (# conditional
-                e.hover() and (mrel[0] != 0 or mrel[1] != 0)
+            elif (# conditional
+                e.click() or
+                (e.hover() and (mrel[0] != 0 or mrel[1] != 0))
             ):
                 draw_element = True
             # drawing if previous conditions matched
             if draw_element:
                 e.update()
                 self.drawElements(n)
+        # looking for some popups to be drawn
+        for _, e in self.elements.items():
+            if type(e) is MenuBar:
+                # looking for an option that has been clicked
+                for n, o in e.options.items():
+                    if o.clicked:
+                        active_menu = e.menus[n]
+                # draw menu when activated
+                if active_menu:
+                    self.draw(active_menu, active_menu.rect)
 class Button(Master):
     """
     resembles a button element with a text and common mouse interactive events.
