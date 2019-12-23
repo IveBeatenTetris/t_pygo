@@ -560,7 +560,17 @@ class Interface(Master):
         self.drawElements()
     def update(self):
         """."""
-        pass
+        for n, e in self.elements.items():
+            # if 'true' then the corresponding element will be drawn
+            draw_element = False
+            # setting condition individually
+            if type(e) is InfoBar:# unconditional
+                draw_element = True
+
+            # drawing if previous conditions matched
+            if draw_element:
+                #e.update()
+                self.drawElements(n)
     def update2(self):
         """
         overwrites parental 'update()' method for adding more functionality.
