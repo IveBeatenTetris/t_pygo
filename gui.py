@@ -559,17 +559,25 @@ class Interface(Master):
         self.elements = self.loadElements()
         self.drawElements()
     def update(self):
-        """."""
+        """
+        checks if something needs to be redrawn and initiates the drawing
+            sequence.
+        """
+        # mouse events
+        mpos = pg.mouse.get_pos()
+        # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
             draw_element = False
             # setting condition individually
-            if type(e) is InfoBar:# unconditional
+            if type(e) is Button:# conditional
+                if e.dragged_at or e.hover() or (e.hover and not e.clicked):
+                    draw_element = True
+            elif type(e) is InfoBar:# unconditional
                 draw_element = True
 
             # drawing if previous conditions matched
             if draw_element:
-                #e.update()
                 self.drawElements(n)
     def update2(self):
         """
