@@ -501,7 +501,7 @@ class Interface(Master):
         """
         # if element named
         if element:
-            element.update()
+            self.elements[element].update()
             self.draw(self.elements[element], self.elements[element].rect)
         # if no element named
         else:
