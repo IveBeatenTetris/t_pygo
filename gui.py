@@ -574,7 +574,7 @@ class Interface(Master):
         # mouse events
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
-
+        
         # recreating background if an elemente has been dragged around
         for n, e in self.elements.items():
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
