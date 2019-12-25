@@ -374,10 +374,15 @@ class Master(pg.Surface):
                 position = (0, 0)
             # drawing to position
             draw(object, self, position)
-    def recreateBackground(self):
-        """redraws the background if there is one."""
+    def recreateBackground(self, rect=None):
+        """
+        redraws the background if there is one. if a pg.rect is given then use
+            it to redraw the area where something was dragged. prevents creation
+            of the whole surface and safes fps.
+        """
+        if not rect: rect = pg.Rect((0, 0), self.rect.size)
         if self.background:
-            self.draw(self.background)
+            self.fill(self.background, rect)
     # events and event checking
     def checkForDrag(self):
         """
@@ -565,6 +570,13 @@ class Interface(Master):
         """
         # mouse events
         mpos = pg.mouse.get_pos()
+        mrel = pg.mouse.get_rel()
+
+        # recreating background if an elemente has been dragged around
+        for n, e in self.elements.items():
+            if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
+                #self.draw(self.static)
+                self.recreateBackground(e.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
