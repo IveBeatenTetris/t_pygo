@@ -358,22 +358,20 @@ class Master(pg.Surface):
         self.rect.size = self.get_rect().size
         # drawing background if element has one
         self.recreateBackground()
-    def draw(self, object, position=None):
+    def draw(self, object, rect=None):
         """
-        draws something to its element surface. 'position' must be tuple.
-        if 'object' is tuple or list then fill the background with this color
-            instead.
+        draws something to its element surface. 'rect' must be a valid
+            pygame.rect. if 'object' is tuple or list then fill the background
+            with this color instead.
         """
+        if not rect: rect = pg.Rect((0, 0), self.rect.size)
         # filling with color if list or tuple
         if type(object) is tuple or type(object) is list:
-            self.fill(object)
+            self.fill(object, rect)
         # drawing to rect
         else:
-            # draw rect from object if none is given
-            if not position:
-                position = (0, 0)
             # drawing to position
-            draw(object, self, position)
+            draw(object, self, rect)
     def recreateBackground(self, rect=None):
         """
         redraws the background if there is one. if a pg.rect is given then use
@@ -489,7 +487,10 @@ class Interface(Master):
 
         Master.__init__(self, self.cfg)
         self.elements = self.loadElements()# dict
+        # first time drawing elements to create a visual static copy
+        self.drawElements()
         self.static = None# none / pg.surface
+        self.createStatic()
     def createStatic(self, screen=None):
         """
         creates a copy of a fully drawn idle interface screen. if a pg.surface
@@ -498,8 +499,10 @@ class Interface(Master):
         if screen:
             self.static = screen.copy()
         else:
-            self.drawElements()
-            self.static = self.copy()
+            #self.static = self.copy()
+            surface = pg.Surface(self.rect.size)
+            surface.blit(self, self.rect)
+            self.static = surface
     def drawElements(self, element=None):
         """
         redrawing either everything or one specific element if a name was given.
@@ -575,8 +578,8 @@ class Interface(Master):
         # recreating background if an elemente has been dragged around
         for n, e in self.elements.items():
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
-                #self.draw(self.static)
-                self.recreateBackground(e.rect)
+                self.blit(self.static, e.rect.topleft, e.rect)
+                #self.recreateBackground(e.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
