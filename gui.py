@@ -588,6 +588,17 @@ class Interface(Master):
             if type(e) is Button:# conditional
                 if e.dragged_at or e.hover() or (e.hover and not e.clicked):
                     draw_element = True
+            elif type(e) is MenuBar: # conditional
+                # creating a pseudo rect with one more pixel in height to update
+                # the element when the mouse hovers out of it
+                pseudo_rect = pg.Rect(
+                    e.rect.left,
+                    e.rect.top,
+                    e.rect.width,
+                    e.rect.height + 1
+                )
+                if pseudo_rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
+                    draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
 
