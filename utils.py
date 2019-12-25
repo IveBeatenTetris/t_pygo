@@ -213,8 +213,8 @@ def validateDict(config={}, defaults={}):# dict
             validated[each] = defaults[each]
 
     return validated
-# pygame
-def convertRect(rect, parent):# pygame.rect
+# pygame related
+def convertRect(rect, parent):# pg.rect
     """
     returns a pygame.rect converted from the given rect like object.
     'parent' must be a pygame.rect.
@@ -320,10 +320,10 @@ def createTiledMap(config, tiles):# dict
         "blocks": blocks,
         "player_start": playerstart
     }
-def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
+def draw(object, destination, rect=None, blendmode=0):# pg.surface
     """
     drawing a single or multiple objects to the destination surface. then
-    return itself. 'position' can be tuple, pygame rect or a string.
+    return itself. 'rect' can be tuple, pygame.rect or a string.
     'special_flags' is for optional surface blending on each other.
     usage:
     draw(
@@ -333,9 +333,9 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
         special_flags=pygame.BLEND_ADD
     )
     """
-    if type(position) is str:
+    if type(rect) is str:
         # draw object in the relative to the given string
-        if position == "center":
+        if rect == "center":
             try:
                 osize = object.get_rect().size
             except AttributeError:
@@ -344,37 +344,40 @@ def draw(object, destination, position=(0, 0), blendmode=0):# pygame.surface
 
             x = int(dsize[0] / 2) - int(osize[0] / 2)
             y = int(dsize[1] / 2) - int(osize[1] / 2)
-            position = (x, y)
+            #rect = (x, y)
+            rect = pg.Rect(x, y, osize[0], osize[1])
+
     # recursively drawing depending on object's type by calling this function
     # again
     if type(object) is tuple:
         destination.fill(
             object, destination.get_rect(),
+            rect,
             special_flags=blendmode
         )
     elif type(object) is list:
         for each in object:
-            draw(each, destination, position, blendmode=blendmode)
+            draw(each, destination, rect, blendmode=blendmode)
     elif type(object) is dict:
         for each in object:
-            destination.blit(object[each], position)
+            destination.blit(object[each], rect)
     elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface or issubclass(type(object), pg.Surface):
-        destination.blit(object, position, special_flags=blendmode)
+        destination.blit(object, rect, special_flags=blendmode)
     elif object.__class__.__bases__[0] is pg.sprite.Sprite:
-        destination.blit(object.image, position, special_flags=blendmode)
+        destination.blit(object.image, rect, special_flags=blendmode)
     elif object.__class__ is pg.sprite.Group:
         for sprite in object:
             destination.blit(
                 sprite.image,
-                sprite.rect.topleft,
+                sprite.rect,
                 special_flags=blendmode
             )
     # might puke out an error on giving anything else than pg.sprite.Sprite
     else:
-        destination.blit(object.image, position)
+        destination.blit(object.image, rect)
 
     return destination
-def drawBorder(surface, rect, border):# pygame.surface
+def drawBorder(surface, rect, border):# pg.surface
     """
     drawing a border to the given surface and return it.
     syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
@@ -419,7 +422,7 @@ def getAnchors(room):# dict
         "bottomright": (room[0], room[1])
     }
     return anchors
-def getDisplay(size, **kwargs):# pygame.display.surface
+def getDisplay(size, **kwargs):# pg.display.surface
     """
     create a new window display and return it. customisation possible.
     example: resizable = True
@@ -470,7 +473,7 @@ def getFrames(image, framesize):# list
 def getMouse():
     """returns pygame.mouse position."""
     return pg.mouse.get_pos()
-def repeatBG(image, size, axis="xy", pos=(0, 0)):# pygame.surface
+def repeatBG(image, size, axis="xy", pos=(0, 0)):# pg.surface
     """
     returns a pygame surface where the given image will be drawn repeatedly.
     'axis':
@@ -500,7 +503,7 @@ def repeatBG(image, size, axis="xy", pos=(0, 0)):# pygame.surface
                 temp.blit(image, (j * imagerect.width, i * imagerect.width))
 
     return temp
-def scale(surface, factor):# pygame.surface
+def scale(surface, factor):# pg.surface
     """
     scaling a surface by afactor.
     'factor' must be an integer tuple or a list.
@@ -513,7 +516,7 @@ def scale(surface, factor):# pygame.surface
         size = factor
 
     return pg.transform.scale(surface, size)
-def wrapText(text, color, rect, font, aa=False, bkg=None):# pygame.surface
+def wrapText(text, color, rect, font, aa=False, bkg=None):# pg.surface
     """
     returns a pygame surface. drew this function from the official pygame wiki.
         modified it a little bit.
