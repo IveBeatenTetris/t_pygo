@@ -300,6 +300,7 @@ class Master(pg.Surface):
         structure for your element.
     """
     defaults = {
+        "name": "[Unnamed]",
         "background": None,
         "drag": False,
         "hover": None,
@@ -312,6 +313,7 @@ class Master(pg.Surface):
             call its 'update()' method.
 
         'config' building instructions.
+        'name' every gui element has a name (str).
         'parent' pygame.rect should be given on calling this element.
         'rect' elements dimensions. positional statements are:
             x, y
@@ -333,6 +335,7 @@ class Master(pg.Surface):
             the element.
         """
         self.config = validateDict(config, self.defaults)# dict
+        self.name = self.config["name"]# str
         # choosing parental rect
         if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
         else: self.parent = pg.display.get_surface().get_rect()# pg.rect
@@ -827,12 +830,13 @@ class MenuBar(Master):
         c = self.cfg
         options = {}
         # using 'x' to determine horizontal drawing position
-        x = 0
+        # i is for dynamically creating element names
+        x = 0; i = 1
 
         for elem in c["elements"]:
             # predicting name for element
             if "name" in elem: name = elem["name"]
-            else: name = "[Unnamed]"
+            else: name = "[Unnamed{0}]".format(str(i)); i += 1
             # creating its button
             but = Button({
                 "text": name,
@@ -853,8 +857,8 @@ class MenuBar(Master):
             options[name] = but
             # crafting option-button related menus
             self.menus[name] = Menu({
+                "name": name,
                 "background": (45, 45, 55),
-                "visible": False,
                 "rect": [
                     x,
                     self.rect.bottom,
