@@ -574,7 +574,7 @@ class Interface(Master):
         # mouse events
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
-        
+
         # recreating background if an elemente has been dragged around
         for n, e in self.elements.items():
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
@@ -586,18 +586,16 @@ class Interface(Master):
             draw_element = False
             # setting condition individually
             if type(e) is Button:# conditional
-                if e.dragged_at or e.hover() or (e.hover and not e.clicked):
+                # if mouse is over the element and moving or dragged somewhere
+                if (
+                    e.rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0 or
+                    e.dragged_at or
+                    e.click()
+                ):
                     draw_element = True
             elif type(e) is MenuBar: # conditional
-                # creating a pseudo rect with one more pixel in height to update
-                # the element when the mouse hovers out of it
-                pseudo_rect = pg.Rect(
-                    e.rect.left,
-                    e.rect.top,
-                    e.rect.width,
-                    e.rect.height + 1
-                )
-                if pseudo_rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
+                # if mouse is over the element and moving
+                if e.rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
                     draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
