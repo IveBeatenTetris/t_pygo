@@ -579,7 +579,6 @@ class Interface(Master):
         for n, e in self.elements.items():
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
                 self.blit(self.static, e.rect.topleft, e.rect)
-                #self.recreateBackground(e.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
@@ -809,8 +808,10 @@ class MenuBar(Master):
             # creating its button
             but = Button({
                 "text": name,
+                "fontsize": 13,
                 "background": self.background,
-                "hover": (55, 55, 65)
+                "hover": (55, 55, 65),
+                "margin": 20
             })
             # making button.rect slightly bigger
             but.rect = pg.Rect(
