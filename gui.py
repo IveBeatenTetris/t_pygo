@@ -810,8 +810,7 @@ class Menu(Master):
         Master.__init__(self, config)
         self.cfg = config
         self.options = self.createOptions()# list
-
-        y = 0
+        # first time drawing options
         for o in self.options:
             o.update()
             self.draw(o, o.rect)
@@ -827,26 +826,31 @@ class Menu(Master):
         }
         # declares maximum width of the menu later
         highest_width = 0
-        # validating the construction plans and adding some properties before
-        # giving it to the new appended button element
+
         if "options" in c:
             # used to set a new y value for each following option
             y = 0
-
+            # validating the construction plans and adding some properties before
+            # giving it to the new appended button element
             for o in c["options"]:
                 o = validateDict(o, default)
                 o["text"] = o["name"]
+                o["background"] = (35, 35, 45)
+                o["fontsize"] = 13
+                o["textposition"] = (10, 0)
                 but = Button(o)
-                # making button.rect slightly bigger
+                # updating button.rect
                 but.rect = pg.Rect(
                     0,
                     but.rect.top + y,
-                    but.text.rect.width,
+                    self.rect.width,
                     but.text.rect.height
                 )
                 # updating visuals
                 but.createSurface()
+                # seeting next drawing height
                 y += but.rect.height
+                # appending button to returning list
                 options.append(but)
 
         return options
