@@ -576,6 +576,7 @@ class Interface(Master):
         self.drawElements()
     def update(self):
         """
+        overwrites parental 'update()' method for adding more functionality.
         checks if something needs to be redrawn and initiates the drawing
             sequence.
         """
@@ -583,8 +584,8 @@ class Interface(Master):
         mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
-
-
+        # checking special exceptions like drop down menus or drag and drop
+        # events
         for n, e in self.elements.items():
             # recreating background if an elemente has been dragged around
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
@@ -630,60 +631,6 @@ class Interface(Master):
             # drawing if previous conditions matched
             if draw_element:
                 self.drawElements(n)
-    def update2(self):
-        """
-        overwrites parental 'update()' method for adding more functionality.
-        determines which element will be redrawn. if no element is given then
-            redraw everyting.
-        """
-        mrel = pg.mouse.get_rel()
-        mpos = pg.mouse.get_pos()
-        mbut = pg.mouse.get_pressed()
-        # checking if the background needs to be redrawn first
-        recreate = False
-        # overwriting this when an option has been clicked
-        active_menu = None
-
-        # recreating background if an elemente has been dragged around
-        for n, e in self.elements.items():
-            if e.dragged_at:
-                recreate = True
-                self.recreateBackground()
-        # setting drawing-conditions for each element specifically
-        for n, e in self.elements.items():
-            # if 'True' then the corresponding element will be drawn
-            draw_element = False
-            # setting condition individually
-            if type(e) is MenuBar:# unconditional
-                draw_element = True
-            elif type(e) is InfoBar:# unconditional
-                draw_element = True
-            elif type(e) is Button:# unconditional
-                draw_element = True
-            elif type(e) is Panel:# conditional
-                # recreating is 'true' if any element is dragged at right now
-                if recreate:
-                    draw_element = True
-            # everything else if mouse over and moves or clicks
-            elif (# conditional
-                e.click() or
-                (e.hover() and (mrel[0] != 0 or mrel[1] != 0))
-            ):
-                draw_element = True
-            # drawing if previous conditions matched
-            if draw_element:
-                e.update()
-                self.drawElements(n)
-        # looking for some popups to be drawn
-        for _, e in self.elements.items():
-            if type(e) is MenuBar:
-                # looking for an option that has been clicked
-                for n, o in e.options.items():
-                    if o.clicked:
-                        active_menu = e.menus[n]
-                # draw menu when activated
-                if active_menu:
-                    self.draw(active_menu, active_menu.rect)
 class Button(Master):
     """
     resembles a button element with a text and common mouse interactive events.
@@ -835,7 +782,7 @@ class Menu(Master):
             for o in c["options"]:
                 o = validateDict(o, default)
                 o["text"] = o["name"]
-                o["background"] = (35, 35, 45)
+                o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
                 but = Button(o)
