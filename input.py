@@ -183,8 +183,57 @@ class Controller(object):
 class Mouse(object):
     """enlists all pygame mouse events."""
     def __init__(self):
-        """."""
-        pass
+        """
+        'pos' mouse absolute position.
+        'left' returns 'true' if clicked.
+        'right' returns 'true' if clicked.
+        'wheel' returns 'true' if mouse wheel was clicked.
+        "wheelup" returns 'true' if mouse wheel scrolls up.
+        "wheeldown" returns 'true' if mouse wheel scrolls down.
+        'moving' returns 'true' if the mouse moves.
+        'buttons' returns a list of pressed buttons.
+        """
+        self.pos = pg.mouse.get_pos()# tuple
+        self.left = False# bool
+        self.right = False# bool
+        self.wheel = False# bool
+        self.wheelup = False# bool
+        self.wheeldown = False# bool
+        self.moving = False# bool
+        self.buttons = []# list
     def update(self, events):
-        """."""
-        pass
+        """updating every property with each tick."""
+        self.moving = False
+
+        for e in events:
+            if e.type is pg.MOUSEMOTION:
+                self.pos = e.pos
+                self.moving = True
+            if e.type is pg.MOUSEBUTTONDOWN:
+                if e.button == 1:
+                    self.left = True
+                    self.buttons.append("left")
+                elif e.button == 3:
+                    self.right = True
+                    self.buttons.append("right")
+                if e.button == 2:
+                    self.wheel = True
+                    self.buttons.append("wheel")
+                if e.button == 4:
+                    self.wheelup = True
+                elif e.button == 5:
+                    self.wheeldown = True
+            elif e.type is pg.MOUSEBUTTONUP:
+                if e.button == 1:
+                    self.left = False
+                    self.buttons.remove("left")
+                elif e.button == 3:
+                    self.right = False
+                    self.buttons.remove("right")
+                if e.button == 2:
+                    self.wheel = False
+                    self.buttons.remove("wheel")
+                if e.button == 4:
+                    self.wheelup = False
+                elif e.button == 5:
+                    self.wheeldown = False
