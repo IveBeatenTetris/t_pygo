@@ -607,6 +607,7 @@ class Interface(Master):
                             self.blit(self.static, m.rect.topleft, m.rect)
                     # draw menu as long is its option is active
                     if o.state == "active":
+                        m.update()
                         self.draw(m, m.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
@@ -771,8 +772,6 @@ class Menu(Master):
             "call": None,
             "type": "option"
         }
-        # declares maximum width of the menu later
-        highest_width = 0
 
         if "options" in c:
             # used to set a new y value for each following option
@@ -782,6 +781,7 @@ class Menu(Master):
             for o in c["options"]:
                 o = validateDict(o, default)
                 o["text"] = o["name"]
+                o["background"] = (45, 45, 55)
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
@@ -801,6 +801,15 @@ class Menu(Master):
                 options.append(but)
 
         return options
+    def update(self):
+        """
+        overwrites parental 'update()' method for adding more functionality.
+        updates all underordered options.
+        """
+        for o in self.options:
+            # refreshing visuals and drawing afterwards
+            o.update()
+            self.draw(o, o.rect)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
@@ -873,9 +882,6 @@ class MenuBar(Master):
         overwrites parental method. used to redraw background updating options
             properties checks its events and draws the option to the menubar.
         """
-        mpos = pg.mouse.get_pos()
-        mrel = pg.mouse.get_rel()
-
         for _, o in self.options.items():
             # refreshing visuals and drawing afterwards
             o.update()
