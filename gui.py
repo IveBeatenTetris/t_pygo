@@ -17,7 +17,7 @@ from .utils import (
     prettyPrint
 )
 from .camera import Camera
-from .input import Controller
+from .input import Controller, Mouse
 import pygame as pg
 import sys, os
 # pygames display object
@@ -60,6 +60,7 @@ class App:
         'paused' is a switch for showing a gui and closing it. handled by
             'self.pause()'.
         'mode' is for switching trough modes like 'moving' or 'paused'.
+        'mouse' all information about mouse events are stored within here.
         'controller' decided to put it into the window. its been updated in the
             'window.events()'-method.
         'display' holds the actual pygame window.
@@ -88,6 +89,7 @@ class App:
         self.fps = 0# int
         self.paused = False# bool
         self.mode = "moving"# str
+        self.mouse = Mouse()# mouse object
         self.controller = Controller()# controller (pygame.joystick.joystick)
         # display related stuff
         self.display = getDisplay(# pygame.surface
@@ -225,6 +227,8 @@ class App:
 
         # applying these events to the window-event list
         self._events = events
+        # updating mouse object with pygame.events
+        self.mouse.update(events)
         # updating controller element if there is one
         if self.controller.joystick:
             self.controller.update(events)

@@ -1,7 +1,7 @@
 import pygame as pg
 
 class Controller(object):
-    """handling game pad input. for now only from xbox one controllers."""
+    """handling game pad input. for now only from xbox controllers."""
     def __init__(self):
         """
         initiating controller if there is one.
@@ -180,3 +180,11 @@ class Controller(object):
         anymore.
         """
         self.buttons[name] = False
+class Mouse(object):
+    """enlists all pygame mouse events."""
+    def __init__(self):
+        """."""
+        pass
+    def update(self, events):
+        """."""
+        pass
