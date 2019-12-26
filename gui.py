@@ -1,3 +1,4 @@
+# dependencies
 from .utils import (
     PATH,
     LIBPATH,
@@ -19,7 +20,7 @@ from .camera import Camera
 from .controller import Controller
 import pygame as pg
 import sys, os
-
+# pygames display object
 class App:
     """
     pygames window module with extended features. can be accessed by calling
@@ -284,7 +285,7 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
-
+# master element object for most of gui elements
 class Master(pg.Surface):
     """
     master-element for many gui elements to inherit from. comes with diverse
@@ -572,13 +573,33 @@ class Interface(Master):
             sequence.
         """
         # mouse events
+        mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
 
-        # recreating background if an elemente has been dragged around
+
         for n, e in self.elements.items():
+            # recreating background if an elemente has been dragged around
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
                 self.blit(self.static, e.rect.topleft, e.rect)
+            # drawing dropdown menus when activated
+            if type(e) is MenuBar:
+                # looking for an option that has been clicked
+                for name, o in e.options.items():
+                    m = e.menus[name]
+                    # by using pygame events we can change the state of an
+                    #  option by clicking or declicking it once
+                    for evt in globals()["app"]._events:
+                        # if not activated yet
+                        if o.state == "waiting" and evt.type is pg.MOUSEBUTTONDOWN and o.hover():
+                            o.state = "active"
+                        # redraw area if an option is declicked and still active
+                        elif o.state =="active" and evt.type is pg.MOUSEBUTTONDOWN:
+                            o.state = "waiting"
+                            self.blit(self.static, m.rect.topleft, m.rect)
+                    # draw menu as long is its option is active
+                    if o.state == "active":
+                        self.draw(m, m.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
@@ -676,6 +697,8 @@ class Button(Master):
         'textposition' standard is 'center'. can also be tuple of two ints.
         'text' a buttons text object ready to been drawn.
         'rect' overwriting original rect if user has given his own.
+        'state' returns the pressed state of a button in a string ('waiting',
+            'active').
         """
         Master.__init__(self, config)
         # creating a dict based of comparison of config{} and default{}
@@ -688,6 +711,7 @@ class Button(Master):
         if "rect" in config:
             self.rect = convertRect(config["rect"], self.text.rect)
             self.calcTextPos()
+        self.state = "waiting"# str
         # rebuilding surface to apply new rect
         self.createSurface()
     def calcTextPos(self):
@@ -802,7 +826,7 @@ class MenuBar(Master):
         x = 0
 
         for elem in c["elements"]:
-            # determine name for element
+            # predicting name for element
             if "name" in elem: name = elem["name"]
             else: name = "[Unnamed]"
             # creating its button
