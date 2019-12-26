@@ -1,20 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .utils import *
-from .gui import (
-    App,
-    Button,
-    InfoBar,
-    Interface,
-    MenuBar,
-    MiniMap,
-    Overlay,
-    Panel,
-    Text,
-    TextBox,
-    Window
-)
+from .gui import *
 from .map import Tileset, Map
 from .entity import Player
 from .camera import Camera
-from .controller import Controller
+from .input import Controller

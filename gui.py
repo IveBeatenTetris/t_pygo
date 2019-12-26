@@ -17,7 +17,7 @@ from .utils import (
     prettyPrint
 )
 from .camera import Camera
-from .controller import Controller
+from .input import Controller
 import pygame as pg
 import sys, os
 # pygames display object
