@@ -802,8 +802,54 @@ class Menu(Master):
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
+
+        'cfg' building instructions to draw from. it also declares what to
+            display.
+        'options' list of interactive menu points.
         """
         Master.__init__(self, config)
+        self.cfg = config
+        self.options = self.createOptions()# list
+
+        y = 0
+        for o in self.options:
+            o.update()
+            self.draw(o, o.rect)
+    def createOptions(self):# list
+        """returns a dict of drawable and interactive options for a menu."""
+        options = []
+        c = self.cfg
+        # default values to compare the given one with
+        default = {
+            "name": "unnamed_option",
+            "call": None,
+            "type": "option"
+        }
+        # declares maximum width of the menu later
+        highest_width = 0
+        # validating the construction plans and adding some properties before
+        # giving it to the new appended button element
+        if "options" in c:
+            # used to set a new y value for each following option
+            y = 0
+
+            for o in c["options"]:
+                o = validateDict(o, default)
+                o["text"] = o["name"]
+                but = Button(o)
+                # making button.rect slightly bigger
+                but.rect = pg.Rect(
+                    0,
+                    but.rect.top + y,
+                    but.text.rect.width,
+                    but.text.rect.height
+                )
+                # updating visuals
+                but.createSurface()
+                y += but.rect.height
+                options.append(but)
+
+        return options
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
@@ -822,7 +868,7 @@ class MenuBar(Master):
         # drawing first time
         for _, o in self.options.items():
             self.draw(o, o.rect)
-    def createOptions(self):
+    def createOptions(self):# dict
         """
         creates buttons for the menubar to click at as well as theyre
             corresponding menus.
@@ -864,7 +910,8 @@ class MenuBar(Master):
                     self.rect.bottom,
                     150,
                     250
-                ]
+                ],
+                "options": elem["elements"]
             })
             # raising value of x
             x += but.rect.width
