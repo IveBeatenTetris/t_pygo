@@ -782,7 +782,7 @@ class Menu(Master):
             # before giving it to the new appended button element
             for o in c["options"]:
                 o = validateDict(o, default)
-                o["parent"] = self,
+                o["parent"] = self
                 o["text"] = o["name"]
                 o["background"] = (45, 45, 55)
                 o["hover"] = (35, 35, 45)
@@ -899,9 +899,42 @@ class Option(Button):
 
         'cfg' this dict holds building instructions for the menubar and its
             options.
+        'parent' any guy element calling this option. if none isgiven then
+            stick with the old one set by 'Master'.
         """
         Button.__init__(self, config)
         self.cfg = config
+        if "parent" in config:
+            self.parent = config["parent"]# gui element
+    def click(self):# bool
+        """overwrites the standard method. retuns true if clicked."""
+        mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
+        clicked = False
+
+        if self.rect.collidepoint(mpos) and mbut[0]:
+            clicked = True
+
+        return clicked
+    def hover(self):# bool
+        """overwrites the standard method. returns true if hovered."""
+        mpos = pg.mouse.get_pos()
+        mouse_over = False
+        """if type(self.parent) is not pg.Rect:
+            rect = pg.Rect(
+                self.rect.left + self.parent.rect.left,
+                self.rect.top + self.parent.rect.top,
+                self.rect.width,
+                self.rect.height
+            )
+        else:
+            rect = self.rect"""
+        print(self.parent)
+
+        if self.rect.collidepoint(mpos):
+            mouse_over = True
+
+        return mouse_over
 class Panel(Master):
     """."""
     def __init__(self, config={}):
