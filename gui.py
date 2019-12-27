@@ -777,7 +777,7 @@ class Menu(Master):
 
         if "options" in c:
             # used to set a new y value for each following option
-            y = 0
+            y = 5
             # validating the construction plans and adding some properties
             # before giving it to the new appended button element
             for o in c["options"]:
@@ -803,7 +803,7 @@ class Menu(Master):
                 # appending button to returning list
                 options.append(but)
             # setting new size of menu depending on last options height
-            self.rect.height = y
+            self.rect.height = y + 5
             self.createSurface()
 
         return options
