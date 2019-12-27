@@ -788,7 +788,7 @@ class Menu(Master):
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
-                but = Button(o)
+                but = Option(o)
                 # updating button.rect
                 but.rect = pg.Rect(
                     0,
@@ -810,8 +810,12 @@ class Menu(Master):
         updates all underordered options.
         """
         for o in self.options:
-            # refreshing visuals and drawing afterwards
-            o.update()
+            rect = pg.Rect(
+                self.rect.left + o.rect.left,
+                self.rect.top + o.rect.top,
+                o.rect.width,
+                o.rect.height
+            )
             self.draw(o, o.rect)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
@@ -890,6 +894,27 @@ class MenuBar(Master):
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
+class Option(Button):
+    """resembles a clickable option in a menu."""
+    def __init__(self, config={}):
+        """
+        uses 'Button' as its parent with additional methodes and attributes.
+
+        'cfg' this dict holds building instructions for the menubar and its
+            options.
+        'parent' any guy element calling this option. if none is given then
+            stick with the old one set by 'Master'.
+        """
+        Button.__init__(self, config)
+        self.cfg = config
+        if "parent" in config:
+            self.parent = config["parent"]# gui element
+    def click(self):
+        """overwrites the standard method."""
+        pass
+    def hover(self):
+        """overwrites the standard method."""
+        pass
 class Panel(Master):
     """."""
     def __init__(self, config={}):
