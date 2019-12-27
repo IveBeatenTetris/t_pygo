@@ -754,10 +754,12 @@ class Menu(Master):
         'cfg' building instructions to draw from. it also declares what to
             display.
         'options' list of interactive menu points.
+        'visible' used to determine the displaying state.
         """
         Master.__init__(self, config)
         self.cfg = config
         self.options = self.createOptions()# list
+        self.visible = False# bool
         # first time drawing options
         for o in self.options:
             o.update()
@@ -776,16 +778,17 @@ class Menu(Master):
         if "options" in c:
             # used to set a new y value for each following option
             y = 0
-            # validating the construction plans and adding some properties before
-            # giving it to the new appended button element
+            # validating the construction plans and adding some properties
+            # before giving it to the new appended button element
             for o in c["options"]:
-                o = validateDict(o, default)
+                """o = validateDict(o, default)
                 o["text"] = o["name"]
                 o["background"] = (45, 45, 55)
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
-                but = Button(o)
+                #but = Button(o)
+                but = Option(o)
                 # updating button.rect
                 but.rect = pg.Rect(
                     0,
@@ -796,8 +799,9 @@ class Menu(Master):
                 # updating visuals
                 but.createSurface()
                 # seeting next drawing height
-                y += but.rect.height
+                y += but.rect.height"""
                 # appending button to returning list
+                but = Option(o)
                 options.append(but)
 
         return options
@@ -886,6 +890,17 @@ class MenuBar(Master):
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
+class Option(Master):
+    """resembles a clickable option in a menu."""
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+
+        'cfg' this dict holds building instructions for the menubar and its
+            options.
+        """
+        Master.__init__(self, config)
+        self.cfg = config
 class Panel(Master):
     """."""
     def __init__(self, config={}):
