@@ -601,9 +601,11 @@ class Interface(Master):
                         # if not activated yet
                         if o.state == "waiting" and evt.type is pg.MOUSEBUTTONDOWN and o.hover():
                             o.state = "active"
+                            m.visible = True
                         # redraw area if an option is declicked and still active
                         elif o.state =="active" and evt.type is pg.MOUSEBUTTONDOWN:
                             o.state = "waiting"
+                            m.visible = False
                             self.blit(self.static, m.rect.topleft, m.rect)
                     # draw menu as long is its option is active
                     if o.state == "active":
@@ -904,7 +906,7 @@ class MenuBar(Master):
         overwrites parental method. used to redraw background updating options
             properties checks its events and draws the option to the menubar.
         """
-        for _, o in self.options.items():
+        for n, o in self.options.items():
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
