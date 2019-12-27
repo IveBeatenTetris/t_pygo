@@ -802,6 +802,9 @@ class Menu(Master):
                 y += but.rect.height
                 # appending button to returning list
                 options.append(but)
+            # setting new size of menu depending on last options height
+            self.rect.height = y
+            self.createSurface()
 
         return options
     def update(self):
