@@ -810,12 +810,8 @@ class Menu(Master):
         updates all underordered options.
         """
         for o in self.options:
-            rect = pg.Rect(
-                self.rect.left + o.rect.left,
-                self.rect.top + o.rect.top,
-                o.rect.width,
-                o.rect.height
-            )
+            # updating and drawing visuals
+            o.update()
             self.draw(o, o.rect)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
@@ -904,17 +900,45 @@ class Option(Button):
             options.
         'parent' any guy element calling this option. if none is given then
             stick with the old one set by 'Master'.
+        'off_rect' pg.rect used to check events on element if its parent has an
+            offset to calculate.
         """
         Button.__init__(self, config)
         self.cfg = config
         if "parent" in config:
             self.parent = config["parent"]# gui element
-    def click(self):
-        """overwrites the standard method."""
-        pass
-    def hover(self):
-        """overwrites the standard method."""
-        pass
+        self.off_rect = self.rect# pg.rect
+    def calcOffset(self):
+        """for testing collisions on this new created rect with offsets."""
+        self.off_rect = pg.Rect(
+            self.parent.rect.left + self.rect.left,
+            self.parent.rect.top + self.rect.top,
+            self.rect.width,
+            self.rect.height
+        )
+    def click(self):# bool
+        """overwrites the standard method for calculating its rects offset."""
+        mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
+        clicked = False
+        # testing collisions on this new created rect with offset
+        self.calcOffset()
+
+        if self.off_rect.collidepoint(mpos) and mbut[0]:
+            clicked = True
+
+        return clicked
+    def hover(self):# bool
+        """overwrites the standard method for calculating its rects offset."""
+        mpos = pg.mouse.get_pos()
+        mouse_over = False
+        # testing collisions on this new created rect with offset
+        self.calcOffset()
+
+        if self.off_rect.collidepoint(mpos):
+            mouse_over = True
+
+        return mouse_over
 class Panel(Master):
     """."""
     def __init__(self, config={}):
