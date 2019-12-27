@@ -788,8 +788,7 @@ class Menu(Master):
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
-                #but = Button(o)
-                but = Option(o)
+                but = Button(o)
                 # updating button.rect
                 but.rect = pg.Rect(
                     0,
@@ -848,7 +847,7 @@ class MenuBar(Master):
             if "name" in elem: name = elem["name"]
             else: name = "[Unnamed{0}]".format(str(i)); i += 1
             # creating its button
-            but = Option({
+            but = Button({
                 "parent": self,
                 "text": name,
                 "fontsize": 13,
@@ -891,50 +890,6 @@ class MenuBar(Master):
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
-class Option(Button):
-    """resembles a clickable option in a menu."""
-    def __init__(self, config={}):
-        """
-        uses 'Button' as its parent with additional methodes and attributes.
-
-        'cfg' this dict holds building instructions for the menubar and its
-            options.
-        'parent' any guy element calling this option. if none isgiven then
-            stick with the old one set by 'Master'.
-        """
-        Button.__init__(self, config)
-        self.cfg = config
-        if "parent" in config:
-            self.parent = config["parent"]# gui element
-    def click(self):# bool
-        """overwrites the standard method. retuns true if clicked."""
-        mpos = pg.mouse.get_pos()
-        mbut = pg.mouse.get_pressed()
-        clicked = False
-
-        if self.rect.collidepoint(mpos) and mbut[0]:
-            clicked = True
-
-        return clicked
-    def hover(self):# bool
-        """overwrites the standard method. returns true if hovered."""
-        mpos = pg.mouse.get_pos()
-        mouse_over = False
-        # tweaking rect for collision checking if element has offset from parent
-        if type(self.parent) is Menu:
-            rect = pg.Rect(
-                self.parent.rect.left + self.rect.left,
-                self.parent.rect.top + self.rect.top,
-                self.rect.width,
-                self.rect.height
-            )
-        else:
-            rect = self.rect
-
-        if rect.collidepoint(mpos):
-            mouse_over = True
-
-        return mouse_over
 class Panel(Master):
     """."""
     def __init__(self, config={}):
