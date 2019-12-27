@@ -482,6 +482,8 @@ class Interface(Master):
         """
         uses 'Master' as its parent with additional methodes and attributes.
 
+        'menu' appears if right clicked somewhere. context is based on clicked
+            element.
         'elements' a dict of elements to read and draw.
         'static' storing a static copy of an fully drawn idle interface screen.
             use this to prevent unnecessary redrawing of every element or menu.
@@ -490,15 +492,33 @@ class Interface(Master):
             if js["type"] == "interface":
                 self.cfg = js
                 self.cfg["rect"] = pg.display.get_surface().get_rect()
-
-        #prettyPrint(self.cfg)
-
         Master.__init__(self, self.cfg)
+        self.menu = self.createMenu()# menu object
         self.elements = self.loadElements()# dict
         # first time drawing elements to create a visual static copy
         self.drawElements()
         self.static = None# none / pg.surface
         self.createStatic()
+    def createMenu(self):# menu object
+        """."""
+        menu = Menu({
+            "name": "right_click",
+        	"background": (45, 45, 55),
+        	"fontsize": 13,
+        	"rect": [450, 360, 85, 150],
+        	"options": [
+        		{
+        			"name": "abc",
+        			"call": None
+        		},
+        		{
+        			"name": "test_func",
+        			"call": None
+        		},
+        	]
+        })
+
+        return menu
     def createStatic(self, screen=None):
         """
         creates a copy of a fully drawn idle interface screen. if a pg.surface
@@ -585,7 +605,7 @@ class Interface(Master):
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
         # checking special exceptions like drop down menus or drag and drop
-        # events
+        # events. also calls right click menu
         for n, e in self.elements.items():
             # recreating background if an elemente has been dragged around
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
@@ -611,6 +631,18 @@ class Interface(Master):
                     if o.state == "active":
                         m.update()
                         self.draw(m, m.rect)
+            # initiating right click menu
+            for evt in globals()["app"]._events:
+                # try calling menu
+                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
+                    if self.menu.visible:
+                        self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    self.menu.visible = True
+                    self.menu.rect.topleft = mpos
+                # if menu calles
+                if self.menu.visible:
+                    self.menu.update()
+                    self.blit(self.menu, self.menu.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
