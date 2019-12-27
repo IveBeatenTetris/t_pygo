@@ -661,7 +661,7 @@ class Button(Master):
         # additional attributes
         self.margin = self.cfg["margin"]# int / list
         self.textposition = self.cfg["textposition"]# str / tuple
-        self.text = Text(config)
+        self.text = Text(config)# text object
         # translating rect if it has 'auto' or percentage strings
         if "rect" in config:
             self.rect = convertRect(config["rect"], self.text.rect)
@@ -781,7 +781,8 @@ class Menu(Master):
             # validating the construction plans and adding some properties
             # before giving it to the new appended button element
             for o in c["options"]:
-                """o = validateDict(o, default)
+                o = validateDict(o, default)
+                o["parent"] = self,
                 o["text"] = o["name"]
                 o["background"] = (45, 45, 55)
                 o["hover"] = (35, 35, 45)
@@ -799,9 +800,8 @@ class Menu(Master):
                 # updating visuals
                 but.createSurface()
                 # seeting next drawing height
-                y += but.rect.height"""
+                y += but.rect.height
                 # appending button to returning list
-                but = Option(o)
                 options.append(but)
 
         return options
@@ -848,7 +848,8 @@ class MenuBar(Master):
             if "name" in elem: name = elem["name"]
             else: name = "[Unnamed{0}]".format(str(i)); i += 1
             # creating its button
-            but = Button({
+            but = Option({
+                "parent": self,
                 "text": name,
                 "fontsize": 13,
                 "background": self.background,
@@ -890,16 +891,16 @@ class MenuBar(Master):
             # refreshing visuals and drawing afterwards
             o.update()
             self.draw(o, o.rect)
-class Option(Master):
+class Option(Button):
     """resembles a clickable option in a menu."""
     def __init__(self, config={}):
         """
-        uses 'Master' as its parent with additional methodes and attributes.
+        uses 'Button' as its parent with additional methodes and attributes.
 
         'cfg' this dict holds building instructions for the menubar and its
             options.
         """
-        Master.__init__(self, config)
+        Button.__init__(self, config)
         self.cfg = config
 class Panel(Master):
     """."""
