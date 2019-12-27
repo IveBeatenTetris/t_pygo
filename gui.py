@@ -518,13 +518,13 @@ class Interface(Master):
         # if element named
         if element:
             self.elements[element].update()
-            self.draw(self.elements[element], self.elements[element].rect)
+            self.blit(self.elements[element], self.elements[element].rect)
         # if no element named
         else:
             # redrawing everything
             for n, e in self.elements.items():
                 e.update()
-                self.draw(e, e.rect)
+                self.blit(e, e.rect)
     def loadElements(self, element=None):# dict
         """
         load elements from their config dict. if no specific element is given
