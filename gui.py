@@ -920,18 +920,18 @@ class Option(Button):
         """overwrites the standard method. returns true if hovered."""
         mpos = pg.mouse.get_pos()
         mouse_over = False
-        """if type(self.parent) is not pg.Rect:
+        # tweaking rect for collision checking if element has offset from parent
+        if type(self.parent) is Menu:
             rect = pg.Rect(
-                self.rect.left + self.parent.rect.left,
-                self.rect.top + self.parent.rect.top,
+                self.parent.rect.left + self.rect.left,
+                self.parent.rect.top + self.rect.top,
                 self.rect.width,
                 self.rect.height
             )
         else:
-            rect = self.rect"""
-        print(self.parent)
+            rect = self.rect
 
-        if self.rect.collidepoint(mpos):
+        if rect.collidepoint(mpos):
             mouse_over = True
 
         return mouse_over
