@@ -640,7 +640,8 @@ class Button(Master):
     """
     cfg = {
         "margin": 20,
-        "textposition": "center"
+        "textposition": "center",
+        "call": None
     }
     def __init__(self, config={}):
         """
@@ -654,6 +655,8 @@ class Button(Master):
         'rect' overwriting original rect if user has given his own.
         'state' returns the pressed state of a button in a string ('waiting',
             'active').
+        'call' the function to call. if none is passed then its simply 'none'
+            and cannot be processed.
         """
         Master.__init__(self, config)
         # creating a dict based of comparison of config{} and default{}
@@ -667,6 +670,7 @@ class Button(Master):
             self.rect = convertRect(config["rect"], self.text.rect)
             self.calcTextPos()
         self.state = "waiting"# str
+        self.call = self.cfg["call"]# none / function
         # rebuilding surface to apply new rect
         self.createSurface()
     def calcTextPos(self):
@@ -689,6 +693,15 @@ class Button(Master):
         else:
             if self.background:
                 self.draw(self.background)
+
+        # call a buttons function if its set by the user
+        if self.click():
+            if self.call:
+                if not callable(self.call):
+                    # import the function from the main file
+                    import __main__ as main
+                    func = getattr(main, self.call)()
+
         # redraw text anyways
         self.draw(self.text, self.textposition)
 class InfoBar(Master):
@@ -788,6 +801,7 @@ class Menu(Master):
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
+
                 but = Option(o)
                 # updating button.rect
                 but.rect = pg.Rect(
@@ -929,6 +943,9 @@ class Option(Button):
 
         if self.off_rect.collidepoint(mpos) and mbut[0]:
             clicked = True
+        # calling given function on click
+        if callable(self.call) and clicked:
+            self.call()
 
         return clicked
     def hover(self):# bool
