@@ -826,10 +826,11 @@ class Menu(Master):
         overwrites parental 'update()' method for adding more functionality.
         updates all underordered options.
         """
-        for o in self.options:
-            # updating and drawing visuals
-            o.update()
-            self.draw(o, o.rect)
+        if self.visible:
+            for o in self.options:
+                # updating and drawing visuals
+                o.update()
+                self.draw(o, o.rect)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
