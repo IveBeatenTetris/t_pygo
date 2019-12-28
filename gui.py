@@ -510,20 +510,15 @@ class Interface(Master):
             "options": []
         }
         c = cfg["options"]
+
+        def inspect():
+            """."""
+            print("start inspection")
         # this creates context based on the element that has been right clicked
         # at. i want to put it somewhere else later and make this method
         # building e real menu with functions to call on selection.
         if elem:
-            c.append({"name": "Type:        " + str(type(elem)), "call": None})
-            c.append({"name": "Name:        " + elem.name, "call": None})
-            c.append({"name":
-                "Rect:      " +
-                    str(elem.rect.left) + ", " +
-                    str(elem.rect.top) + ", " +
-                    str(elem.rect.width) + ", " +
-                    str(elem.rect.height),
-                "call": None
-            })
+            c.append({"name": "Inspect", "call": inspect()})
 
         return Menu(cfg)
     def createStatic(self, screen=None):
@@ -888,6 +883,22 @@ class Menu(Master):
                 # updating and drawing visuals
                 o.update()
                 self.draw(o, o.rect)
+class Menu2(Master):
+    """."""
+    def __init__(self, config={}):
+        """."""
+        Master.__init__(self, config)
+        self.cfg = config
+        self.options = self.createOptions()# list
+        self.visible = False# bool
+    def createOptions(self):# list
+        """."""
+        options = []
+
+        return options
+    def update(self):
+        """."""
+        pass
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
