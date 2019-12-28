@@ -889,6 +889,7 @@ class Menu2(Master):
         "name": "unnamed_menu_" + str(random.uniform(1, 10))[-9:],
         "rect": pg.Rect(0, 0, 0, 0),
         "background": (45, 45, 55),
+        "margin": [5, 30, 5, 15],
         "fontsize": 13,
         "options": []
     }
@@ -918,23 +919,31 @@ class Menu2(Master):
             cfg = {
                 "parent": self,
                 "text": opt["name"],
-                "background": (45, 45, 55),
-                "fontsize": self.cfg["fontsize"]
+                "background": [45, 45, 55],
+                "fontsize": self.cfg["fontsize"],
             }
             # initiating option
             option = Option(cfg)
             # resizing options to size of their text rects
-            option.rect.size = option.text.rect.size
-            option.rect.top = height
+            option.rect = pg.Rect(
+                self.cfg["margin"][3],
+                height,
+                option.text.rect.width,
+                option.text.rect.height
+            )
             option.createSurface()
-            # recreating menu with size based on options in it
+            # decleraing new menu size based on options in it
             if option.text.rect.width > width:
                 width = option.text.rect.width
             height += option.text.rect.height
-            self.rect.size = (width, height)
-            self.createSurface()
+            self.rect.size = (
+                width + self.cfg["margin"][1] + self.cfg["margin"][3],
+                height
+            )
             # appending option to returning list
             options.append(option)
+        # recreating surface to apply new size
+        self.createSurface()
 
         return options
     def update(self):
@@ -946,7 +955,6 @@ class Menu2(Master):
             # updating and drawing visuals
             o.update()
             self.blit(o, o.rect)
-            print(o)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
