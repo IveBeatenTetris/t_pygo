@@ -510,14 +510,22 @@ class Interface(Master):
             "options": []
         }
         c = cfg["options"]
-
+        # this creates context based on the element that has been right clicked
+        # at. i want to put it somewhere else later and make this method
+        # building e real menu with functions to call on selection.
         if elem:
-            c.append({"name": "Type: " + str(type(elem)), "call": None})
-            c.append({"name": "Name: " + elem.name, "call": None})
+            c.append({"name": "Type:        " + str(type(elem)), "call": None})
+            c.append({"name": "Name:        " + elem.name, "call": None})
+            c.append({"name":
+                "Rect:      " +
+                    str(elem.rect.left) + ", " +
+                    str(elem.rect.top) + ", " +
+                    str(elem.rect.width) + ", " +
+                    str(elem.rect.height),
+                "call": None
+            })
 
-        menu = Menu(cfg)
-
-        return menu
+        return Menu(cfg)
     def createStatic(self, screen=None):
         """
         creates a copy of a fully drawn idle interface screen. if a pg.surface
