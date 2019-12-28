@@ -19,7 +19,7 @@ from .utils import (
 from .camera import Camera
 from .input import Controller, Mouse
 import pygame as pg
-import sys, os
+import sys, os, random
 # pygames display object
 class App:
     """
@@ -885,15 +885,40 @@ class Menu(Master):
                 self.draw(o, o.rect)
 class Menu2(Master):
     """."""
+    default = {
+        "name": "unnamed_menu_" + str(random.uniform(1, 10))[-9:],
+        "rect": pg.Rect(0, 0, 0, 0),
+        "background": (45, 45, 55),
+        "fontsize": 13,
+        "options": []
+    }
     def __init__(self, config={}):
         """."""
-        Master.__init__(self, config)
-        self.cfg = config
-        self.options = self.createOptions()# list
+        self.cfg = validateDict(config, self.default)
+        Master.__init__(self, self.cfg)
+        self.options = self.createOptions(self.cfg["options"])# list
         self.visible = False# bool
-    def createOptions(self):# list
+        #prettyPrint(self.cfg)
+    def createOptions(self, option_list):# list
         """."""
         options = []
+        width = 0
+        height = 0
+
+        for opt in option_list:
+            cfg = {
+                "text": opt["name"],
+                "fontsize": self.cfg["fontsize"]
+            }
+            option = Option(cfg)
+
+            if option.text.rect.width > width:
+                width = option.text.rect.width
+            height += option.text.rect.height
+            self.rect.size = (width, height)
+            self.createSurface()
+
+            options.append(option)
 
         return options
     def update(self):
