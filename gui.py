@@ -884,7 +884,7 @@ class Menu(Master):
                 o.update()
                 self.draw(o, o.rect)
 class Menu2(Master):
-    """."""
+    """a dropdown menu with clickable options."""
     default = {
         "name": "unnamed_menu_" + str(random.uniform(1, 10))[-9:],
         "rect": pg.Rect(0, 0, 0, 0),
@@ -893,37 +893,60 @@ class Menu2(Master):
         "options": []
     }
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+
+        'cfg' building instructions to draw from. it also declares what to
+            display.
+        'options' list of interactive menu points.
+        'visible' used to determine the displaying state.
+        """
         self.cfg = validateDict(config, self.default)
         Master.__init__(self, self.cfg)
         self.options = self.createOptions(self.cfg["options"])# list
         self.visible = False# bool
-        #prettyPrint(self.cfg)
     def createOptions(self, option_list):# list
-        """."""
+        """creating clickable options and reset the menu size."""
+        # this will be returned
         options = []
+        # using these to declare sie menus rect dimensions
         width = 0
         height = 0
 
         for opt in option_list:
+            # default config for option
             cfg = {
+                "parent": self,
                 "text": opt["name"],
+                "background": (45, 45, 55),
                 "fontsize": self.cfg["fontsize"]
             }
+            # initiating option
             option = Option(cfg)
-
+            # resizing options to size of their text rects
+            option.rect.size = option.text.rect.size
+            option.rect.top = height
+            option.createSurface()
+            # recreating menu with size based on options in it
             if option.text.rect.width > width:
                 width = option.text.rect.width
             height += option.text.rect.height
             self.rect.size = (width, height)
             self.createSurface()
-
+            # appending option to returning list
             options.append(option)
 
         return options
     def update(self):
-        """."""
-        pass
+        """
+        overwrites parental 'update()' method for adding more functionality.
+        updates all underordered options.
+        """
+        for o in self.options:
+            # updating and drawing visuals
+            o.update()
+            self.blit(o, o.rect)
+            print(o)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
