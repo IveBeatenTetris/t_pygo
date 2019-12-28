@@ -499,24 +499,23 @@ class Interface(Master):
         self.drawElements()
         self.static = None# none / pg.surface
         self.createStatic()
-    def createMenu(self):# menu object
+    def createMenu(self, elem=None):# menu object
         """."""
-        menu = Menu({
+        cfg = {
+            "type": None,
             "name": "right_click",
-        	"background": (45, 45, 55),
-        	"fontsize": 13,
-        	"rect": [450, 360, 85, 150],
-        	"options": [
-        		{
-        			"name": "abc",
-        			"call": None
-        		},
-        		{
-        			"name": "test_func",
-        			"call": None
-        		},
-        	]
-        })
+            "rect": [0, 0, 85, 150],
+            "background": (45, 45, 55),
+            "fontsize": 13,
+            "options": []
+        }
+        c = cfg["options"]
+
+        if elem:
+            c.append({"name": "Type: " + str(type(elem)), "call": None})
+            c.append({"name": "Name: " + elem.name, "call": None})
+
+        menu = Menu(cfg)
 
         return menu
     def createStatic(self, screen=None):
@@ -600,12 +599,13 @@ class Interface(Master):
         checks if something needs to be redrawn and initiates the drawing
             sequence.
         """
-        # mouse events
+        # events
+        events = globals()["app"]._events
         mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
         mrel = pg.mouse.get_rel()
         # checking special exceptions like drop down menus or drag and drop
-        # events. also calls right click menu
+        # events
         for n, e in self.elements.items():
             # recreating background if an elemente has been dragged around
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
@@ -631,18 +631,6 @@ class Interface(Master):
                     if o.state == "active":
                         m.update()
                         self.draw(m, m.rect)
-            # initiating right click menu
-            for evt in globals()["app"]._events:
-                # try calling menu
-                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
-                    if self.menu.visible:
-                        self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
-                    self.menu.visible = True
-                    self.menu.rect.topleft = mpos
-                # if menu calles
-                if self.menu.visible:
-                    self.menu.update()
-                    self.blit(self.menu, self.menu.rect)
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
@@ -666,6 +654,22 @@ class Interface(Master):
             # drawing if previous conditions matched
             if draw_element:
                 self.drawElements(n)
+        # initiating right click menu
+        for n, e in self.elements.items():
+            for evt in events:
+                # try calling menu
+                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
+                    if self.menu.visible:
+                        self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    # recreating a menu and its context on activating an element
+                    if e.hover():
+                        self.menu = self.createMenu(e)
+                    self.menu.visible = True
+                    self.menu.rect.topleft = mpos
+                # if menu calles
+                if self.menu.visible:
+                    self.menu.update()
+                    self.blit(self.menu, self.menu.rect)
 class Button(Master):
     """
     resembles a button element with a text and common mouse interactive events.
@@ -821,6 +825,8 @@ class Menu(Master):
             "call": None,
             "type": "option"
         }
+        # used to store maximum width for menu
+        maximum_width = 0
 
         if "options" in c:
             # used to set a new y value for each following option
@@ -835,7 +841,7 @@ class Menu(Master):
                 o["hover"] = (35, 35, 45)
                 o["fontsize"] = 13
                 o["textposition"] = (10, 0)
-
+                # creating option
                 but = Option(o)
                 # updating button.rect
                 but.rect = pg.Rect(
@@ -848,11 +854,20 @@ class Menu(Master):
                 but.createSurface()
                 # seeting next drawing height
                 y += but.rect.height
+                # calculating new menu size
+                if but.text.rect.width > maximum_width:
+                    maximum_width = but.text.rect.width
                 # appending button to returning list
                 options.append(but)
             # setting new size of menu depending on last options height
             self.rect.height = y + 5
-            self.createSurface()
+            # applying new menu size by bigger element width
+            self.rect.width = maximum_width + 35
+        # resetting / tweaking each options rect back to menu.rect size
+        for each in options:
+            each.rect.width = self.rect.width
+            each.createSurface()
+        self.createSurface()
 
         return options
     def update(self):
