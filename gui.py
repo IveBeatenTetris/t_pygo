@@ -889,7 +889,8 @@ class Menu2(Master):
         "name": "unnamed_menu_" + str(random.uniform(1, 10))[-9:],
         "rect": pg.Rect(0, 0, 0, 0),
         "background": (45, 45, 55),
-        "margin": [5, 30, 5, 15],
+        "margin": [5, 30, 5, 7],
+        #"margin": [0, 0, 0, 0],
         "fontsize": 13,
         "options": []
     }
@@ -912,35 +913,39 @@ class Menu2(Master):
         options = []
         # using these to declare sie menus rect dimensions
         width = 0
-        height = 0
+        height = self.cfg["margin"][0]
 
         for opt in option_list:
             # default config for option
             cfg = {
                 "parent": self,
                 "text": opt["name"],
-                "background": (35, 35, 45),
-                "hover": (55, 55, 65),
+                "background": (45, 45, 55),
+                "hover": (35, 35, 45),
                 "fontsize": self.cfg["fontsize"],
+                "textposition": (self.cfg["margin"][3], 0)
             }
             # initiating option
             option = Option(cfg)
-            # resizing options to size of their text rects
-            option.createSurface(size=option.text.rect.size)
-            option.rect.top = height
-            print(option.bg_hover)
             # decleraing new menu size based on options in it
             if option.text.rect.width > width:
                 width = option.text.rect.width
+            # resizing options to size of their text rects
+            option.createSurface(size=option.text.rect.size)
+            option.rect.top = height
+            # increasing next y drawing position
             height += option.text.rect.height
+            # resizing menu
             self.rect.size = (
                 width + self.cfg["margin"][1] + self.cfg["margin"][3],
                 height
             )
+            # and again recreating surface size to heighest 'width'
+            option.createSurface(size=(self.rect.width, option.text.rect.height))
             # appending option to returning list
             options.append(option)
         # recreating surface to apply new size
-        self.createSurface()
+        self.createSurface(size=(self.rect.width, self.rect.height + self.cfg["margin"][2]))
 
         return options
     def update(self):
