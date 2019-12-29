@@ -919,19 +919,16 @@ class Menu2(Master):
             cfg = {
                 "parent": self,
                 "text": opt["name"],
-                "background": [45, 45, 55],
+                "background": (35, 35, 45),
+                "hover": (55, 55, 65),
                 "fontsize": self.cfg["fontsize"],
             }
             # initiating option
             option = Option(cfg)
             # resizing options to size of their text rects
-            option.rect = pg.Rect(
-                self.cfg["margin"][3],
-                height,
-                option.text.rect.width,
-                option.text.rect.height
-            )
-            option.createSurface()
+            option.createSurface(size=option.text.rect.size)
+            option.rect.top = height
+            print(option.bg_hover)
             # decleraing new menu size based on options in it
             if option.text.rect.width > width:
                 width = option.text.rect.width
