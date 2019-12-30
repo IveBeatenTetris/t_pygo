@@ -1,21 +1,5 @@
 # dependencies
-from .utils import (
-    PATH,
-    LIBPATH,
-    FONTS,
-    draw,
-    validateDict,
-    loadAssets,
-    loadJSON,
-    getAnchors,
-    wrapText,
-    drawBorder,
-    convertRect,
-    getDisplay,
-    repeatBG,
-    scale,
-    prettyPrint
-)
+from .utils import *
 from .camera import Camera
 from .input import Controller, Mouse
 import pygame as pg
@@ -648,8 +632,12 @@ class Interface(Master):
                 ):
                     draw_element = True
             elif type(e) is MenuBar: # conditional
-                # if mouse is over the element and moving
-                if e.rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
+                # if mouse is over the element and moving or just over
+                if (
+                    e.rect.collidepoint(mpos) and mrel[0] != 0 or
+                    mrel[1] != 0 or
+                    e.hover()
+                ):
                     draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
@@ -664,12 +652,12 @@ class Interface(Master):
                 if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
                     if self.menu.visible:
                         self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
-                    # recreating a menu and its context on activating an element
+                    """# recreating a menu and its context on activating an element
                     if e.hover():
-                        self.menu = self.createMenu(e)
+                        self.menu = self.createMenu(e)"""
                     self.menu.visible = True
                     self.menu.rect.topleft = mpos
-                # if menu calles
+                # draw corresponding menu if visible
                 if self.menu.visible:
                     self.menu.update()
                     self.blit(self.menu, self.menu.rect)
@@ -698,6 +686,8 @@ class Button(Master):
             'active').
         'call' the function to call. if none is passed then its simply 'none'
             and cannot be processed.
+        'off_rect' pg.rect used to check events on element if its parent has an
+            offset to calculate.
         """
         Master.__init__(self, config)
         # creating a dict based of comparison of config{} and default{}
@@ -713,12 +703,55 @@ class Button(Master):
         self.state = "waiting"# str
         self.call = self.cfg["call"]# none / function
         # rebuilding surface to apply new rect
+        self.off_rect = self.rect# pg.rect
         self.createSurface()
+    def calcOffset(self):
+        """for testing collisions on this new created rect with offsets."""
+        if type(self.parent) is pg.Rect: parent = self.parent
+        else: parent = self.parent.rect
+        self.off_rect = pg.Rect(
+            parent.left + self.rect.left,
+            parent.top + self.rect.top,
+            self.rect.width,
+            self.rect.height
+        )
     def calcTextPos(self):
         """recalculates buttons size and its texts position in it."""
         if type(self.margin) is int:
             self.rect.width += self.margin
             self.rect.height += self.margin
+    def click(self):# bool
+        """overwrites the standard method for calculating its rects offset."""
+        mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
+        clicked = False
+        # testing collisions on this new created rect with offset
+        self.calcOffset()
+
+        if self.off_rect.collidepoint(mpos) and mbut[0]:
+            clicked = True
+            #callFunction(self.call)
+        # calling given function on click
+        if callable(self.call) and clicked:
+            a = self.cfg["args"]
+            # call the function with arguments if given
+            if a:
+                self.call.__call__(a)
+            else:
+                self.call.__call__()
+
+        return clicked
+    def hover(self):# bool
+        """overwrites the standard method for calculating its rects offset."""
+        mpos = pg.mouse.get_pos()
+        mouse_over = False
+        # testing collisions on this new created rect with offset
+        self.calcOffset()
+
+        if self.off_rect.collidepoint(mpos):
+            mouse_over = True
+
+        return mouse_over
     def update(self):
         """
         overwrites the standard method. call this method everytime you need to
@@ -1058,53 +1091,11 @@ class Option(Button):
             options.
         'parent' any guy element calling this option. if none is given then
             stick with the old one set by 'Master'.
-        'off_rect' pg.rect used to check events on element if its parent has an
-            offset to calculate.
         """
         Button.__init__(self, config)
         self.cfg = config
         if "parent" in config:
             self.parent = config["parent"]# gui element
-        self.off_rect = self.rect# pg.rect
-    def calcOffset(self):
-        """for testing collisions on this new created rect with offsets."""
-        self.off_rect = pg.Rect(
-            self.parent.rect.left + self.rect.left,
-            self.parent.rect.top + self.rect.top,
-            self.rect.width,
-            self.rect.height
-        )
-    def click(self):# bool
-        """overwrites the standard method for calculating its rects offset."""
-        mpos = pg.mouse.get_pos()
-        mbut = pg.mouse.get_pressed()
-        clicked = False
-        # testing collisions on this new created rect with offset
-        self.calcOffset()
-
-        if self.off_rect.collidepoint(mpos) and mbut[0]:
-            clicked = True
-        # calling given function on click
-        if callable(self.call) and clicked:
-            a = self.cfg["args"]
-            # call the function with arguments if given
-            if a:
-                self.call.__call__(a)
-            else:
-                self.call.__call__()
-
-        return clicked
-    def hover(self):# bool
-        """overwrites the standard method for calculating its rects offset."""
-        mpos = pg.mouse.get_pos()
-        mouse_over = False
-        # testing collisions on this new created rect with offset
-        self.calcOffset()
-
-        if self.off_rect.collidepoint(mpos):
-            mouse_over = True
-
-        return mouse_over
 class Panel(Master):
     """."""
     def __init__(self, config={}):
