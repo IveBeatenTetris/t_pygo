@@ -999,7 +999,7 @@ class MenuBar(Master):
         # using 'x' to determine horizontal drawing position
         # i is for dynamically creating element names
         x = 0; i = 1
-
+        # cycling trought elements to create options and their menus
         for elem in c["elements"]:
             # predicting name for element
             if "name" in elem: name = elem["name"]
@@ -1024,14 +1024,14 @@ class MenuBar(Master):
             # appending to options dict
             options[name] = but
             # crafting option-button related menus
-            self.menus[name] = Menu({
+            self.menus[name] = Menu2({
                 "name": name,
                 "background": (45, 45, 55),
                 "rect": [
                     x,
                     self.rect.bottom,
-                    150,
-                    250
+                    75,
+                    7
                 ],
                 "options": elem["elements"]
             })
