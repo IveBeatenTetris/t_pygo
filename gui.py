@@ -923,14 +923,17 @@ class Menu2(Master):
 
         for opt in option_list:
             # default config for option
-            cfg = {
+            cfg = validateDict(opt, {
                 "parent": self,
+                "name": "unnamed_option",
                 "text": opt["name"],
+                "call": None,
+                "type": "option",
                 "background": (45, 45, 55),
                 "hover": (35, 35, 45),
                 "fontsize": self.cfg["fontsize"],
                 "textposition": (self.cfg["margin"][3], 0)
-            }
+            })
             # initiating option
             option = Option(cfg)
             # decleraing new menu size based on options in it
