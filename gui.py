@@ -928,6 +928,7 @@ class Menu2(Master):
                 "name": "unnamed_option",
                 "text": opt["name"],
                 "call": None,
+                "args": None,
                 "type": "option",
                 "background": (45, 45, 55),
                 "hover": (35, 35, 45),
@@ -1081,7 +1082,12 @@ class Option(Button):
             clicked = True
         # calling given function on click
         if callable(self.call) and clicked:
-            self.call()
+            a = self.cfg["args"]
+            # call the function with arguments if given
+            if a:
+                self.call.__call__(a)
+            else:
+                self.call.__call__()
 
         return clicked
     def hover(self):# bool
