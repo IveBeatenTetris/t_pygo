@@ -724,6 +724,7 @@ class Button(Master):
         overwrites the standard method. call this method everytime you need to
             refresh the element.
         """
+        mbut = pg.mouse.get_pressed()
         # initiate dragging if preset
         self.checkForDrag()
         # on mouse over look for different color
@@ -734,14 +735,19 @@ class Button(Master):
         else:
             if self.background:
                 self.draw(self.background)
-
-        # call a buttons function if its set by the user
+        # look what happens on click
         if self.click():
+            # activating state of button
+            self.state = "active"
+            # call a buttons function if its set by the user
             if self.call:
                 if not callable(self.call):
                     # import the function from the main file
                     import __main__ as main
                     func = getattr(main, self.call)()
+        # resetting state if clicked somewhere else
+        elif not self.hover() and mbut[0] and self.state == "active":
+            self.state = "waiting"
 
         # redraw text anyways
         self.draw(self.text, self.textposition)
