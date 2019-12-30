@@ -610,11 +610,17 @@ class Interface(Master):
                             o.state = "active"
                             m.visible = True
                         # redraw area if an option is declicked and still active
+                        # if already activated and clicked again
                         elif o.state =="active" and evt.type is pg.MOUSEBUTTONDOWN:
                             o.state = "waiting"
+                            # if an option has been clicked
+                            for opt in m.options:
+                                # calling bound function on invoke click
+                                opt.click()
+                            # render menu invisible again
                             m.visible = False
                             self.blit(self.static, m.rect.topleft, m.rect)
-                    # draw menu as long is its option is active
+                    # draw menu as long as its option is active
                     if o.state == "active":
                         m.update()
                         self.draw(m, m.rect)
@@ -645,22 +651,6 @@ class Interface(Master):
             # drawing if previous conditions matched
             if draw_element:
                 self.drawElements(n)
-        # initiating right click menu
-        for n, e in self.elements.items():
-            for evt in events:
-                # try calling menu
-                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
-                    if self.menu.visible:
-                        self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
-                    """# recreating a menu and its context on activating an element
-                    if e.hover():
-                        self.menu = self.createMenu(e)"""
-                    self.menu.visible = True
-                    self.menu.rect.topleft = mpos
-                # draw corresponding menu if visible
-                if self.menu.visible:
-                    self.menu.update()
-                    self.blit(self.menu, self.menu.rect)
 class Button(Master):
     """
     resembles a button element with a text and common mouse interactive events.
@@ -730,15 +720,16 @@ class Button(Master):
 
         if self.off_rect.collidepoint(mpos) and mbut[0]:
             clicked = True
+        #print(self.off_rect)
             #callFunction(self.call)
         # calling given function on click
-        if callable(self.call) and clicked:
+        """if callable(self.call) and clicked:
             a = self.cfg["args"]
             # call the function with arguments if given
             if a:
                 self.call.__call__(a)
             else:
-                self.call.__call__()
+                self.call.__call__()"""
 
         return clicked
     def hover(self):# bool
@@ -772,12 +763,12 @@ class Button(Master):
         if self.click():
             # activating state of button
             self.state = "active"
-            # call a buttons function if its set by the user
+            """# call a buttons function if its set by the user
             if self.call:
                 if not callable(self.call):
                     # import the function from the main file
                     import __main__ as main
-                    func = getattr(main, self.call)()
+                    func = getattr(main, self.call)()"""
         # resetting state if clicked somewhere else
         elif not self.hover() and mbut[0] and self.state == "active":
             self.state = "waiting"
@@ -917,93 +908,10 @@ class Menu(Master):
         overwrites parental 'update()' method for adding more functionality.
         updates all underordered options.
         """
-        if self.visible:
-            for o in self.options:
-                # updating and drawing visuals
-                o.update()
-                self.draw(o, o.rect)
-class Menu2(Master):
-    """a dropdown menu with clickable options."""
-    default = {
-        "name": "unnamed_menu_" + str(random.uniform(1, 10))[-9:],
-        "rect": pg.Rect(0, 0, 0, 0),
-        "background": (45, 45, 55),
-        "margin": [5, 30, 5, 7],
-        #"margin": [0, 0, 0, 0],
-        "fontsize": 13,
-        "options": []
-    }
-    def __init__(self, config={}):
-        """
-        uses 'Master' as its parent with additional methodes and attributes.
-
-        'cfg' building instructions to draw from. it also declares what to
-            display.
-        'options' list of interactive menu points.
-        'visible' used to determine the displaying state.
-        """
-        self.cfg = validateDict(config, self.default)
-        Master.__init__(self, self.cfg)
-        self.options = self.createOptions(self.cfg["options"])# list
-        self.visible = False# bool
-    def createOptions(self, option_list):# list
-        """creating clickable options and reset the menu size."""
-        # this will be returned
-        options = []
-        # using these to declare sie menus rect dimensions
-        width = 0
-        height = self.cfg["margin"][0]
-
-        for opt in option_list:
-            # default config for option
-            cfg = validateDict(opt, {
-                "parent": self,
-                "name": "unnamed_option",
-                "text": opt["name"],
-                "call": None,
-                "args": None,
-                "type": "option",
-                "background": (45, 45, 55),
-                "hover": (35, 35, 45),
-                "fontsize": self.cfg["fontsize"],
-                "textposition": (self.cfg["margin"][3], 0)
-            })
-            # initiating option
-            option = Option(cfg)
-            # decleraing new menu size based on options in it
-            if option.text.rect.width > width:
-                width = option.text.rect.width
-            # resizing options to size of their text rects
-            option.createSurface(size=option.text.rect.size)
-            option.rect.top = height
-            # increasing next y drawing position
-            height += option.text.rect.height
-            # resizing menu
-            self.rect.size = (
-                width + self.cfg["margin"][1] + self.cfg["margin"][3],
-                height
-            )
-            # and again recreating surface size to heighest 'width'
-            option.createSurface(size=(self.rect.width, option.text.rect.height))
-            # appending option to returning list
-            options.append(option)
-        # recreating surface to apply new size
-        self.createSurface(size=(self.rect.width, self.rect.height + self.cfg["margin"][2]))
-        # resizing each option width to self.rect.width
-        for o in options:
-            o.rect.width = self.rect.width
-            o.createSurface()
-
-        return options
-    def update(self):
-        """
-        overwrites parental 'update()' method for adding more functionality.
-        updates all underordered options.
-        """
         for o in self.options:
             # updating and drawing visuals
             o.update()
-            self.blit(o, o.rect)
+            self.draw(o, o.rect)
 class MenuBar(Master):
     """a menu bar object with several elements to click at."""
     def __init__(self, config={}):
@@ -1057,7 +965,7 @@ class MenuBar(Master):
             # appending to options dict
             options[name] = but
             # crafting option-button related menus
-            self.menus[name] = Menu2({
+            self.menus[name] = Menu({
                 "name": name,
                 "background": (45, 45, 55),
                 "rect": [
