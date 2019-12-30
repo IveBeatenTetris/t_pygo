@@ -956,6 +956,10 @@ class Menu2(Master):
             options.append(option)
         # recreating surface to apply new size
         self.createSurface(size=(self.rect.width, self.rect.height + self.cfg["margin"][2]))
+        # resizing each option width to self.rect.width
+        for o in options:
+            o.rect.width = self.rect.width
+            o.createSurface()
 
         return options
     def update(self):
