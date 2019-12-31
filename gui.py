@@ -1,5 +1,5 @@
 # dependencies
-from .utils import *
+from . import utils as u
 from .camera import Camera
 from .input import Controller, Mouse
 import pygame as pg
@@ -24,9 +24,9 @@ class App:
         "title": "No Title",
         "resizable": False,
         "fullscreen": False,
-        "background": LIBPATH["windowbg"],
+        "background": u.LIBPATH["windowbg"],
         "backgroundrepeat": None,
-        "icon": LIBPATH["windowicon"],
+        "icon": u.LIBPATH["windowicon"],
         "fps": 30
     }
     def __init__(self, config={}):
@@ -63,7 +63,7 @@ class App:
         # initiate pygame
         pg.init()
         # creating a dict based of comparison of config{} and default{}
-        self.config = validateDict(config, self.default)# dict
+        self.config = u.validateDict(config, self.default)# dict
         # additional attributes
         self.size = self.config["size"]# tuple
         self.title = self.config["title"]# str
@@ -76,7 +76,7 @@ class App:
         self.mouse = Mouse()# mouse object
         self.controller = Controller()# controller (pygame.joystick.joystick)
         # display related stuff
-        self.display = getDisplay(# pygame.surface
+        self.display = u.getDisplay(# pygame.surface
             self.config["size"],
             resizable = self.config["resizable"]
         )
@@ -133,7 +133,7 @@ class App:
             if self.config["backgroundrepeat"]:
                 # creating surfact with repeated background
                 # 'bgrepeat' is the indicator ('x', 'y', 'xy')
-                bg = repeatBG(
+                bg = u.repeatBG(
                     bg,
                     self.size,
                     self.bgrepeat
@@ -142,7 +142,7 @@ class App:
         return bg
     def draw(self, object, position=(0, 0)):
         """draw something to windows 'display' surface."""
-        draw(object, self.display, position)
+        u.draw(object, self.display, position)
     def resize(self, size=None):# bool
         """
         resizes the window.
@@ -153,7 +153,7 @@ class App:
         # on given parameter
         if size:
             # make new display surface
-            self.display = getDisplay(# pygame.surface
+            self.display = u.getDisplay(# pygame.surface
                 size,
                 resizable = self.config["resizable"],
                 fullscreen = self.fullscreen
@@ -318,14 +318,14 @@ class Master(pg.Surface):
         'hovered' used for checking the hover state of the mouse relative to
             the element.
         """
-        self.config = validateDict(config, self.defaults)# dict
+        self.config = u.validateDict(config, self.defaults)# dict
         self.name = self.config["name"]# str
         # choosing parental rect
         if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
         else: self.parent = pg.display.get_surface().get_rect()# pg.rect
         # converting rect
         if type(self.config["rect"]) is list:# pg.rect
-            self.rect = pg.Rect(convertRect(self.config["rect"], self.parent))
+            self.rect = pg.Rect(u.convertRect(self.config["rect"], self.parent))
         elif type(self.config["rect"]) is pg.Rect:# pg.rect
             self.rect = self.config["rect"]
         # convert string arguments in position and size
@@ -363,7 +363,7 @@ class Master(pg.Surface):
         # drawing to rect
         else:
             # drawing to position
-            draw(object, self, rect)
+            u.draw(object, self, rect)
     def recreateBackground(self, rect=None):
         """
         redraws the background if there is one. if a pg.rect is given then use
@@ -472,7 +472,7 @@ class Interface(Master):
         'static' storing a static copy of an fully drawn idle interface screen.
             use this to prevent unnecessary redrawing of every element or menu.
         """
-        for js in loadAssets(PATH["interface"] + "\\" + name):# dict
+        for js in u.loadAssets(u.PATH["interface"] + "\\" + name):# dict
             if js["type"] == "interface":
                 self.cfg = js
                 self.cfg["rect"] = pg.display.get_surface().get_rect()
@@ -681,14 +681,14 @@ class Button(Master):
         """
         Master.__init__(self, config)
         # creating a dict based of comparison of config{} and default{}
-        self.cfg = validateDict(config, self.cfg)# dict
+        self.cfg = u.validateDict(config, self.cfg)# dict
         # additional attributes
         self.margin = self.cfg["margin"]# int / list
         self.textposition = self.cfg["textposition"]# str / tuple
         self.text = Text(config)# text object
         # translating rect if it has 'auto' or percentage strings
         if "rect" in config:
-            self.rect = convertRect(config["rect"], self.text.rect)
+            self.rect = u.convertRect(config["rect"], self.text.rect)
             self.calcTextPos()
         self.state = "waiting"# str
         self.call = self.cfg["call"]# none / function
@@ -720,17 +720,28 @@ class Button(Master):
 
         if self.off_rect.collidepoint(mpos) and mbut[0]:
             clicked = True
+        #print(self.call, "clicked")
         #print(self.off_rect)
-            #callFunction(self.call)
-        # calling given function on click
-        """if callable(self.call) and clicked:
+        #callFunction(self.call)
+        """# calling given function on click
+        if callable(self.call) and clicked:
             a = self.cfg["args"]
             # call the function with arguments if given
             if a:
                 self.call.__call__(a)
             else:
                 self.call.__call__()"""
-
+        # if call is not none
+        if self.call and clicked:
+            if not callable(self.call):
+                try:
+                    import __main__ as main
+                    #from .utils import callFunction
+                    func = getattr(main, self.call)()
+                    #print("callable", func)
+                except AttributeError:
+                    name = str(self.call)
+                    from .utils import name
         return clicked
     def hover(self):# bool
         """overwrites the standard method for calculating its rects offset."""
@@ -867,7 +878,7 @@ class Menu(Master):
             # validating the construction plans and adding some properties
             # before giving it to the new appended button element
             for o in c["options"]:
-                o = validateDict(o, default)
+                o = u.validateDict(o, default)
                 o["parent"] = self
                 o["text"] = o["name"]
                 o["background"] = (45, 45, 55)
@@ -1016,9 +1027,9 @@ class Text(Master):
     'cfg' properties for this object.
     """
     cfg = {
-    	"font": FONTS["base"]["name"],
-    	"fontsize": FONTS["base"]["size"],
-    	"color": FONTS["base"]["color"],
+    	"font": u.FONTS["base"]["name"],
+    	"fontsize": u.FONTS["base"]["size"],
+    	"color": u.FONTS["base"]["color"],
         "background": None,
     	"text": "No Text",
     	"antialias": True,
@@ -1034,7 +1045,7 @@ class Text(Master):
         """
         Master.__init__(self, config)
         # creating a new validated dict to read and build from
-        config = validateDict(config, self.cfg)# dict
+        config = u.validateDict(config, self.cfg)# dict
         # additional attributes
         self.text = config["text"]# str
         self.color = config["color"]# none / list / tuple
@@ -1073,7 +1084,7 @@ class Text(Master):
             elif type(self.wrap) is tuple:
                 rect = (0, 0, self.wrap[0], self.wrap[1])
             # creating wrapped text here
-            self.image = wrapText(
+            self.image = u.wrapText(
                 self.text,
                 self.color,
                 pg.Rect(rect),
@@ -1099,14 +1110,14 @@ class MiniMap(pg.Surface):
     def __init__(self, config={}):
         """."""
         # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
+        self.config = u.validateDict(config, self.default)# dict
         # initiating surface
         pg.Surface.__init__(self, self.config["size"])
         # determining map image
         if self.config["map"]:# pygame.surface
             img = self.config["map"].preview
         else:
-            img = pg.image.load(LIBPATH["noimage"])
+            img = pg.image.load(u.LIBPATH["noimage"])
         self.image = img
         self.rect = pg.Rect((0, 0), self.config["size"])# pygame.rect
         #draw(self.image, self)
@@ -1124,7 +1135,7 @@ class MiniMap(pg.Surface):
                 )
             )
             #draw((0, 0, 0), self)
-            draw(img, self, "center")
+            u.draw(img, self, "center")
 class Overlay(pg.Surface):
     """
     for dimmed backgrounds on menus. 'opacity' somehow works backwards. means
@@ -1138,7 +1149,7 @@ class Overlay(pg.Surface):
     def __init__(self, config={}):
         """constructor"""
         # comparing dicts and creating a new one
-        self.config = validateDict(config, self.default)# dict
+        self.config = u.validateDict(config, self.default)# dict
         # initiating surface
         pg.Surface.__init__(self, self.config["size"])
         # setting opacity if there is one
@@ -1168,7 +1179,7 @@ class TextBox(pg.Surface):
         'text' holds a whole text object with warpped or non-wrapped text.
         """
         # creating a new dict based on comparison of two
-        self.config = validateDict(config, self.default)# dict
+        self.config = u.validateDict(config, self.default)# dict
         self.type = self.config["type"]# str
         self.call = False# bool
         pg.Surface.__init__(self, self.config["size"], pg.SRCALPHA)
