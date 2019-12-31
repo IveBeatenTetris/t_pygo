@@ -874,7 +874,9 @@ class Menu(Master):
                     "args": None,
                     "name": "unnamed_option",
                     "background": self.background,
-                    "hover": (35, 35, 45)
+                    "hover": (35, 35, 45),
+                    "textposition": (0, 0),
+                    "fontsize": 13
                 }
                 cfg = u.validateDict(cfg, default)
                 cfg["text"] = cfg["name"]
@@ -1010,12 +1012,6 @@ class MenuBar(Master):
             self.menus[name] = Menu({
                 "name": name,
                 "background": (45, 45, 55),
-                """"rect": [
-                    x,
-                    self.rect.bottom,
-                    75,
-                    7
-                ],"""
                 "options": elem["elements"]
             })
             self.menus[name].rect.topleft = (x, self.rect.bottom)
