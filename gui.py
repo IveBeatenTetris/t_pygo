@@ -729,16 +729,25 @@ class Button(Master):
             func = self.call
             if not callable(func):
                 # try getting function from another module
-                try:
+                if hasattr(u, self.call):
                     func = getattr(u, self.call)
-                except AttributeError:
+                else:
                     import __main__ as main
-                    func = getattr(main, self.call)
+                    if hasattr(main, self.call):
+                        func = getattr(main, self.call)
             # executing function based on given arguments
-            if self.cfg["args"]:
-                func.__call__(self.cfg["args"])
+            if callable(func):
+                if self.cfg["args"]:
+                    func.__call__(self.cfg["args"])
+                else:
+                    func.__call__()
+            # printing a missing function warning
             else:
-                func.__call__()
+                print(
+                    "Function" +
+                    " '" + str(func) + "' " +
+                    "is not registered anywhere."
+                )
 
         return clicked
     def hover(self):# bool
@@ -772,12 +781,6 @@ class Button(Master):
         if self.click():
             # activating state of button
             self.state = "active"
-            """# call a buttons function if its set by the user
-            if self.call:
-                if not callable(self.call):
-                    # import the function from the main file
-                    import __main__ as main
-                    func = getattr(main, self.call)()"""
         # resetting state if clicked somewhere else
         elif not self.hover() and mbut[0] and self.state == "active":
             self.state = "waiting"
