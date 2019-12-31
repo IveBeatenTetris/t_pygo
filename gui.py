@@ -863,7 +863,32 @@ class Menu(Master):
     def createOptions(self):
         """returns a list of drawable and interactive options for a menu."""
         options = []
-        c = self.cfg
+        y = 0
+
+        if "options" in self.cfg:
+            for cfg in self.cfg["options"]:
+                default = {
+                    "parent": self,
+                    "type": "option",
+                    "call": None,
+                    "args": None,
+                    "name": "unnamed_option",
+                    "background": self.background,
+                    "hover": (35, 35, 45)
+                }
+                cfg = u.validateDict(cfg, default)
+                cfg["text"] = cfg["name"]
+
+                opt = Option(cfg)
+                opt.rect = pg.Rect(
+                    0,
+                    y,
+                    self.rect.width,
+                    opt.text.rect.height
+                )
+                opt.createSurface()
+                options.append(opt)
+                y += opt.rect.height
 
         return options
     def createOptions2(self):# list
@@ -961,7 +986,7 @@ class MenuBar(Master):
         for elem in c["elements"]:
             # predicting name for element
             if "name" in elem: name = elem["name"]
-            else: name = "[Unnamed{0}]".format(str(i)); i += 1
+            else: name = "[Unnamed Option{0}]".format(str(i)); i += 1
             # creating its button
             but = Button({
                 "parent": self,
