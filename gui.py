@@ -860,8 +860,14 @@ class Menu(Master):
         for o in self.options:
             o.update()
             self.draw(o, o.rect)
-    def createOptions(self):# list
-        """returns a dict of drawable and interactive options for a menu."""
+    def createOptions(self):
+        """returns a list of drawable and interactive options for a menu."""
+        options = []
+        c = self.cfg
+
+        return options
+    def createOptions2(self):# list
+        """returns a list of drawable and interactive options for a menu."""
         options = []
         c = self.cfg
         # default values to compare the given one with
@@ -892,14 +898,12 @@ class Menu(Master):
                 # updating button.rect
                 but.rect = pg.Rect(
                     0,
-                    but.rect.top + y,
+                    y,
                     self.rect.width,
                     but.text.rect.height
                 )
-                # updating visuals
-                but.createSurface()
                 # seeting next drawing height
-                y += but.rect.height
+                y += but.rect.height + 20
                 # calculating new menu size
                 if but.text.rect.width > maximum_width:
                     maximum_width = but.text.rect.width
@@ -981,14 +985,15 @@ class MenuBar(Master):
             self.menus[name] = Menu({
                 "name": name,
                 "background": (45, 45, 55),
-                "rect": [
+                """"rect": [
                     x,
                     self.rect.bottom,
                     75,
                     7
-                ],
+                ],"""
                 "options": elem["elements"]
             })
+            self.menus[name].rect.topleft = (x, self.rect.bottom)
             # raising value of x
             x += but.rect.width
 
