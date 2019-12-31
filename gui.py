@@ -660,7 +660,8 @@ class Button(Master):
     cfg = {
         "margin": 20,
         "textposition": "center",
-        "call": None
+        "call": None,
+        "args": None
     }
     def __init__(self, config={}):
         """
@@ -720,28 +721,25 @@ class Button(Master):
 
         if self.off_rect.collidepoint(mpos) and mbut[0]:
             clicked = True
-        #print(self.call, "clicked")
-        #print(self.off_rect)
-        #callFunction(self.call)
-        """# calling given function on click
-        if callable(self.call) and clicked:
-            a = self.cfg["args"]
-            # call the function with arguments if given
-            if a:
-                self.call.__call__(a)
-            else:
-                self.call.__call__()"""
-        # if call is not none
+        if "args" in self.cfg: arguments = self.cfg["args"]
+        else: arguments = None
+
+        # if button has a function / function name and was called
         if self.call and clicked:
-            if not callable(self.call):
+            func = self.call
+            if not callable(func):
+                # try getting function from another module
                 try:
-                    import __main__ as main
-                    #from .utils import callFunction
-                    func = getattr(main, self.call)()
-                    #print("callable", func)
+                    func = getattr(u, self.call)
                 except AttributeError:
-                    name = str(self.call)
-                    from .utils import name
+                    import __main__ as main
+                    func = getattr(main, self.call)
+            # executing function based on given arguments
+            if self.cfg["args"]:
+                func.__call__(self.cfg["args"])
+            else:
+                func.__call__()
+
         return clicked
     def hover(self):# bool
         """overwrites the standard method for calculating its rects offset."""
@@ -865,9 +863,10 @@ class Menu(Master):
         c = self.cfg
         # default values to compare the given one with
         default = {
+            "type": "option",
             "name": "unnamed_option",
             "call": None,
-            "type": "option"
+            "args": None
         }
         # used to store maximum width for menu
         maximum_width = 0
