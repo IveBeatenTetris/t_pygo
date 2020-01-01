@@ -842,18 +842,29 @@ class InfoBar(Master):
             int(self.rect.height / 2) - int(self.text.rect.height / 2)
         ))
 class Menu(Master):
-    """a dropdown menu with clickable options."""
+    """
+    a dropdown menu with clickable options.
+
+    'default' default properties for this object.
+    """
+    default = {
+        "options": [],
+        "margin": [5, 35, 5, 7]
+    }
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
 
         'cfg' building instructions to draw from. it also declares what to
             display.
+        'margin' draws every option with these menu margins. must be 'list'.
         'options' list of interactive menu points.
         'visible' used to determine the displaying state.
         """
         Master.__init__(self, config)
-        self.cfg = config
+        #self.cfg = config
+        self.cfg = u.validateDict(config, self.default)
+        self.margin = self.cfg["margin"]# list
         self.options = self.createOptions()# list
         self.visible = False# bool
         # first time drawing options
@@ -863,14 +874,11 @@ class Menu(Master):
     def createOptions(self):
         """returns a list of drawable and interactive options for a menu."""
         options = []
-        # adding these values to menus size to make enough space for options to
-        # be drawn
-        margin = [5, 35, 5, 7]
         # updating this with each bigger option and using it to determine menus
         # size
         highest_width = 0
         # start drawing options at first margin point
-        y = margin[0]
+        y = self.margin[0]
 
         if "options" in self.cfg:
             for cfg in self.cfg["options"]:
@@ -883,7 +891,7 @@ class Menu(Master):
                     "name": "unnamed_option",
                     "background": self.background,
                     "hover": (35, 35, 45),
-                    "textposition": (margin[3], 0),
+                    "textposition": (self.margin[3], 0),
                     "fontsize": 13
                 })
                 cfg["text"] = cfg["name"]
@@ -904,7 +912,7 @@ class Menu(Master):
                 if opt.text.rect.width > highest_width:
                     highest_width = opt.text.rect.width
             # setting the size of this menu
-            self.rect.size = (highest_width + margin[1], y + margin[2])
+            self.rect.size = (highest_width + self.margin[1], y + self.margin[2])
             self.createSurface()
 
         return options
