@@ -863,11 +863,19 @@ class Menu(Master):
     def createOptions(self):
         """returns a list of drawable and interactive options for a menu."""
         options = []
-        y = 0
+        # adding these values to menus size to make enough space for options to
+        # be drawn
+        margin = [5, 35, 5, 7]
+        # updating this with each bigger option and using it to determine menus
+        # size
+        highest_width = 0
+        # start drawing options at first margin point
+        y = margin[0]
 
         if "options" in self.cfg:
             for cfg in self.cfg["options"]:
-                default = {
+                # creating a setup config for each option
+                cfg = u.validateDict(cfg, {
                     "parent": self,
                     "type": "option",
                     "call": None,
@@ -875,12 +883,11 @@ class Menu(Master):
                     "name": "unnamed_option",
                     "background": self.background,
                     "hover": (35, 35, 45),
-                    "textposition": (0, 0),
+                    "textposition": (margin[3], 0),
                     "fontsize": 13
-                }
-                cfg = u.validateDict(cfg, default)
+                })
                 cfg["text"] = cfg["name"]
-
+                # creating the option and updating its rect
                 opt = Option(cfg)
                 opt.rect = pg.Rect(
                     0,
@@ -889,62 +896,16 @@ class Menu(Master):
                     opt.text.rect.height
                 )
                 opt.createSurface()
+                # appending option to returning list
                 options.append(opt)
+                # updating next vertical draw coordinate for option
                 y += opt.rect.height
-
-        return options
-    def createOptions2(self):# list
-        """returns a list of drawable and interactive options for a menu."""
-        options = []
-        c = self.cfg
-        # default values to compare the given one with
-        default = {
-            "type": "option",
-            "name": "unnamed_option",
-            "call": None,
-            "args": None
-        }
-        # used to store maximum width for menu
-        maximum_width = 0
-
-        if "options" in c:
-            # used to set a new y value for each following option
-            y = 5
-            # validating the construction plans and adding some properties
-            # before giving it to the new appended button element
-            for o in c["options"]:
-                o = u.validateDict(o, default)
-                o["parent"] = self
-                o["text"] = o["name"]
-                o["background"] = (45, 45, 55)
-                o["hover"] = (35, 35, 45)
-                o["fontsize"] = 13
-                o["textposition"] = (10, 0)
-                # creating option
-                but = Option(o)
-                # updating button.rect
-                but.rect = pg.Rect(
-                    0,
-                    y,
-                    self.rect.width,
-                    but.text.rect.height
-                )
-                # seeting next drawing height
-                y += but.rect.height + 20
-                # calculating new menu size
-                if but.text.rect.width > maximum_width:
-                    maximum_width = but.text.rect.width
-                # appending button to returning list
-                options.append(but)
-            # setting new size of menu depending on last options height
-            self.rect.height = y + 5
-            # applying new menu size by bigger element width
-            self.rect.width = maximum_width + 35
-        # resetting / tweaking each options rect back to menu.rect size
-        for each in options:
-            each.rect.width = self.rect.width
-            each.createSurface()
-        self.createSurface()
+                # updating higheest_width so we can get the menus size
+                if opt.text.rect.width > highest_width:
+                    highest_width = opt.text.rect.width
+            # setting the size of this menu
+            self.rect.size = (highest_width + margin[1], y + margin[2])
+            self.createSurface()
 
         return options
     def update(self):
