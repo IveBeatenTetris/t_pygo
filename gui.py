@@ -849,7 +849,8 @@ class Menu(Master):
     """
     default = {
         "options": [],
-        "margin": [5, 35, 5, 7]
+        "margin": [5, 35, 5, 7],
+        "background": (45, 45, 55)
     }
     def __init__(self, config={}):
         """
@@ -858,6 +859,8 @@ class Menu(Master):
         'cfg' building instructions to draw from. it also declares what to
             display.
         'margin' draws every option with these menu margins. must be 'list'.
+        'background' overwriting parental background by given one. must be
+            tuple.
         'options' list of interactive menu points.
         'visible' used to determine the displaying state.
         """
@@ -865,6 +868,10 @@ class Menu(Master):
         #self.cfg = config
         self.cfg = u.validateDict(config, self.default)
         self.margin = self.cfg["margin"]# list
+        # recreating background by users given one
+        self.background = self.cfg["background"]# tuple
+        self.recreateBackground()
+        
         self.options = self.createOptions()# list
         self.visible = False# bool
         # first time drawing options
