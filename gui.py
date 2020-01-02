@@ -477,17 +477,12 @@ class Interface(Master):
                 self.cfg = js
                 self.cfg["rect"] = pg.display.get_surface().get_rect()
         Master.__init__(self, self.cfg)
-        self.menu = self.createMenu()# menu object
+        self.menu = Menu()# menu object
         self.elements = self.loadElements()# dict
         # first time drawing elements to create a visual static copy
         self.drawElements()
         self.static = None# none / pg.surface
         self.createStatic()
-    def createMenu(self):# menu object
-        """."""
-        cfg = {}
-
-        return Menu(cfg)
     def createStatic(self, screen=None):
         """
         creates a copy of a fully drawn idle interface screen. if a pg.surface
@@ -614,8 +609,9 @@ class Interface(Master):
                     # redrawing old menu occupied area
                     self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
                     # creating menu with initial position
-                    self.menu = self.createMenu()
-                    self.menu.rect.topleft = mpos
+                    self.menu = Menu({
+                        "position": mpos
+                    })
                     # drawing menu to screen
                     self.blit(self.menu, self.menu.rect)
                     # toggling visible state for reactivation later again
@@ -853,7 +849,8 @@ class Menu(Master):
     default = {
         "options": [],
         "margin": [5, 35, 5, 7],
-        "background": (45, 45, 55)
+        "background": (45, 45, 55),
+        "position": None
     }
     def __init__(self, config={}):
         """
@@ -924,6 +921,8 @@ class Menu(Master):
             # setting the size of this menu
             self.rect.size = (highest_width + self.margin[1], y + self.margin[2])
             self.createSurface()
+            if self.cfg["position"]:
+                self.rect.topleft = self.cfg["position"]
             # changing width of every option to menus fresh calculated width
             # size
             for opt in options:
