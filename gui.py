@@ -497,7 +497,7 @@ class Interface(Master):
             self.static = surface
     def drawElements(self, element=None):
         """
-        redrawing either everything or one specific element if a name was given.
+        redraws either everything or one specific element if a name was given.
         """
         # if element named
         if element:
@@ -517,7 +517,7 @@ class Interface(Master):
         self.blit(self.static, pos, rect)
     def loadElements(self, element=None):# dict
         """
-        load elements from their config dict. if no specific element is given
+        loads elements from their config dict. if no specific element is given
             then reload every element.
         """
         elements = {}
@@ -642,7 +642,7 @@ class Interface(Master):
                     e.click()
                 ):
                     draw_element = True
-            elif type(e) is MenuBar: # conditional
+            elif type(e) is MenuBar:# conditional
                 # if mouse is over the element and moving or just over
                 if (
                     e.rect.collidepoint(mpos) and mrel[0] != 0 or
@@ -1037,63 +1037,13 @@ class Panel(Master):
 
     'default' default properties for this object.
     """
-    default = {
-        "resizable": "right"
-    }
+    default = {}
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
-
-        'drag_area' a tuple of a pg.sruface and a pg.rect for blitting purpose.
-            only gets initiated if user sets 'self.resizable' to 'true'.
         """
         Master.__init__(self, config)
         self.cfg = u.validateDict(config, self.default)
-        # drawing a dragging area if set by user
-        if self.cfg["resizable"]:
-            self.drag_area = self.createDraggingArea(# tuple
-                pos=self.cfg["resizable"],
-                width=12,
-                height=50
-            )
-            self.blit(self.drag_area[0], self.drag_area[1])
-    def createDraggingArea(self, **kwargs):# tuple
-        """
-        creates and draws a dragging-area on the panel for the mosue to drag at.
-        returns it in a tuple together with the rect (surface, rect).
-        """
-        # using standard image for drag area
-        da = pg.image.load(u.LIBPATH["dragging"])
-        rect = da.get_rect()
-        # additional properties
-        margin = [5, 5, 5, 5]
-        # updating size
-        for k, v in kwargs.items():
-            if k == "width" and type(v) is int:
-                rect.width = v
-            elif k == "height" and type(v) is int:
-                rect.height = v
-        # calculating drawing position
-        for k, v in kwargs.items():
-            if k == "pos":
-                if type(v) is str:
-                    if v == "right":
-                        pos = (
-                            self.rect.width - rect.width - margin[1],
-                            int(self.rect.height / 2) - int(rect.height / 2)
-                        )
-        rect.topleft = pos
-        # repeating image for resizing purpose
-        da = u.repeatBG(
-            da,
-            rect.size,
-            "xy"
-        )
-
-        return (da, rect)
-    def update(self):
-        """overwriting parent method."""
-        pass
 class Text(Master):
     """
     a displayable text object.
