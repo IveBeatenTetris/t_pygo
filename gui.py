@@ -483,26 +483,9 @@ class Interface(Master):
         self.drawElements()
         self.static = None# none / pg.surface
         self.createStatic()
-    def createMenu(self, elem=None):# menu object
+    def createMenu(self):# menu object
         """."""
-        cfg = {
-            "type": None,
-            "name": "right_click",
-            "rect": [0, 0, 85, 150],
-            "background": (45, 45, 55),
-            "fontsize": 13,
-            "options": []
-        }
-        c = cfg["options"]
-
-        def inspect():
-            """."""
-            print("start inspection")
-        # this creates context based on the element that has been right clicked
-        # at. i want to put it somewhere else later and make this method
-        # building e real menu with functions to call on selection.
-        if elem:
-            c.append({"name": "Inspect", "call": inspect()})
+        cfg = {}
 
         return Menu(cfg)
     def createStatic(self, screen=None):
@@ -604,7 +587,7 @@ class Interface(Master):
                     m = e.menus[name]
                     # by using pygame events we can change the state of an
                     #  option by clicking or declicking it once
-                    for evt in globals()["app"]._events:
+                    for evt in events:
                         # if not activated yet
                         if o.state == "waiting" and evt.type is pg.MOUSEBUTTONDOWN and o.hover():
                             o.state = "active"
@@ -624,6 +607,26 @@ class Interface(Master):
                     if o.state == "active":
                         m.update()
                         self.draw(m, m.rect)
+            # initiating right click menu
+            for evt in events:
+                # if right clicked
+                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
+                    # redrawing old menu occupied area
+                    self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    # creating menu with initial position
+                    self.menu = self.createMenu()
+                    self.menu.rect.topleft = mpos
+                    # drawing menu to screen
+                    self.blit(self.menu, self.menu.rect)
+                    # toggling visible state for reactivation later again
+                    self.menu.visible = True
+                # redrawing area if any other button has been pressed while
+                # menu is active
+                elif self.menu.visible and evt.type is pg.MOUSEBUTTONDOWN and evt.button != 3:
+                    # redrawing old menu occupied area
+                    self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    # toggling visible state for activation later again
+                    self.menu.visible = False
         # cycling through elements dict to see if something needs to be redrawn
         for n, e in self.elements.items():
             # if 'true' then the corresponding element will be drawn
