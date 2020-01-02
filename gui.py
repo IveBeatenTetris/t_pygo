@@ -871,7 +871,7 @@ class Menu(Master):
         # recreating background by users given one
         self.background = self.cfg["background"]# tuple
         self.recreateBackground()
-        
+
         self.options = self.createOptions()# list
         self.visible = False# bool
         # first time drawing options
@@ -921,6 +921,10 @@ class Menu(Master):
             # setting the size of this menu
             self.rect.size = (highest_width + self.margin[1], y + self.margin[2])
             self.createSurface()
+            # changing width of every option to menus fresh calculated width
+            # size
+            for opt in options:
+                opt.rect.width = self.rect.width
 
         return options
     def update(self):
