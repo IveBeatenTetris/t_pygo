@@ -509,6 +509,12 @@ class Interface(Master):
             for n, e in self.elements.items():
                 e.update()
                 self.blit(e, e.rect)
+    def drawStatic(self, pos, rect):
+        """
+        used to redraw a static area of the gui. 'pos' neets to be tuple and
+            'rect' must be pg.rect
+        """
+        self.blit(self.static, pos, rect)
     def loadElements(self, element=None):# dict
         """
         load elements from their config dict. if no specific element is given
@@ -574,7 +580,7 @@ class Interface(Master):
         for n, e in self.elements.items():
             # recreating background if an elemente has been dragged around
             if e.dragged_at and (mrel[0] != 0 or mrel[1] != 0):
-                self.blit(self.static, e.rect.topleft, e.rect)
+                self.drawStatic(e.rect.topleft, e.rect)
             # drawing dropdown menus when activated
             if type(e) is MenuBar:
                 # looking for an option that has been clicked
@@ -597,7 +603,7 @@ class Interface(Master):
                                 opt.click()
                             # render menu invisible again
                             m.visible = False
-                            self.blit(self.static, m.rect.topleft, m.rect)
+                            self.drawStatic(m.rect.topleft, m.rect)
                     # draw menu as long as its option is active
                     if o.state == "active":
                         m.update()
@@ -607,7 +613,7 @@ class Interface(Master):
                 # if right clicked
                 if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 3:
                     # redrawing old menu occupied area
-                    self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    self.drawStatic(self.menu.rect.topleft, self.menu.rect)
                     # creating menu with initial position
                     self.menu = Menu({
                         "position": mpos
@@ -620,7 +626,7 @@ class Interface(Master):
                 # menu is active
                 elif self.menu.visible and evt.type is pg.MOUSEBUTTONDOWN and evt.button != 3:
                     # redrawing old menu occupied area
-                    self.blit(self.static, self.menu.rect.topleft, self.menu.rect)
+                    self.drawStatic(self.menu.rect.topleft, self.menu.rect)
                     # toggling visible state for activation later again
                     self.menu.visible = False
         # cycling through elements dict to see if something needs to be redrawn
