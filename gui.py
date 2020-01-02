@@ -1043,15 +1043,24 @@ class Panel(Master):
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
+
+        'drag_area' a tuple of a pg.sruface and a pg.rect for blitting purpose.
+            only gets initiated if user sets 'self.resizable' to 'true'.
         """
         Master.__init__(self, config)
         self.cfg = u.validateDict(config, self.default)
         # drawing a dragging area if set by user
         if self.cfg["resizable"]:
-            self.createDraggingArea(pos=self.cfg["resizable"], width=12, height=50)
-    def createDraggingArea(self, **kwargs):
+            self.drag_area = self.createDraggingArea(# tuple
+                pos=self.cfg["resizable"],
+                width=12,
+                height=50
+            )
+            self.blit(self.drag_area[0], self.drag_area[1])
+    def createDraggingArea(self, **kwargs):# tuple
         """
-        creates and draws a dragging area on the panel for the mosue to drag at.
+        creates and draws a dragging-area on the panel for the mosue to drag at.
+        returns it in a tuple together with the rect (surface, rect).
         """
         # using standard image for drag area
         da = pg.image.load(u.LIBPATH["dragging"])
@@ -1080,8 +1089,8 @@ class Panel(Master):
             rect.size,
             "xy"
         )
-        # drawing dragging area
-        self.blit(da, rect)
+
+        return (da, rect)
     def update(self):
         """overwriting parent method."""
         pass
