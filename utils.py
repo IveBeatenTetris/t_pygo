@@ -19,7 +19,8 @@ LIBPATH = {
     "noimage": PATH["sysimg"] + "\\noimage.png",
     "notile": PATH["sysimg"] + "\\notile.png",
     "windowbg": PATH["sysimg"] + "\\bg01.png",
-    "windowicon": PATH["sysimg"] + "\\ente.png"
+    "windowicon": PATH["sysimg"] + "\\ente.png",
+    "dragging": PATH["sysimg"] + "\\dragging.png"
 }
 RESOLUTIONS = {
     "1920x1080": (1920, 1080),
