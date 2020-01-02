@@ -1032,10 +1032,59 @@ class Option(Button):
         if "parent" in config:
             self.parent = config["parent"]# gui element
 class Panel(Master):
-    """."""
+    """
+    a panel to draw elements in.
+
+    'default' default properties for this object.
+    """
+    default = {
+        "resizable": "right"
+    }
     def __init__(self, config={}):
-        """."""
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+        """
         Master.__init__(self, config)
+        self.cfg = u.validateDict(config, self.default)
+        # drawing a dragging area if set by user
+        if self.cfg["resizable"]:
+            self.createDraggingArea(pos=self.cfg["resizable"], width=12, height=50)
+    def createDraggingArea(self, **kwargs):
+        """
+        creates and draws a dragging area on the panel for the mosue to drag at.
+        """
+        # using standard image for drag area
+        da = pg.image.load(u.LIBPATH["dragging"])
+        rect = da.get_rect()
+        # additional properties
+        margin = [5, 5, 5, 5]
+        # updating size
+        for k, v in kwargs.items():
+            if k == "width" and type(v) is int:
+                rect.width = v
+            elif k == "height" and type(v) is int:
+                rect.height = v
+        # calculating drawing position
+        for k, v in kwargs.items():
+            if k == "pos":
+                if type(v) is str:
+                    if v == "right":
+                        pos = (
+                            self.rect.width - rect.width - margin[1],
+                            int(self.rect.height / 2) - int(rect.height / 2)
+                        )
+        rect.topleft = pos
+        # repeating image for resizing purpose
+        da = u.repeatBG(
+            da,
+            rect.size,
+            "xy"
+        )
+        # drawing dragging area
+        self.blit(da, rect)
+    def update(self):
+        """overwriting parent method."""
+        pass
 class Text(Master):
     """
     a displayable text object.
