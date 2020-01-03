@@ -8,7 +8,7 @@ import sys, os, random
 def createElements(cfg={}):# dict
     """
     loads elements from their config dict. returns a dict of elements ready to
-        be drawn.
+        be drawn. cfg should be a valid dict of information about the element.
     """
     elements = {}
 
@@ -35,6 +35,12 @@ def createElements(cfg={}):# dict
                     elements[name] = Button(e)
 
     return elements
+def drawElements(elements, destination):
+    """."""
+    if type(elements) is dict:
+        for name, elem in elements.items():
+            elem.update()
+            destination.blit(elem, elem.rect)
 # pygames display object
 class App:
     """
@@ -1040,11 +1046,9 @@ class Panel(Master):
         Master.__init__(self, config)
         self.cfg = config
         self.elements = createElements(config)# dict
+        drawElements(self.elements, self)
     def update(self):
         """overwriting parental method."""
-        for name, elem in self.elements.items():
-            elem.update()
-            self.blit(elem, elem.rect)
 class Text(Master):
     """
     a displayable text object.
