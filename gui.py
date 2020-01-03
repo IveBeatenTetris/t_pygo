@@ -504,6 +504,55 @@ class Master(pg.Surface):
             if self.bg_hover:
                 self.draw(self.background)
 # all these following elements draw from 'Master'
+class GUI(pg.Surface):
+    """
+    this object serves as a big screen surface to draw all its gui elements on.
+    the final product can then simply be drawn to the apps display surface.
+    """
+    def __init__(self, name):
+        """
+        uses 'pg.Surface' as its parent with additional methodes and attributes.
+
+        'cfg' construction instructions as a dict draw from a file. the input
+            shall be json-dict or xml-markup.
+        'rect' pg.rect of interfaces full size.
+        'background' can be tuple, list or pg.surface. becomes pg.surface
+            afterwards.
+        """
+        # load setup dict from a xml or json file
+        for js in u.loadAssets(u.PATH["interface"] + "\\" + name):
+            if js["type"] == "interface":
+                self.cfg = js# dict
+        # declaring some standard propeties
+        self.rect = pg.display.get_surface().get_rect()# pg.rect
+        self.background = self.createBackground()# pg.surface
+        # initiating and drawing to surface
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        self.blit(self.background, self.rect)
+
+        u.prettyPrint(self.cfg)
+    # creating / updating properties
+    def createBackground(self):# pg.surface
+        """returns a pg.surface with the drawn background on it."""
+        background = pg.Surface(self.rect.size)
+
+        if "background" in self.cfg:
+            bg = self.cfg["background"]
+            # if background is tuple or list or 3 ints
+            if (type(bg) is tuple or type(bg) is list) and len(bg) == 3:
+                background.fill(bg, self.rect)
+
+        return background
+    # basic methodes
+    def draw(self, object, rect):
+        """draws something to the interface."""
+        self.blit(object, rect)
+    def resize(self, size):
+        """."""
+        pass
+    def update(self):
+        """."""
+        pass
 class Interface(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
