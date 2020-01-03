@@ -36,11 +36,17 @@ def createElements(cfg={}):# dict
 
     return elements
 def drawElements(elements, destination):
-    """."""
+    """
+    drawing elements from a list to the destination surface. 'elements' can be
+        list or single gui element.
+    """
     if type(elements) is dict:
         for name, elem in elements.items():
             elem.update()
             destination.blit(elem, elem.rect)
+    else:
+        elements.update()
+        destination.blit(elements, elements.rect)
 # pygames display object
 class App:
     """
@@ -521,7 +527,7 @@ class Interface(Master):
         self.menu = Menu()# menu object
         self.elements = createElements(self.cfg)# dict
         # first time drawing elements to create a visual static copy
-        self.drawElements()
+        drawElements(self.elements, self)
         self.static = None# none / pg.surface
         self.createStatic()
     def createStatic(self, screen=None):
@@ -569,7 +575,7 @@ class Interface(Master):
             self.createSurface()
         # recreating and drawing elements
         self.elements = createElements(self.cfg)
-        self.drawElements()
+        drawElements(self.elements, self)
     def update(self):
         """
         overwrites parental 'update()' method for adding more functionality.
@@ -661,7 +667,7 @@ class Interface(Master):
 
             # drawing if previous conditions matched
             if draw_element:
-                self.drawElements(n)
+                drawElements(e, self)
 class Button(Master):
     """
     resembles a button element with a text and common mouse interactive events.
@@ -1049,6 +1055,7 @@ class Panel(Master):
         drawElements(self.elements, self)
     def update(self):
         """overwriting parental method."""
+        pass
 class Text(Master):
     """
     a displayable text object.
