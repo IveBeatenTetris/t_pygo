@@ -663,7 +663,7 @@ class Button(Master):
     'cfg' default properties for this object.
     """
     cfg = {
-        "margin": 20,
+        "margin": 0,
         "textposition": "center",
         "call": None,
         "args": None
