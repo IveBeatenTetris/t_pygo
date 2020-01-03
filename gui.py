@@ -4,6 +4,37 @@ from .camera import Camera
 from .input import Controller, Mouse
 import pygame as pg
 import sys, os, random
+# overall functions
+def createElements(cfg={}):# dict
+    """
+    loads elements from their config dict. returns a dict of elements ready to
+        be drawn.
+    """
+    elements = {}
+
+    if "elements" in cfg:
+        i = 1
+
+        for e in cfg["elements"]:
+            # adding 'name' property to config dict for the element
+            if not "name" in e:
+                name = "Unnamed" + str(i)
+                i += 1
+            else:
+                name = e["name"]
+            # looking for 'type' property
+            if "type" in e:
+                # calling objects by type from cfg
+                if e["type"] == "infobar":
+                    elements[name] = InfoBar(e)
+                elif e["type"] == "menubar":
+                    elements[name] = MenuBar(e)
+                elif e["type"] == "panel":
+                    elements[name] = Panel(e)
+                elif e["type"] == "button":
+                    elements[name] = Button(e)
+
+    return elements
 # pygames display object
 class App:
     """
@@ -482,7 +513,7 @@ class Interface(Master):
                 self.cfg["rect"] = pg.display.get_surface().get_rect()
         Master.__init__(self, self.cfg)
         self.menu = Menu()# menu object
-        self.elements = self.loadElements()# dict
+        self.elements = createElements(self.cfg)# dict
         # first time drawing elements to create a visual static copy
         self.drawElements()
         self.static = None# none / pg.surface
@@ -519,41 +550,6 @@ class Interface(Master):
             'rect' must be pg.rect
         """
         self.blit(self.static, pos, rect)
-    def loadElements(self, element=None):# dict
-        """
-        loads elements from their config dict. if no specific element is given
-            then reload every element.
-        """
-        elements = {}
-        c = self.cfg
-
-        if "elements" in c:
-            # if there is a given element
-            if element:
-                pass
-            # with no specific element given
-            else:
-                i = 1
-                for e in c["elements"]:
-                    # adding 'name' property to config dict for the element
-                    if not "name" in e:
-                        name = "Unnamed" + str(i)
-                        i += 1
-                    else:
-                        name = e["name"]
-                    # looking for 'type' property
-                    if "type" in e:
-                        # calling objects by type from cfg
-                        if e["type"] == "infobar":
-                            elements[name] = InfoBar(e)
-                        elif e["type"] == "menubar":
-                            elements[name] = MenuBar(e)
-                        elif e["type"] == "panel":
-                            elements[name] = Panel(e)
-                        elif e["type"] == "button":
-                            elements[name] = Button(e)
-
-        return elements
     def resize(self, size=None):
         """
         overwrites parental 'resize()' method for handling its elements.
@@ -566,7 +562,7 @@ class Interface(Master):
         else:
             self.createSurface()
         # recreating and drawing elements
-        self.elements = self.loadElements()
+        self.elements = createElements(self.cfg)
         self.drawElements()
     def update(self):
         """
@@ -1036,18 +1032,19 @@ class Option(Button):
         if "parent" in config:
             self.parent = config["parent"]# gui element
 class Panel(Master):
-    """
-    a panel to draw elements in.
-
-    'default' default properties for this object.
-    """
-    default = {}
+    """a panel to draw elements in."""
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
         """
         Master.__init__(self, config)
-        self.cfg = u.validateDict(config, self.default)
+        self.cfg = config
+        self.elements = createElements(config)# dict
+    def update(self):
+        """overwriting parental method."""
+        for name, elem in self.elements.items():
+            elem.update()
+            self.blit(elem, elem.rect)
 class Text(Master):
     """
     a displayable text object.
