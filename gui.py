@@ -664,7 +664,10 @@ class Interface(Master):
                     draw_element = True
             elif type(e) is InfoBar:# unconditional
                 draw_element = True
-
+            elif type(e) is Panel:# conditinal
+                # only redraws if mouse hovers and moves
+                if e.rect.collidepoint(mpos) and (mrel[0] != 0 or mrel[1] != 0):
+                    draw_element = True
             # drawing if previous conditions matched
             if draw_element:
                 drawElements(e, self)
@@ -1048,14 +1051,16 @@ class Panel(Master):
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
+
+        'elements' a dict of gui elements ready to be drawn to the panel.
         """
         Master.__init__(self, config)
         self.cfg = config
         self.elements = createElements(config)# dict
         drawElements(self.elements, self)
     def update(self):
-        """overwriting parental method."""
-        pass
+        """overwrites parental method."""
+        drawElements(self.elements, self)
 class Text(Master):
     """
     a displayable text object.
