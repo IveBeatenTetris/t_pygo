@@ -25,7 +25,9 @@ def createElements(cfg={}):# dict
             # looking for 'type' property
             if "type" in e:
                 # calling objects by type from cfg
-                if e["type"] == "infobar":
+                if e["type"] == "layout":
+                    elements[name] = Layout(e)
+                elif e["type"] == "infobar":
                     elements[name] = InfoBar(e)
                 elif e["type"] == "menubar":
                     elements[name] = MenuBar(e)
@@ -518,6 +520,10 @@ class GUI(pg.Surface):
         'rect' pg.rect of interfaces full size.
         'background' can be tuple, list or pg.surface. becomes pg.surface
             afterwards.
+        'elements' a dict of gui elements indexed my their name ready to be
+            drawn to the interface.
+        'static' copy of full interface size with drawn background to use for
+            overdrawing glitchy blitten areas.
         """
         # load setup dict from a xml or json file
         for js in u.loadAssets(u.PATH["interface"] + "\\" + name):
@@ -529,15 +535,18 @@ class GUI(pg.Surface):
         # declaring some additional properties
         self.rect = pg.display.get_surface().get_rect()# pg.rect
         self.background = self.createBackground()# pg.surface
+        self.elements = createElements(self.cfg)# dict
         # initiating and drawing to surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         self.blit(self.background, self.rect)
+        # create a static screenshot of the interface from now
+        self.static = self.copy()# none / pg.surface
 
         u.prettyPrint(self.cfg)
     # creating / updating properties
     def createBackground(self):# pg.surface
         """returns a pg.surface with the drawn background on it."""
-        background = pg.Surface(self.rect.size)
+        background = pg.Surface(self.rect.size, pg.SRCALPHA)
 
         if "background" in self.cfg:
             bg = self.cfg["background"]
@@ -556,6 +565,13 @@ class GUI(pg.Surface):
     def update(self):
         """."""
         pass
+class Layout(Master):
+    """acts like a html table to draw elements in cells and rows."""
+    def __init__(self, config={}):
+        """
+        uses 'Master' as its parent with additional methodes and attributes.
+        """
+        Master.__init__(self, config)
 class Interface(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
