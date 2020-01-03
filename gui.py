@@ -442,18 +442,21 @@ class Master(pg.Surface):
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.clicked = False
     def checkForResize(self):
-        """checks for mouse dragging within a certain radius of the element."""
-        # events
-        app = globals()["app"]
-        mpos = pg.mouse.get_pos()
-        mrel = pg.mouse.get_rel()
-        mbut= pg.mouse.get_pressed()
-        # margin to side. the higher the more space there is for the mouse to
-        # interact
-        drag_margin = 10
-
+        """
+        checks for mouse dragging within a certain radius of the element. only
+            enters the method if element is resizable.
+        """
         if self.resizable:
+            # events
+            app = globals()["app"]
+            mpos = pg.mouse.get_pos()
+            mrel = pg.mouse.get_rel()
+            mbut= pg.mouse.get_pressed()
+            # margin to side. the higher the more space there is for the mouse to
+            # interact
+            drag_margin = 10
             resizing = False
+
             #if mouse clicks between element and its inner deadzone
             if self.hover() and not self.resize_deathzone.collidepoint(mpos):
                 for evt in app._events:
