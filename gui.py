@@ -289,7 +289,8 @@ class Master(pg.Surface):
         "drag": False,
         "hover": None,
         "parent": None,
-        "rect": [0, 0, 200, 150]
+        "rect": [0, 0, 200, 150],
+        "resizable": None
     }
     def __init__(self, config={}):
         """
@@ -317,27 +318,32 @@ class Master(pg.Surface):
         'clicked' true on click until not released.
         'hovered' used for checking the hover state of the mouse relative to
             the element.
+        'resizable' string to check if resizing functionallity shall set in.
+            standard is 'none' and other options are:
+            'topleft', 'top', 'topright', 'left', 'right', 'bottomleft',
+            'bottom' and 'bottomright'.
         """
         self.config = u.validateDict(config, self.defaults)# dict
         self.name = self.config["name"]# str
         # choosing parental rect
         if self.config["parent"]: self.parent = self.config["parent"]# pg.rect
         else: self.parent = pg.display.get_surface().get_rect()# pg.rect
-        # converting rect
+        # convert string arguments in position and size
         if type(self.config["rect"]) is list:# pg.rect
             self.rect = pg.Rect(u.convertRect(self.config["rect"], self.parent))
         elif type(self.config["rect"]) is pg.Rect:# pg.rect
             self.rect = self.config["rect"]
-        # convert string arguments in position and size
         self.background = self.config["background"]# none / tuple / pg.surface
         self.bg_hover = self.config["hover"]# none / tuple / pg.surface
-        self.dragable = self.config["drag"]# bool
         # once the element has been clicked 'dragged_at' becomes a position
         # tuple to calculate the position of this element on drag and drop
+        self.dragable = self.config["drag"]# bool
         self.dragged_at = None# none / tuple
         # these are turning true if 'update()' testing their conditions positive
         self.clicked = False# bool
         self.hovered = False# bool
+        # additional properties
+        self.resizable = self.config["resizable"]# none / str
         # first time creating the surface
         self.createSurface()
     def createSurface(self, **kwargs):
@@ -379,13 +385,15 @@ class Master(pg.Surface):
         caspulted method for initiating dragging of this element if preset by
             user.
         """
+        # events
+        events = globals()["app"]._events
         mpos = pg.mouse.get_pos()
         # if element is dragabe (user defined)
         if self.dragable:
             # get events from globals()["app"]._events since we make use of
             # 'mousebuttonup' and 'mousebuttondown' to only trigger the events
             # if necessary
-            for evt in globals()["app"]._events:
+            for evt in events:
                 # on first time clicked
                 if evt.type is pg.MOUSEBUTTONDOWN and self.hover():
                     if not self.clicked:
@@ -412,6 +420,22 @@ class Master(pg.Surface):
                     self.clicked = True
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.clicked = False
+    def checkForResize(self):
+        """."""
+        # events
+        app = globals()["app"]
+        mpos = pg.mouse.get_pos()
+
+        drag_margin = 10
+
+        if self.resizable:
+            if self.hover():
+                surface = pg.Surface((15, 15))
+                surface.fill((15, 50, 200))
+                app.draw(surface, (
+                    mpos[0] - int(surface.get_rect().width / 2),
+                    mpos[1] - int(surface.get_rect().height / 2)
+                ))
     def click(self):# bool
         """retuns true if clicked."""
         mpos = pg.mouse.get_pos()
@@ -444,8 +468,10 @@ class Master(pg.Surface):
         """handles events. call this method at each main loops end."""
         mbut = pg.mouse.get_pressed()
         mpos = pg.mouse.get_pos()
-        # initiate dragging if represent
+        # initiate dragging if preset
         self.checkForDrag()
+        # initiate resizing if preset
+        self.checkForResize()
         # drawing another background if hovered
         if self.hover():
             self.hovered = True
