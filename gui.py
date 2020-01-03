@@ -523,30 +523,50 @@ class GUI(pg.Surface):
         for js in u.loadAssets(u.PATH["interface"] + "\\" + name):
             if js["type"] == "interface":
                 self.cfg = js# dict
+<<<<<<< HEAD
         # declaring some standard propeties
         self.rect = pg.display.get_surface().get_rect()# pg.rect
         self.background = self.createBackground()# pg.surface
         # initiating and drawing to surface
+=======
+
+        self.rect = pg.display.get_surface().get_rect()# pg.rect
+        self.background = self.createBackground()# pg.surface
+
+>>>>>>> 66fe076ac1206952c05245fdb3e076796c5dfa3d
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         self.blit(self.background, self.rect)
 
         u.prettyPrint(self.cfg)
     # creating / updating properties
     def createBackground(self):# pg.surface
+<<<<<<< HEAD
         """returns a pg.surface with the drawn background on it."""
+=======
+        """."""
+>>>>>>> 66fe076ac1206952c05245fdb3e076796c5dfa3d
         background = pg.Surface(self.rect.size)
 
         if "background" in self.cfg:
             bg = self.cfg["background"]
+<<<<<<< HEAD
             # if background is tuple or list or 3 ints
+=======
+
+>>>>>>> 66fe076ac1206952c05245fdb3e076796c5dfa3d
             if (type(bg) is tuple or type(bg) is list) and len(bg) == 3:
                 background.fill(bg, self.rect)
 
         return background
     # basic methodes
     def draw(self, object, rect):
+<<<<<<< HEAD
         """draws something to the interface."""
         self.blit(object, rect)
+=======
+        """."""
+        pass
+>>>>>>> 66fe076ac1206952c05245fdb3e076796c5dfa3d
     def resize(self, size):
         """."""
         pass
