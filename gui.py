@@ -322,6 +322,8 @@ class Master(pg.Surface):
             standard is 'none' and other options are:
             'topleft', 'top', 'topright', 'left', 'right', 'bottomleft',
             'bottom' and 'bottomright'.
+        'resize_deathzone' none > pg.rect centered in the element to check if
+            the mouse runs within a certain radius.
         """
         self.config = u.validateDict(config, self.defaults)# dict
         self.name = self.config["name"]# str
@@ -342,20 +344,39 @@ class Master(pg.Surface):
         # these are turning true if 'update()' testing their conditions positive
         self.clicked = False# bool
         self.hovered = False# bool
-        # additional properties
+        # resizing properties
         self.resizable = self.config["resizable"]# none / str
+        self.resize_deathzone = None# none
         # first time creating the surface
         self.createSurface()
+    def createDeathzone(self):# pg.rect
+        """
+        returns a pg.rect slightly smaller than self.rect.size to create an
+            area of non-functionallity for reszing.
+        """
+        puffer = 10
+
+        return pg.Rect(
+            self.rect.left + puffer,
+            self.rect.top + puffer,
+            self.rect.width - (puffer * 2),
+            self.rect.height - (puffer * 2)
+        )
     def createSurface(self, **kwargs):
         """recreates the elements surface on call."""
         # identifying size to recreate surface
         if "size" in kwargs: size = kwargs["size"]
         else: size = self.rect.size
+        # saving position
+        pos = self.rect.topleft
         # initiating surface and rect
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect.size = self.get_rect().size
+        self.rect = pg.Rect(pos, self.get_rect().size)
         # drawing background if element has one
         self.recreateBackground()
+        # recreating deathzone if resizable
+        if self.resizable:
+            self.resize_deathzone = self.createDeathzone()
     def draw(self, object, rect=None):
         """
         draws something to its element surface. 'rect' must be a valid
@@ -421,15 +442,24 @@ class Master(pg.Surface):
                 elif evt.type is pg.MOUSEBUTTONUP:
                     self.clicked = False
     def checkForResize(self):
-        """."""
+        """checks for mouse dragging within a certain radius of the element."""
         # events
         app = globals()["app"]
         mpos = pg.mouse.get_pos()
-
+        mrel = pg.mouse.get_rel()
+        mbut= pg.mouse.get_pressed()
+        # margin to side. the higher the more space there is for the mouse to
+        # interact
         drag_margin = 10
 
         if self.resizable:
-            if self.hover():
+            resizing = False
+            #if mouse clicks between element and its inner deadzone
+            if self.hover() and not self.resize_deathzone.collidepoint(mpos):
+                for evt in app._events:
+                    if evt.type is pg.MOUSEBUTTONDOWN:
+                        print("start resizing")
+                # drawing a small indicator for a dragable area on an element
                 surface = pg.Surface((15, 15))
                 surface.fill((15, 50, 200))
                 app.draw(surface, (
