@@ -539,10 +539,9 @@ class GUI(pg.Surface):
         # initiating and drawing to surface
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         self.blit(self.background, self.rect)
+        drawElements(self.elements, self)
         # create a static screenshot of the interface from now
         self.static = self.copy()# none / pg.surface
-
-        u.prettyPrint(self.cfg)
     # creating / updating properties
     def createBackground(self):# pg.surface
         """returns a pg.surface with the drawn background on it."""
@@ -570,8 +569,32 @@ class Layout(Master):
     def __init__(self, config={}):
         """
         uses 'Master' as its parent with additional methodes and attributes.
+
+        'rows' list of rows containing cols and their elements ready to be
+            drawn.
         """
         Master.__init__(self, config)
+        self.cfg = config# dict
+        self.rows = self.solveLayout()# list
+    def solveLayout(self):# tuple
+        """."""
+        class Row(Master):
+            """."""
+            def __init__(self, config={}):
+                Master.__init__(self, config)
+        class Col(Master):
+            """."""
+            def __init__(self, config={}):
+                Master.__init__(self, config)
+
+        rows, cols = [], []
+
+        if "elements" in self.cfg:
+            for elem in self.cfg["elements"]:
+                if elem["type"] == "row":
+                    rows.append(Row(elem))
+
+        return rows
 class Interface(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
