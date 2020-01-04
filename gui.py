@@ -6,7 +6,7 @@ there are some rules for initiating an element.
 """
 # dependencies
 import pygame as pg
-import os
+import os, sys
 from . import utils as u
 from .input import Controller, Mouse
 # initiate pygame
