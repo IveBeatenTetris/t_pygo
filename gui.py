@@ -38,7 +38,7 @@ class App:
     }
     def __init__(self, config={}):
         """
-        initiates pygame to act as an app window.
+        act as a pygame.display-window.
 
         'config' validated dict by comparison of a user set dict of properties
             and the elements default ones.
@@ -67,8 +67,6 @@ class App:
         """
         # centering window
         os.environ["SDL_VIDEO_CENTERED"] = "1"
-        # initiate pygame
-        pg.init()
         # creating a dict based of comparison of config{} and default{}
         self.config = u.validateDict(config, self.default)# dict
         # additional attributes
@@ -280,3 +278,17 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
+
+class GuiMaster(pg.Surface):
+    """resembles a 'pygame.surface' but with advanced operations."""
+    defaults = {}
+    def __init__(self,
+        size=(300, 200)
+    ):
+        """."""
+        pg.Surface.__init__(self, size)
+class Interface(GuiMaster):
+    """."""
+    def __init__(self, name=None):
+
+        GuiMaster.__init__()
