@@ -570,31 +570,61 @@ class Layout(Master):
         """
         uses 'Master' as its parent with additional methodes and attributes.
 
-        'rows' list of rows containing cols and their elements ready to be
+        'cfg' building instructions for the layout.
+        'elements' list of rows containing cols and their elements ready to be
             drawn.
         """
         Master.__init__(self, config)
         self.cfg = config# dict
-        self.rows = self.solveLayout()# list
-    def solveLayout(self):# tuple
-        """."""
+        self.elements = self.solveLayout()# list
+        # first time drawing layout
+        for element in self.elements:
+            self.blit(element, element.rect)
+        u.prettyPrint(config)
+    def solveLayout(self):# list
+        """
+        convert the layout arguments into valid rows. populate them with cols
+            and fill these with gui elements.
+        """
         class Row(Master):
-            """."""
+            """represents a row in a layout."""
             def __init__(self, config={}):
+                """."""
                 Master.__init__(self, config)
         class Col(Master):
-            """."""
+            """represents a col in a layout."""
             def __init__(self, config={}):
+                """."""
                 Master.__init__(self, config)
 
-        rows, cols = [], []
+        elements = []
 
         if "elements" in self.cfg:
             for elem in self.cfg["elements"]:
                 if elem["type"] == "row":
-                    rows.append(Row(elem))
+                    row = Row(elem)
 
-        return rows
+                    if "elements" in elem:
+                        cols = []
+                        for i, cell in enumerate(elem["elements"]):
+                            if cell["type"] == "col":
+                                if not "rect" in cell:
+                                    cell["rect"] = [
+                                        0,
+                                        0,
+                                        int(row.rect.width / len(elem["elements"])),
+                                        row.rect.height
+                                    ]
+                                    if i > 0:
+                                        cell["rect"][0] = cols[i - 1].rect.right
+
+                                col = Col(cell)
+                                cols.append(col)
+                                row.blit(col, col.rect)
+
+                    elements.append(row)
+
+        return elements
 class Interface(Master):
     """
     this object serves as a big screen surface to draw all its gui elements on.
