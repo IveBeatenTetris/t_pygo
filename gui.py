@@ -11,7 +11,12 @@ from . import utils as u
 from .input import Controller, Mouse
 # initiate pygame
 pg.init()
-# pygames display object
+# overall functions for use in the whole script
+def loadXMLInterface(name):
+    """."""
+    for cfg in u.loadAssets(u.PATH["interface"] + "\\" + name):
+        if cfg["type"] == "interface":
+            return cfg
 class App:
     """
     pygames window module with extended features. can be accessed by calling
