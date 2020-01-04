@@ -12,23 +12,27 @@ from .input import Controller, Mouse
 pg.init()
 # overall functions for use in the whole script
 def loadXMLInterface(name):
-    """."""
+    """
+    returns an interface structure written in a markup language. the output is
+    already converted to a readable 'dict'.
+    """
     for cfg in u.loadAssets(u.PATH["interface"] + "\\" + name):
         if cfg["type"] == "interface":
             return cfg
+# first step to creating a pygame window
 class App:
     """
     pygames window module with extended features. can be accessed by calling
-        'globals()["app"]'.
+    'globals()["app"]'.
     for the active event list use the internal one instead of calling the
-        method 'events()' again to refresh events:
+    method 'events()' again to refresh events:
         'globals()["app"]._events' good.
         'globals()["app"].events()' bad.
 
     'defaults' is a dict of standard properties. on initiation the given
-        parameter 'config' is beeing compared to the default dict. if some given
-        properties are missing they are simply replaced with default values.
-        the result is a validated dict to draw initiation instructions.
+    parameter 'config' is beeing compared to the default dict. if some given
+    properties are missing they are simply replaced with default values.
+    the result is a validated 'dict' to draw initiation instructions.
     """
     default = {
         "size": (320, 240),
@@ -106,7 +110,7 @@ class App:
     def update(self):
         """
         call this method on each main loop end to refresh its contents and
-            visuals.
+        visuals.
         """
         # refreshing display
         pg.display.update()
@@ -120,8 +124,8 @@ class App:
     def pause(self):
         """
         pauses the game or continues it. also freezes screen to simulate
-            stopping by taking a display copied surface. internal property
-            'self.paused' is gonna be togled on/off.
+        stopping by taking a display copied surface. internal property
+        'self.paused' is gonna be togled on/off.
         """
         if self.paused is True:
             self.paused = False
@@ -157,7 +161,7 @@ class App:
         resizes the window.
 
         'size' needs to be a tuple. if no 'size parameter' is given this method
-            serves as a 'resized-event' checker and returns 'true' or 'false'.
+        serves as a 'resized-event' checker and returns 'true' or 'false'.
         """
         # on given parameter
         if size:
@@ -184,9 +188,9 @@ class App:
     def screenShot(self, surface=None):# pygame.surface
         """
         makes a visual copy of the actual display and stores it in
-            'self.screenshot'.
+        'self.screenshot'.
         if 'surface' is given then sotre a copy of that instead.
-            """
+        """
         if surface:
             self.screenshot = surface.copy()
         else:
@@ -282,6 +286,7 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
+# now on to the elements
 class GuiMaster(pg.Surface):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self,
@@ -294,8 +299,14 @@ class GuiMaster(pg.Surface):
         self.rect.topleft = position
         if background:
             self.fill(background)
+    def rebuild(self):
+        """."""
 class Interface(GuiMaster):
     """a screen to draw all gui elements to."""
     def __init__(self, name):
-        cfg = loadXMLInterface(name)
-        GuiMaster.__init__(self)
+        self.cfg = loadXMLInterface(name)
+        if not "size" in self.cfg:
+            self.cfg["size"] = pg.display.get_surface().get_rect().size
+        GuiMaster.__init__(self,
+            size = self.cfg["size"]
+        )
