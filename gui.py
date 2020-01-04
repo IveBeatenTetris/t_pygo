@@ -2,7 +2,6 @@
 this file contains all elements used to fuse a visual graphical user interface.
 it starts of with 'GuiMaster' which serves as a master class for all / most of
 the elements.
-there are some rules for initiating an element.
 """
 # dependencies
 import pygame as pg
@@ -283,17 +282,20 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
-
 class GuiMaster(pg.Surface):
     """resembles a 'pygame.surface' but with advanced operations."""
-    defaults = {}
     def __init__(self,
-        size=(300, 200)
+        size = (300, 200),
+        position = (0, 0),
+        background = (45, 45, 55)
     ):
-        """."""
-        pg.Surface.__init__(self, size)
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect = self.get_rect()
+        self.rect.topleft = position
+        if background:
+            self.fill(background)
 class Interface(GuiMaster):
-    """."""
-    def __init__(self, name=None):
-
-        GuiMaster.__init__()
+    """a screen to draw all gui elements to."""
+    def __init__(self, name):
+        cfg = loadXMLInterface(name)
+        GuiMaster.__init__(self)
