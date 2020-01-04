@@ -1,8 +1,16 @@
+"""
+this file contains all elements used to fuse a visual graphical user interface.
+it starts of with 'GuiMaster' which serves as a master class for all / most of
+the elements.
+there are some rules for initiating an element.
+"""
 # dependencies
 import pygame as pg
 import os
 from . import utils as u
 from .input import Controller, Mouse
+# initiate pygame
+pg.init()
 # pygames display object
 class App:
     """
