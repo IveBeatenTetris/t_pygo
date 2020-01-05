@@ -1,7 +1,7 @@
 """
 this file contains all elements used to fuse a visual graphical user interface.
 it starts of with 'GuiMaster' which serves as a master class for all / most of
-the elements.
+the gui-elements.
 """
 # dependencies
 import pygame as pg
@@ -33,11 +33,44 @@ class App:
         "icon": u.LIBPATH["windowicon"],
         "fps": 30
     }
-    def __init__(self, config={}):
+    def __init__(self, **kwargs):
+        """."""
         pg.init()
         os.environ["SDL_VIDEO_CENTERED"] = "1"
-        self.config = u.validateDict(config, self.default)# dict
+        self.config = u.validateDict(kwargs, self.default)
+        self.display = u.getDisplay(
+            self.config["size"],
+            resizable = self.config["resizable"]
+        )
+    @property
+    def events(self):
+        """."""
+        events = pg.event.get()
+
+        for evt in events:
+            if evt.type is pg.QUIT:
+                self.quit()
+            elif evt.type is pg.VIDEORESIZE:
+                self.resize(evt.size)
+
+        return events
+
+    def draw(self, object, rect=None):
+        """."""
+        if not rect: rect = (0, 0)
+        self.display.blit(object, rect)
+    def resize(self, size):
+        """."""
+        self.display = u.getDisplay(
+            size,
+            resizable = self.config["resizable"]
+        )
+    def quit(self):
+        """exits the app."""
+        pg.quit()
+        sys.exit()
     def update(self):
+        """."""
         pass
 class GuiMaster(pg.Surface):
     """
@@ -52,15 +85,18 @@ class GuiMaster(pg.Surface):
         "background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
+        """."""
         self.config = u.validateDict(kwargs, self.defaults)
         self.background = self.config["background"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         self.resize(self.config["size"])
     def drawBackground(self):
+        """."""
         if self.background:
             if type(self.background) is list or type(self.background) is tuple:
                 self.fill(self.background)
     def resize(self, size):
+        """."""
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = size
         self.drawBackground()
