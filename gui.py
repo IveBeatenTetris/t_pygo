@@ -320,3 +320,16 @@ class Interface(pg.Surface):
         self.cfg = u.validateDict(cfg, self.default)
         if not "size" in self.cfg:
             self.cfg["size"] = pg.display.get_surface().get_rect().size
+        # initiating surface and dimensions
+        pg.Surface.__init__(self, self.cfg["size"], pg.SRCALPHA)
+        self.rect = self.get_rect()
+        # drawing background if preset
+        if self.cfg["background"]:
+            self.fill(self.cfg["background"])
+    def resize(self, size):
+        # reinitiating surface and dimensions
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect = self.get_rect()
+        # drawing background if preset
+        if self.cfg["background"]:
+            self.fill(self.cfg["background"])
