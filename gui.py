@@ -176,7 +176,8 @@ class GuiMaster(pg.Surface):
     defaults = {
         "size": (300, 200),
         "position": (0, 0),
-        "background": (45, 45, 55)
+        "background": (45, 45, 55),
+        "background_hover": None
     }
     def __init__(self, **kwargs):
         """
@@ -190,13 +191,25 @@ class GuiMaster(pg.Surface):
         """
         self.config = u.validateDict(kwargs, self.defaults)
         self.background = self.config["background"]
+        self.background_hover = self.config["background"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         self.resize(self.config["size"])
-    def drawBackground(self):
+    # dynamic properties
+    @property# bool
+    def hover(self):
+        """returns 'true' if the mouse floats over the element's rect."""
+        mpos = pg.mouse.get_pos()
+        hover = False
+
+        if self.rect.collidepoint(mpos):
+            hover = True
+
+        return hover
+    def drawBackground(self, bg=None):
         """draws background to surface if 'background' is preset by user."""
-        if self.background:
-            if type(self.background) is list or type(self.background) is tuple:
-                self.fill(self.background)
+        if bg:
+            if type(bg) is list or type(bg) is tuple:
+                self.fill(bg)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -204,4 +217,12 @@ class GuiMaster(pg.Surface):
         """
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = size
-        self.drawBackground()
+        self.drawBackground(self.background)
+    def update(self):
+        """."""
+        if self.hover:
+            print("hover")
+        """if self.background_hover:
+            self.drawBackground(self.background_hover)
+        else:
+            self.drawBackground(self.background)"""
