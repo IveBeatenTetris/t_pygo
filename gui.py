@@ -192,6 +192,7 @@ class GuiMaster(pg.Surface):
         self.background = self.config["background"]
         self.background_hover = self.config["background_hover"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
+        self.hovering = False
         self.resize(self.config["size"])
     # dynamic properties
     @property
@@ -211,12 +212,16 @@ class GuiMaster(pg.Surface):
         return buttons
     @property# bool
     def hover(self):
-        """returns 'true' if the mouse-cursor floats over the element's rect."""
+        """
+        returns 'true' if the mouse-cursor floats over the element's rect. also
+        sets 'self.hovering' to 'true' so we can check for several mouse events.
+        """
         mpos = pg.mouse.get_pos()
         hover = False
 
         if self.rect.collidepoint(mpos):
             hover = True
+            self.hovering = True
 
         return hover
     @property
@@ -225,14 +230,13 @@ class GuiMaster(pg.Surface):
         returns 'true' if the mouse leaves the element. used to declare
         redrawing of surface on mouse-out.
         """
-        mrel = pg.mouse.get_rel()
-        mpos = pg.mouse.get_pos()
         leaving = False
 
-        if self.rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
+        if self.hovering and not self.hover:
             leaving = True
 
             return leaving
+
     def drawBackground(self, bg=None):
         """draws background to surface if 'background' is preset by user."""
         if bg:
