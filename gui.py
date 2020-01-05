@@ -69,7 +69,8 @@ class App:
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
         self.fps = 0
-    @property
+    # dynamic properties
+    @property# pg.surface
     def background(self):
         """returns a pygame.surface based on background-properties."""
         bg = self.config["background"]
@@ -95,23 +96,25 @@ class App:
                 )
 
         return bg
-    @property
+    @property# list
     def events(self):
         """checks for the most basic events and returns the pg-event-list."""
         events = pg.event.get()
 
         for evt in events:
+            # exiting the app
             if evt.type is pg.QUIT:
                 self.quit()
-            elif evt.type is pg.VIDEORESIZE:
+            # calling 'self.resize()' when window has been resized
+            if evt.type is pg.VIDEORESIZE:
                 self.resize(evt.size)
 
         return events
-    @property
+    @property# pg.rect
     def rect(self):
         """returns a valid pygame-rect with app's dimensions."""
         return self.display.get_rect()
-
+    # basic methodes
     def draw(self, object, rect=None):
         """
         blits a surface-object / gui-element to the app's surface.
@@ -123,7 +126,7 @@ class App:
         else:
             if not rect: rect = (0, 0)
             self.display.blit(object, rect)
-    def resize(self, size=None):
+    def resize(self, size=None):# tuple
         """
         resizes the app's surface.
 
@@ -176,7 +179,15 @@ class GuiMaster(pg.Surface):
         "background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
-        """."""
+        """
+        first creates a internal setup-config to decleare some properties.
+
+        'config' the validated 'dict' to draw building instructions from.
+            evaluation between pass keyword-args and a dict of predefined
+            attributes.
+        'background' either 'str' or 'tuple' / 'list'. if 'none', leave the
+            surface transparent.
+        """
         self.config = u.validateDict(kwargs, self.defaults)
         self.background = self.config["background"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
