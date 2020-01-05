@@ -29,7 +29,7 @@ class App:
         the result is a validated dict to draw initialisation instructions.
         it also declares what arguments can be passed to the app-object.
     """
-    default = {
+    defaults = {
         "size": (320, 240),
         "title": "No Title",
         "resizable": False,
@@ -46,22 +46,55 @@ class App:
         'config' validated 'dict' of comparing a user-set dict of properties
             with this object's default values.
         'display' holds the actual 'pygame.display.surface' object.
+        'background' used to draw to fill the surface with. might be 'str' or
+            'tuple'. if 'str', use it as image-path and load a
+            pygame.image-surface.
         'clock' pygame.clock for tracking 'fps'.
         'preffered_fps' user-defined maximal frames per second.
-        'fps' is gonna be updated by the window's 'update()'-method.
+        'fps' the actual FPS. it's gonna be updated by the window's
+            'update()'-method.
         """
-        self.config = u.validateDict(kwargs, self.default)
+        self.config = u.validateDict(kwargs, self.defaults)
         # pygame init and window centering
         pg.init()
         os.environ["SDL_VIDEO_CENTERED"] = "1"
-        # creating display surface
+        # creating display surface and drawing background
         self.display = u.getDisplay(
             self.config["size"],
             resizable = self.config["resizable"]
-        )# fps settings
+        )
+        #self.background = self.config["background"]
+        self.draw(self.background)
+        # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
-        self.fps = 0# int
+        self.fps = 0
+    @property
+    def background(self):
+        """creates a pygame.surface based on background-properties."""
+        bg = self.config["background"]
+
+        if type(bg) is str:
+            # overwriting app's local 'background_repeat'-property if 'bg'
+            # is the library's standard background-image.
+            if bg == str(u.LIBPATH["windowbg"]):
+                self.config["background_repeat"] = "xy"
+            bg = pg.image.load(bg)
+        elif type(bg) is tuple:
+            pass
+        # checking background repeat
+        if type(bg) is pg.Surface:
+            if self.config["background_repeat"]:
+                # creating surfact with repeated background
+                # 'self.config["background_repeat"]' is the indicator:
+                # ('x', 'y', 'xy')
+                bg = u.repeatBG(
+                    bg,
+                    self.display.get_rect().size,
+                    self.config["background_repeat"]
+                )
+
+        return bg
     @property
     def events(self):
         """checks for the most basic events and returns the pg-event-list."""
@@ -76,21 +109,32 @@ class App:
         return events
 
     def draw(self, object, rect=None):
-        """blits a surface-object / gui-element to the app's surface."""
-        if not rect: rect = (0, 0)
-        self.display.blit(object, rect)
+        """
+        blits a surface-object / gui-element to the app's surface.
+        if 'object' is a list or tuple, fill the surface with this statement
+        instead.
+        """
+        if type(object) is list or type(object) is tuple:
+            self.display.fill(object)
+        else:
+            if not rect: rect = (0, 0)
+            self.display.blit(object, rect)
     def resize(self, size):
         """resizes the app's surface."""
         self.display = u.getDisplay(
             size,
             resizable = self.config["resizable"]
         )
+        self.draw(self.background)
     def quit(self):
         """exits the app."""
         pg.quit()
         sys.exit()
     def update(self):
-        """."""
+        """
+        updates dimensions, visuals and physics of the pygame.display with each
+        game-loop.
+        """
         # refreshing display visuals
         pg.display.update()
         # updating fps
