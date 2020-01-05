@@ -288,25 +288,57 @@ class App:
         pg.display.set_caption(title)
 # now on to the elements
 class GuiMaster(pg.Surface):
-    """resembles a 'pygame.surface' but with advanced operations."""
-    def __init__(self,
-        size = (300, 200),
-        position = (0, 0),
-        background = (45, 45, 55)
-    ):
+    """
+    resembles a 'pygame.surface' but with advanced operations.
+
+    'defaults' serves as a setup-dict to evaluate building instructions for the
+        master-element.
+    """
+    defaults = {
+        "size": (300, 200),
+        "position": (0, 0),
+        "background": (45, 45, 55)
+    }
+    def __init__(self, **kwargs):
+        self.config = u.validateDict(kwargs, self.defaults)
+        self.build()
+    def build(self, size=None, position=None):
+        """
+        recreates the element and its dimensions.
+        if one a parameter is not given then use the standard properties
+        instead.
+        """
+        # declaring properties for surface
+        if not size: size = self.config["size"]
+        if not position: position = self.config["position"]
+        # reinitiating surface andrect dimensions
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect = self.get_rect()
         self.rect.topleft = position
-        if background:
-            self.fill(background)
-    def rebuild(self):
-        """."""
+        # drawing background if preset
+        if self.config["background"]: self.fill(self.config["background"])
 class Interface(GuiMaster):
-    """a screen to draw all gui elements to."""
+    """a screen to draw all gui-elements to."""
+    default = {
+        "background": None,
+        "elements": []
+    }
     def __init__(self, name):
-        self.cfg = loadXMLInterface(name)
+        # getting a setup-dict from a xml-file for passing some properties to
+        # its master-object. updating its properties afterwards if needed (left
+        # out by user)
+        cfg = loadXMLInterface(name)
+        self.cfg = u.validateDict(cfg, self.default)
         if not "size" in self.cfg:
             self.cfg["size"] = pg.display.get_surface().get_rect().size
+        # initiating parent object with properties from 'self.cfg'
         GuiMaster.__init__(self,
-            size = self.cfg["size"]
+            size = self.cfg["size"],
+            background = self.cfg["background"]
         )
+    def resize(self, size):
+        """
+        calls the 'rebuild()'-method of the master-object to recreate the
+        surface with an updated size.
+        """
+        self.build(size=size)
