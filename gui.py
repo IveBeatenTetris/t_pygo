@@ -295,12 +295,14 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
+        "parent": None,
         "size": (300, 200),
         "position": (0, 0),
         "background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
         self.config = u.validateDict(kwargs, self.defaults)
+        self.parent = self.config["parent"]
         self.build()
     def build(self, size=None, position=None):
         """
@@ -323,6 +325,7 @@ class GuiMaster(pg.Surface):
         surface with an updated size.
         """
         self.build(size=size)
+        print(self.parent)
 class Interface(GuiMaster):
     """a screen to draw all gui-elements to."""
     default = {
@@ -339,6 +342,7 @@ class Interface(GuiMaster):
             self.cfg["size"] = pg.display.get_surface().get_rect().size
         # initiating parent object with properties from 'self.cfg'
         GuiMaster.__init__(self,
+            parent = pg.display.get_surface().get_rect(),
             size = self.cfg["size"],
             background = self.cfg["background"]
         )
