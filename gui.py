@@ -317,6 +317,12 @@ class GuiMaster(pg.Surface):
         self.rect.topleft = position
         # drawing background if preset
         if self.config["background"]: self.fill(self.config["background"])
+    def resize(self, size):
+        """
+        calls the 'rebuild()'-method of the master-object to recreate the
+        surface with an updated size.
+        """
+        self.build(size=size)
 class Interface(GuiMaster):
     """a screen to draw all gui-elements to."""
     default = {
@@ -336,9 +342,3 @@ class Interface(GuiMaster):
             size = self.cfg["size"],
             background = self.cfg["background"]
         )
-    def resize(self, size):
-        """
-        calls the 'rebuild()'-method of the master-object to recreate the
-        surface with an updated size.
-        """
-        self.build(size=size)
