@@ -8,8 +8,6 @@ import pygame as pg
 import os, sys
 from . import utils as u
 from .input import Controller, Mouse
-# initiate pygame
-pg.init()
 # overall functions for use in the whole script
 def loadXMLInterface(name):
     """
@@ -46,7 +44,7 @@ class App:
     }
     def __init__(self, config={}):
         """
-        act as a pygame.display-window.
+        initiates pygame to act as a pygame.display-window.
 
         'config' validated dict by comparison of a user set dict of properties
             and the elements default ones.
@@ -73,6 +71,8 @@ class App:
             pygame.events. use this instead of calling 'app.events()'. this
             would only refresh the event list. resulting in loss of some events.
         """
+        # initiate pygame
+        pg.init()
         # centering window
         os.environ["SDL_VIDEO_CENTERED"] = "1"
         # creating a dict based of comparison of config{} and default{}
