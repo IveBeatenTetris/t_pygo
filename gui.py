@@ -107,7 +107,10 @@ class App:
                 self.resize(evt.size)
 
         return events
-
+    @property
+    def rect(self):
+        """returns a valid pygame-rect with app's dimensions."""
+        return self.display.get_rect()
     def draw(self, object, rect=None):
         """
         blits a surface-object / gui-element to the app's surface.
