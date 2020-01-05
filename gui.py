@@ -71,7 +71,7 @@ class App:
         self.fps = 0
     @property
     def background(self):
-        """creates a pygame.surface based on background-properties."""
+        """returns a pygame.surface based on background-properties."""
         bg = self.config["background"]
 
         if type(bg) is str:
@@ -111,6 +111,7 @@ class App:
     def rect(self):
         """returns a valid pygame-rect with app's dimensions."""
         return self.display.get_rect()
+
     def draw(self, object, rect=None):
         """
         blits a surface-object / gui-element to the app's surface.
@@ -122,13 +123,32 @@ class App:
         else:
             if not rect: rect = (0, 0)
             self.display.blit(object, rect)
-    def resize(self, size):
-        """resizes the app's surface."""
-        self.display = u.getDisplay(
-            size,
-            resizable = self.config["resizable"]
-        )
-        self.draw(self.background)
+    def resize(self, size=None):
+        """
+        resizes the app's surface.
+
+        'size' needs to be a tuple. if no 'size parameter' is given this method
+            serves as a 'resized-event' checker and returns 'true' or 'false'.
+        """
+        # on given parameter
+        if size:
+            # make new display surface
+            self.display = u.getDisplay(
+                size,
+                resizable = self.config["resizable"]
+            )
+            # drawing background
+            self.draw(self.background)
+        # with no given parameter
+        else:
+            # return a tuple when resized or not
+            resized = None
+
+            for evt in self.events:
+                if evt.type is pg.VIDEORESIZE:
+                    resized = evt.size
+
+            return resized
     def quit(self):
         """exits the app."""
         pg.quit()
@@ -162,12 +182,15 @@ class GuiMaster(pg.Surface):
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         self.resize(self.config["size"])
     def drawBackground(self):
-        """."""
+        """draws background to surface if 'background' is preset by user."""
         if self.background:
             if type(self.background) is list or type(self.background) is tuple:
                 self.fill(self.background)
     def resize(self, size):
-        """."""
+        """
+        resizes the surface and updates its dimensions. as well as redrawing
+        the background if there is one.
+        """
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = size
         self.drawBackground()
