@@ -12,7 +12,7 @@ from .input import Controller, Mouse
 def loadXMLInterface(name):
     """
     returns an interface structure written in a markup language. the output is
-    already converted to a readable 'dict'.
+    already converted to a readable dict.
     """
     for cfg in u.loadAssets(u.PATH["interface"] + "\\" + name):
         if cfg["type"] == "interface":
@@ -20,8 +20,14 @@ def loadXMLInterface(name):
 # first step to creating a pygame window
 class App:
     """
-    pygames window module with extended features. can be accessed by calling
+    pygames-window-module with extended features. can be accessed by calling
     'globals()["app"]'.
+
+    'defaults' is a dict of standard properties. on init, the given parameter
+        'config' is beeing compared to the default dict. if some given
+        properties are missing, they are simply replaced by default values.
+        the result is a validated dict to draw initialisation instructions.
+        it also declares what arguments can be passed to the app-object.
     """
     default = {
         "size": (320, 240),
@@ -29,22 +35,36 @@ class App:
         "resizable": False,
         "fullscreen": False,
         "background": u.LIBPATH["windowbg"],
-        "backgroundrepeat": None,
+        "background_repeat": None,
         "icon": u.LIBPATH["windowicon"],
         "fps": 30
     }
     def __init__(self, **kwargs):
-        """."""
+        """
+        inits pygame to act as an app-window.
+
+        'config' validated 'dict' of comparing a user-set dict of properties
+            with this object's default values.
+        'display' holds the actual 'pygame.display.surface' object.
+        'clock' pygame.clock for tracking 'fps'.
+        'preffered_fps' user-defined maximal frames per second.
+        'fps' is gonna be updated by the window's 'update()'-method.
+        """
+        self.config = u.validateDict(kwargs, self.default)
+        # pygame init and window centering
         pg.init()
         os.environ["SDL_VIDEO_CENTERED"] = "1"
-        self.config = u.validateDict(kwargs, self.default)
+        # creating display surface
         self.display = u.getDisplay(
             self.config["size"],
             resizable = self.config["resizable"]
-        )
+        )# fps settings
+        self.clock = pg.time.Clock()
+        self.preffered_fps = self.config["fps"]
+        self.fps = 0# int
     @property
     def events(self):
-        """."""
+        """checks for the most basic events and returns the pg-event-list."""
         events = pg.event.get()
 
         for evt in events:
@@ -56,11 +76,11 @@ class App:
         return events
 
     def draw(self, object, rect=None):
-        """."""
+        """blits a surface-object / gui-element to the app's surface."""
         if not rect: rect = (0, 0)
         self.display.blit(object, rect)
     def resize(self, size):
-        """."""
+        """resizes the app's surface."""
         self.display = u.getDisplay(
             size,
             resizable = self.config["resizable"]
@@ -71,7 +91,11 @@ class App:
         sys.exit()
     def update(self):
         """."""
-        pass
+        # refreshing display visuals
+        pg.display.update()
+        # updating fps
+        self.clock.tick(self.preffered_fps)
+        self.fps = int(self.clock.get_fps())
 class GuiMaster(pg.Surface):
     """
     resembles a 'pygame.surface' but with advanced operations.
