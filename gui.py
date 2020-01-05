@@ -7,7 +7,6 @@ the gui-elements.
 import pygame as pg
 import os, sys
 from . import utils as u
-from .input import Controller, Mouse
 # overall functions to pick from
 def loadXMLInterface(name):
     """
@@ -195,9 +194,24 @@ class GuiMaster(pg.Surface):
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         self.resize(self.config["size"])
     # dynamic properties
+    @property
+    def click(self):
+        """
+        returns the mouse-button the element has just been clicked with.
+        otherwise returns 'none'.
+        """
+        mbut = pg.mouse.get_pressed()
+        buttons = []
+
+        if self.hover:
+            if mbut[0]: buttons.append("left")
+            if mbut[1]: buttons.append("wheel")
+            if mbut[2]: buttons.append("right")
+
+        return buttons
     @property# bool
     def hover(self):
-        """returns 'true' if the mouse floats over the element's rect."""
+        """returns 'true' if the mouse-cursor floats over the element's rect."""
         mpos = pg.mouse.get_pos()
         hover = False
 
@@ -205,6 +219,20 @@ class GuiMaster(pg.Surface):
             hover = True
 
         return hover
+    @property
+    def leave(self):
+        """
+        returns 'true' if the mouse leaves the element. used to declare
+        redrawing of surface on mouse-out.
+        """
+        mrel = pg.mouse.get_rel()
+        mpos = pg.mouse.get_pos()
+        leaving = False
+
+        if self.rect.collidepoint(mpos) and mrel[0] != 0 or mrel[1] != 0:
+            leaving = True
+
+            return leaving
     def drawBackground(self, bg=None):
         """draws background to surface if 'background' is preset by user."""
         if bg:
@@ -219,8 +247,17 @@ class GuiMaster(pg.Surface):
         self.rect.size = size
         self.drawBackground(self.background)
     def update(self):
-        """redraws the background for now..."""
-        if self.background_hover and self.hover:
-            self.drawBackground(self.background_hover)
-        else:
-            self.drawBackground(self.background)
+        """runs with every game-loop."""
+        # mouse events
+        mpos = pg.mouse.get_pos()
+        redraw = False
+        # visual redrawing of this element depends on the following conditions:
+        if self.click or self.hover or self.leave:
+            redraw = True
+        # drawing background depending on mouse-cursor and 'background_hover'
+            if redraw:
+                if self.hover:
+                    if self.background_hover:
+                        self.drawBackground(self.background_hover)
+                else:
+                    self.drawBackground(self.background)
