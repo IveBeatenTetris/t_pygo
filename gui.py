@@ -8,7 +8,7 @@ import pygame as pg
 import os, sys
 from . import utils as u
 from .input import Controller, Mouse
-# overall functions for use in the whole script
+# overall functions to pick from
 def loadXMLInterface(name):
     """
     returns an interface structure written in a markup language. the output is
@@ -27,10 +27,10 @@ class App:
         'globals()["app"]._events' good.
         'globals()["app"].events()' bad.
 
-    'defaults' is a dict of standard properties. on initiation the given
-    parameter 'config' is beeing compared to the default dict. if some given
-    properties are missing they are simply replaced with default values.
-    the result is a validated 'dict' to draw initiation instructions.
+    'defaults' is a dict of standard properties. on init the given parameter
+    'config' is beeing compared to the default dict. if some given properties
+        are missing they are simply replaced with default values. the result is
+        a validated 'dict' to draw initiation instructions.
     """
     default = {
         "size": (320, 240),
@@ -44,14 +44,14 @@ class App:
     }
     def __init__(self, config={}):
         """
-        initiates pygame to act as a pygame.display-window.
+        inits pygame to act as a pygame.display-window.
 
         'config' validated dict by comparison of a user set dict of properties
             and the elements default ones.
-        'size' window size in a tuple for short reference only.
+        'size' window-size in a tuple for short reference only.
         'title' is gonna be displayed as the windows title.
         'icon' is displayed next to the title in the window.
-        'clock' pygame clock for tracking fps.
+        'clock' pygame-clock for tracking fps.
         'preffered_fps' user defined maximal frames per second.
         'fps' is gonna be updated from the windows update-method.
         'paused' is a switch for showing a gui and closing it. handled by
@@ -71,7 +71,7 @@ class App:
             pygame.events. use this instead of calling 'app.events()'. this
             would only refresh the event list. resulting in loss of some events.
         """
-        # initiate pygame
+        # inits pygame
         pg.init()
         # centering window
         os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -80,26 +80,26 @@ class App:
         # additional attributes
         self.size = self.config["size"]# tuple
         self.title = self.config["title"]# str
-        self.icon = self.config["icon"]# str / pygame.surface
-        self.clock = pg.time.Clock()# pygame.clock
+        self.icon = self.config["icon"]# str / pg.surface
+        self.clock = pg.time.Clock()# pg.clock
         self.preffered_fps = self.config["fps"]# int
         self.fps = 0# int
         self.paused = False# bool
         self.mode = "moving"# str
         self.mouse = Mouse()# mouse object
-        self.controller = Controller()# controller (pygame.joystick.joystick)
+        self.controller = Controller()# controller (pg.joystick.joystick)
         # display related stuff
-        self.display = u.getDisplay(# pygame.surface
+        self.display = u.getDisplay(# pg.surface
             self.config["size"],
             resizable = self.config["resizable"]
         )
-        self.screenshot = None# none / pygame.surface
+        self.screenshot = None# none / pg.surface
         self.changeTitle(self.config["title"])
         self.changeIcon(self.icon)
         # background related
         self.fullscreen = self.config["fullscreen"]# bool
         self.bgrepeat = self.config["backgroundrepeat"]# str
-        self.background = self.__createBackground(# pygame.surface
+        self.background = self.__createBackground(# pg.surface
             self.config["background"]
         )
         # event related
@@ -307,29 +307,3 @@ class GuiMaster(pg.Surface):
         # drawing background if preset
         if self.config["background"]:
             self.fill(self.config["background"])
-class Interface(pg.Surface):
-    """a screen to draw all gui-elements to."""
-    default = {
-        "background": None,
-        "elements": []
-    }
-    def __init__(self, name):
-        # getting a setup-dict from a xml-file. updating properties afterwards
-        # if needed (left out by user)
-        cfg = loadXMLInterface(name)
-        self.cfg = u.validateDict(cfg, self.default)
-        if not "size" in self.cfg:
-            self.cfg["size"] = pg.display.get_surface().get_rect().size
-        # initiating surface and dimensions
-        pg.Surface.__init__(self, self.cfg["size"], pg.SRCALPHA)
-        self.rect = self.get_rect()
-        # drawing background if preset
-        if self.cfg["background"]:
-            self.fill(self.cfg["background"])
-    def resize(self, size):
-        # reinitiating surface and dimensions
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect = self.get_rect()
-        # drawing background if preset
-        if self.cfg["background"]:
-            self.fill(self.cfg["background"])
