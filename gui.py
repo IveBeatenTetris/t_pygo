@@ -301,9 +301,13 @@ class GuiMaster(pg.Surface):
     }
     def __init__(self, **kwargs):
         self.config = u.validateDict(kwargs, self.defaults)
-        # initiating surface
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.rect = self.get_rect()
-        # drawing background if preset
+        self.rect = pg.Rect(self.config["position"], self.config["size"])
+        self.resize(self.config["size"])
+        self.drawBackground()
+    def drawBackground(self):
         if self.config["background"]:
             self.fill(self.config["background"])
+    def resize(self, size):
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.rect.size = size
+        self.drawBackground()
