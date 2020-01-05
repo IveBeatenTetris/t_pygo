@@ -301,12 +301,13 @@ class GuiMaster(pg.Surface):
     }
     def __init__(self, **kwargs):
         self.config = u.validateDict(kwargs, self.defaults)
+        self.background = self.config["background"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         self.resize(self.config["size"])
-        self.drawBackground()
     def drawBackground(self):
-        if self.config["background"]:
-            self.fill(self.config["background"])
+        if self.background:
+            if type(self.background) is list or type(self.background) is tuple:
+                self.fill(self.background)
     def resize(self, size):
         pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = size
