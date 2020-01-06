@@ -30,7 +30,7 @@ class App:
     """
     defaults = {
         "size": (320, 240),
-        "title": "No Title",
+        "title": "Test Project 0.1",
         "resizable": False,
         "fullscreen": False,
         "background": u.LIBPATH["windowbg"],
@@ -64,8 +64,11 @@ class App:
             self.config["size"],
             resizable = self.config["resizable"]
         )
-        #self.background = self.config["background"]
         self.draw(self.background)
+
+        self.changeTitle(self.config["title"])
+        self.changeIcon(self.config["icon"])
+
         # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
@@ -184,6 +187,21 @@ class App:
         # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
+    # window appearance
+    def changeIcon(self, path):
+        """creates an icon for the window from an image."""
+        if type(path) is pg.Surface:
+            icon = path
+        elif type(path) is str:
+            icon = pg.image.load(path)
+
+        icon = pg.transform.scale(icon, (32, 32))
+        pg.display.set_icon(icon)
+    def changeTitle(self, title):
+        """changes the window title. 'title' should be a string."""
+        if type(title) is not str:
+            title = str(title)
+        pg.display.set_caption(title)
 class GuiMaster(pg.Surface):
     """
     resembles a 'pygame.surface' but with advanced operations.
