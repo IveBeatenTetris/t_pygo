@@ -195,11 +195,11 @@ class GuiMaster(pg.Surface):
         "parent": None,
         "size": (300, 200),
         "position": (0, 0),
-        "background": (45, 45, 55),
+        "background": (35, 35, 45),
         "background_hover": None,
         "dragable": False,
         "drag_area": None,
-        "drag_area_background": (35, 35, 45)
+        "drag_area_background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
         """
@@ -285,9 +285,11 @@ class GuiMaster(pg.Surface):
                     # 'true' and calculate the clicked position on the element's
                     # rect
                     if not self.__clicked:
+                        # adding left and top of 'drag_area' so the element
+                        # doesn't jump on click
                         self.__dragged_at = (
-                            mpos[0] - rect.x,
-                            mpos[1] - rect.y
+                            mpos[0] - rect.x + self.drag_area.left,
+                            mpos[1] - rect.y + self.drag_area.top
                         )
                         self.__clicked = True
             # if left mouse-button is released or just not pressed
