@@ -236,10 +236,8 @@ class GuiMaster(pg.Surface):
         self.__hovering = False
         # first time creating surface
         self.resize(self.config["size"])
-        # first time drawing drag-area if set by user
-        if self.config["drag_area"]:
-            rect = pg.Rect(self.config["drag_area"])
-            self.fill(self.config["drag_area_background"], rect)
+        # recreating inner element's visuals
+        self.redraw()
     # dynamic properties
     @property# list
     def click(self):
@@ -326,11 +324,18 @@ class GuiMaster(pg.Surface):
 
             return leaving
 
-    def drawBackground(self, bg=None):
-        """draws background to surface if 'background' is preset by user."""
-        if bg:
-            if type(bg) is list or type(bg) is tuple:
-                self.fill(bg)
+    def redraw(self):
+        """rebuilds the surface with all inner elements updated."""
+        # drawing background
+        bg = self.background
+        if self.hover:
+            if self.background_hover:
+                bg = self.background_hover
+        self.fill(bg)
+        # drawing drag-area if set by user
+        if self.config["drag_area"]:
+            rect = pg.Rect(self.config["drag_area"])
+            self.fill(self.config["drag_area_background"], rect)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -338,7 +343,7 @@ class GuiMaster(pg.Surface):
         """
         self.rect.size = size
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.drawBackground(self.background)
+        self.redraw()
     def update(self):
         """runs with every game-loop."""
         redraw = False
@@ -346,16 +351,4 @@ class GuiMaster(pg.Surface):
         self.drag
         # visual redrawing of this element depends on the following conditions:
         if self.click or self.hover or self.leave:
-            redraw = True
-            # redrawing of inner elements depends on mouse-cursor and
-            # 'background_hover'-arg
-            if redraw:
-                if self.hover:
-                    if self.background_hover:
-                        self.drawBackground(self.background_hover)
-                else:
-                    self.drawBackground(self.background)
-                # drawing drag-area if set by user
-                if self.config["drag_area"]:
-                    rect = pg.Rect(self.config["drag_area"])
-                    self.fill(self.config["drag_area_background"], rect)
+            self.redraw()
