@@ -52,6 +52,8 @@ class App:
         'preffered_fps' user-defined maximal frames per second.
         'fps' the actual FPS. it's gonna be updated by the window's
             'update()'-method.
+        'keys' an empty list. gets automatically filled with pygame-events by
+            going through the 'events'-property over and over.
         """
         self.config = u.validateDict(kwargs, self.defaults)
         # pygame init and window centering
@@ -68,6 +70,8 @@ class App:
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
         self.fps = 0
+        # event related
+        self.keys = []
     # dynamic properties
     @property# pg.surface
     def background(self):
@@ -97,8 +101,13 @@ class App:
         return bg
     @property# list
     def events(self):
-        """checks for the most basic events and returns the pg-event-list."""
+        """
+        checks for the most basic events and returns the pg-event-list.
+        updates internal property 'keys' with a fresh list of pressed keys.
+        """
         events = pg.event.get()
+        # resetting previous event-list
+        self.keys = []
 
         for evt in events:
             # exiting the app
@@ -107,6 +116,10 @@ class App:
             # calling 'self.resize()' when window has been resized
             if evt.type is pg.VIDEORESIZE:
                 self.resize(evt.size)
+            # appending a string to list 'self.keys' resembling the pressed key
+            if evt.type is pg.KEYDOWN:
+                if evt.key == pg.K_ESCAPE:
+                    self.keys.append("esc")
 
         return events
     @property# pg.rect
