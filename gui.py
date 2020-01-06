@@ -176,7 +176,8 @@ class GuiMaster(pg.Surface):
         "size": (300, 200),
         "position": (0, 0),
         "background": (45, 45, 55),
-        "background_hover": None
+        "background_hover": None,
+        "dragable": False
     }
     def __init__(self, **kwargs):
         """
@@ -187,15 +188,30 @@ class GuiMaster(pg.Surface):
             attributes.
         'background' either 'str' or 'tuple' / 'list'. if 'none', leave the
             surface transparent.
+        'background_hover' might be 'tuple' or 'list'. if it's 'none', don't
+            apply a hover effect later.
+        'rect' initialising rect dimensions.
+        'dragable' user-defined bool for checking if a dragging-operation can
+            come in.
+        '__dragged_at' standard 'none' later becomes a tuple of 2 ints. this can
+            be used to calculate the position of an element when the mouse
+            tries to drag it.
+        '__clicked' internal bool to check, if the element has been clicked.
+        '__hovering' used to determine if the mouse floats over the element.
         """
         self.config = u.validateDict(kwargs, self.defaults)
         self.background = self.config["background"]
         self.background_hover = self.config["background_hover"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
-        self.hovering = False
+        # event related stuff
+        self.dragable = self.config["dragable"]
+        self.__dragged_at = None
+        self.__clicked = False
+        self.__hovering = False
+        # first time creating surface
         self.resize(self.config["size"])
     # dynamic properties
-    @property
+    @property# list
     def click(self):
         """
         returns the mouse-button the element has just been clicked with.
@@ -210,21 +226,55 @@ class GuiMaster(pg.Surface):
             if mbut[2]: buttons.append("right")
 
         return buttons
+    @property
+    def drag(self):
+        """
+        returns 'true' if element is dragable and been dragged by the mouse.
+        calling this also drags the surface around when the element is
+        dragable.
+        """
+        if self.dragable:
+            # mouse events
+            mpos = pg.mouse.get_pos()
+            mbut = pg.mouse.get_pressed()
+            # on hover and left-click
+            if self.hover and "left" in self.click:
+                # if element is not clicked yet, set it's '__clicked'-state
+                # 'true' and calculate the clicked position on the element's
+                # rect
+                if not self.__clicked:
+                    self.__dragged_at = (
+                        mpos[0] - self.rect.x,
+                        mpos[1] - self.rect.y
+                    )
+                    self.__clicked = True
+            # if left mouse-button is released or just not pressed
+            elif not mbut[0]:
+                self.__dragged_at = None
+                self.__clicked = False
+            # if element is clicked, update the rect's position
+            if self.__clicked:
+                self.rect.topleft = (
+                    mpos[0] - self.__dragged_at[0],
+                    mpos[1] - self.__dragged_at[1]
+                )
+
+        return self.__clicked
     @property# bool
     def hover(self):
         """
         returns 'true' if the mouse-cursor floats over the element's rect. also
-        sets 'self.hovering' to 'true' so we can check for several mouse events.
+        sets 'self.__hovering' to 'true' so we can check for several mouse events.
         """
         mpos = pg.mouse.get_pos()
         hover = False
 
         if self.rect.collidepoint(mpos):
             hover = True
-            self.hovering = True
+            self.__hovering = True
 
         return hover
-    @property
+    @property# bool
     def leave(self):
         """
         returns 'true' if the mouse leaves the element. used to declare
@@ -232,7 +282,7 @@ class GuiMaster(pg.Surface):
         """
         leaving = False
 
-        if self.hovering and not self.hover:
+        if self.__hovering and not self.hover:
             leaving = True
 
             return leaving
@@ -247,18 +297,18 @@ class GuiMaster(pg.Surface):
         resizes the surface and updates its dimensions. as well as redrawing
         the background if there is one.
         """
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.rect.size = size
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
         self.drawBackground(self.background)
     def update(self):
         """runs with every game-loop."""
-        # mouse events
-        mpos = pg.mouse.get_pos()
         redraw = False
+        # invoking drag-operation
+        self.drag
         # visual redrawing of this element depends on the following conditions:
         if self.click or self.hover or self.leave:
             redraw = True
-        # drawing background depending on mouse-cursor and 'background_hover'
+            # drawing background depending on mouse-cursor and 'background_hover'
             if redraw:
                 if self.hover:
                     if self.background_hover:
