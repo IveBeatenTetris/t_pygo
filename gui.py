@@ -143,13 +143,15 @@ class App:
                 self.display.blit(object, rect)
             else:
                 self.display.blit(object, rect, area)
-    def resize(self, size=None):# tuple
+    def resize(self, size=None):# none / tuple
         """
         resizes the app's surface.
 
         'size' needs to be a tuple. if no 'size parameter' is given this method
             serves as a 'resized-event' checker and returns 'true' or 'false'.
         """
+        # return a tuple when resized
+        resized = None
         # on given parameter
         if size:
             # make new display surface
@@ -161,14 +163,11 @@ class App:
             self.draw(self.background)
         # with no given parameter
         else:
-            # return a tuple when resized or not
-            resized = None
-
             for evt in self.events:
                 if evt.type is pg.VIDEORESIZE:
                     resized = evt.size
 
-            return resized
+        return resized
     def quit(self):
         """exits the app."""
         pg.quit()
@@ -176,8 +175,10 @@ class App:
     def update(self):
         """
         updates dimensions, visuals and physics of the pygame.display with each
-        game-loop.
+        game-loop-tick.
         """
+        # resize has to contain here so the app doesn't hangs itself
+        self.resize()
         # refreshing display visuals
         pg.display.update()
         # updating fps
@@ -196,7 +197,9 @@ class GuiMaster(pg.Surface):
         "position": (0, 0),
         "background": (45, 45, 55),
         "background_hover": None,
-        "dragable": False
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (35, 35, 45)
     }
     def __init__(self, **kwargs):
         """
@@ -214,8 +217,8 @@ class GuiMaster(pg.Surface):
         'rect' initialising rect dimensions.
         'dragable' user-defined bool for checking if a dragging-operation can
             come in.
-        '__dragged_at' standard 'none' later becomes a tuple of 2 ints. this can
-            be used to calculate the position of an element when the mouse
+        '__dragged_at' standard 'none' later becomes a tuple of 2 ints. this
+            can be used to calculate the position of an element when the mouse
             tries to drag it.
         '__clicked' internal bool to check, if the element has been clicked.
         '__hovering' used to determine if the mouse floats over the element.
@@ -275,11 +278,16 @@ class GuiMaster(pg.Surface):
             elif not mbut[0]:
                 self.__dragged_at = None
                 self.__clicked = False
-            # if element is clicked, redraw previously blitted element's position
+            # if element is clicked, redraw previously blitted element's
+            # position
             # and update the rect's position
             if self.__clicked:
                 # redrawing parent' background on a specific place
-                self.parent.display.blit(self.parent.background, self.rect.topleft, self.rect)
+                self.parent.display.blit(
+                    self.parent.background,
+                    self.rect.topleft,
+                    self.rect
+                )
                 # updating rect's position
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
@@ -325,7 +333,7 @@ class GuiMaster(pg.Surface):
         the background if there is one.
         """
         self.rect.size = size
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
         self.drawBackground(self.background)
     def update(self):
         """runs with every game-loop."""
