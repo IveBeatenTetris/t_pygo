@@ -236,6 +236,10 @@ class GuiMaster(pg.Surface):
         self.__hovering = False
         # first time creating surface
         self.resize(self.config["size"])
+        # first time drawing drag-area if set by user
+        if self.config["drag_area"]:
+            rect = pg.Rect(self.config["drag_area"])
+            self.fill(self.config["drag_area_background"], rect)
     # dynamic properties
     @property# list
     def click(self):
@@ -343,10 +347,15 @@ class GuiMaster(pg.Surface):
         # visual redrawing of this element depends on the following conditions:
         if self.click or self.hover or self.leave:
             redraw = True
-            # drawing background depending on mouse-cursor and 'background_hover'
+            # redrawing of inner elements depends on mouse-cursor and
+            # 'background_hover'-arg
             if redraw:
                 if self.hover:
                     if self.background_hover:
                         self.drawBackground(self.background_hover)
                 else:
                     self.drawBackground(self.background)
+                # drawing drag-area if set by user
+                if self.config["drag_area"]:
+                    rect = pg.Rect(self.config["drag_area"])
+                    self.fill(self.config["drag_area_background"], rect)
