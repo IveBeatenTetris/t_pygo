@@ -191,6 +191,7 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
+        "parent": None,
         "size": (300, 200),
         "position": (0, 0),
         "background": (45, 45, 55),
@@ -218,6 +219,8 @@ class GuiMaster(pg.Surface):
         '__hovering' used to determine if the mouse floats over the element.
         """
         self.config = u.validateDict(kwargs, self.defaults)
+        if self.config["parent"]: self.parent = self.config["parent"]
+        else: self.parent = pg.display.get_surface()
         self.background = self.config["background"]
         self.background_hover = self.config["background_hover"]
         self.rect = pg.Rect(self.config["position"], self.config["size"])
@@ -255,6 +258,7 @@ class GuiMaster(pg.Surface):
             # mouse events
             mpos = pg.mouse.get_pos()
             mbut = pg.mouse.get_pressed()
+            mrel = pg.mouse.get_rel()
             # on hover and left-click
             if self.hover and "left" in self.click:
                 # if element is not clicked yet, set it's '__clicked'-state
@@ -272,6 +276,8 @@ class GuiMaster(pg.Surface):
                 self.__clicked = False
             # if element is clicked, update the rect's position
             if self.__clicked:
+                if mrel[0] or mrel[1]:
+                    self.parent.draw(self.parent.background, self.rect.topleft, self.rect)
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
