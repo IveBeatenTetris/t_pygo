@@ -205,6 +205,8 @@ class GuiMaster(pg.Surface):
         'config' the validated 'dict' to draw building instructions from.
             evaluation between pass keyword-args and a dict of predefined
             attributes.
+        'parent' object which draws this element. must have 'GuiMaster' as
+            master-class.
         'background' either 'str' or 'tuple' / 'list'. if 'none', leave the
             surface transparent.
         'background_hover' might be 'tuple' or 'list'. if it's 'none', don't
@@ -258,7 +260,6 @@ class GuiMaster(pg.Surface):
             # mouse events
             mpos = pg.mouse.get_pos()
             mbut = pg.mouse.get_pressed()
-            mrel = pg.mouse.get_rel()
             # on hover and left-click
             if self.hover and "left" in self.click:
                 # if element is not clicked yet, set it's '__clicked'-state
@@ -274,10 +275,12 @@ class GuiMaster(pg.Surface):
             elif not mbut[0]:
                 self.__dragged_at = None
                 self.__clicked = False
-            # if element is clicked, update the rect's position
+            # if element is clicked, redraw previously blitted element's position
+            # and update the rect's position
             if self.__clicked:
-                if mrel[0] or mrel[1]:
-                    self.parent.draw(self.parent.background, self.rect.topleft, self.rect)
+                # redrawing parent' background on a specific place
+                self.parent.display.blit(self.parent.background, self.rect.topleft, self.rect)
+                # updating rect's position
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
