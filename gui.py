@@ -127,17 +127,22 @@ class App:
         """returns a valid pygame-rect with app's dimensions."""
         return self.display.get_rect()
     # basic methodes
-    def draw(self, object, rect=None):
+    def draw(self, object, rect=None, area=None):
         """
         blits a surface-object / gui-element to the app's surface.
         if 'object' is a list or tuple, fill the surface with this statement
-        instead.
+        instead. 'area' takes a pygame.rect-statement for declaring a specific
+        area to redraw for keep fps up.
         """
+        if not rect: rect = (0, 0)
+
         if type(object) is list or type(object) is tuple:
             self.display.fill(object)
         else:
-            if not rect: rect = (0, 0)
-            self.display.blit(object, rect)
+            if not area:
+                self.display.blit(object, rect)
+            else:
+                self.display.blit(object, rect, area)
     def resize(self, size=None):# tuple
         """
         resizes the app's surface.
