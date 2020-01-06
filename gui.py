@@ -217,6 +217,8 @@ class GuiMaster(pg.Surface):
         'rect' initialising rect dimensions.
         'dragable' user-defined bool for checking if a dragging-operation can
             come in.
+        'drag_area' user-declared area of dragging an element. if left out, use
+            the whole element-rect for dragging.
         '__dragged_at' standard 'none' later becomes a tuple of 2 ints. this
             can be used to calculate the position of an element when the mouse
             tries to drag it.
@@ -231,6 +233,8 @@ class GuiMaster(pg.Surface):
         self.rect = pg.Rect(self.config["position"], self.config["size"])
         # event related stuff
         self.dragable = self.config["dragable"]
+        if self.config["drag_area"]: self.drag_area = pg.Rect(self.config["drag_area"])
+        else: self.drag_area =self.config["drag_area"]
         self.__dragged_at = None
         self.__clicked = False
         self.__hovering = False
@@ -265,19 +269,29 @@ class GuiMaster(pg.Surface):
             # mouse events
             mpos = pg.mouse.get_pos()
             mbut = pg.mouse.get_pressed()
+            # using 'drag_area' as rect for collisions if available
+            if self.drag_area:
+                rect = pg.Rect(
+                    self.drag_area.left + self.rect.left,
+                    self.drag_area.top + self.rect.top,
+                    self.drag_area.width,
+                    self.drag_area.height
+                )
+            # else using the element's rect instead
+            else: rect = self.rect
             # on hover and left-click
-            if self.hover and "left" in self.click:
-                # if element is not clicked yet, set it's '__clicked'-state
-                # 'true' and calculate the clicked position on the element's
-                # rect
-                if not self.__clicked:
-                    self.__dragged_at = (
-                        mpos[0] - self.rect.x,
-                        mpos[1] - self.rect.y
-                    )
-                    self.__clicked = True
+            if rect.collidepoint(mpos) and mbut[0]:
+                    # if element is not clicked yet, set it's '__clicked'-state
+                    # 'true' and calculate the clicked position on the element's
+                    # rect
+                    if not self.__clicked:
+                        self.__dragged_at = (
+                            mpos[0] - rect.x,
+                            mpos[1] - rect.y
+                        )
+                        self.__clicked = True
             # if left mouse-button is released or just not pressed
-            elif not mbut[0]:
+            if not mbut[0]:
                 self.__dragged_at = None
                 self.__clicked = False
             # if element is clicked, redraw previously blitted element's
