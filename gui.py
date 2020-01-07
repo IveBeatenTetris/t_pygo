@@ -283,7 +283,7 @@ class GuiMaster(pg.Surface):
             if mbut[2]: buttons.append("right")
 
         return buttons
-    @property
+    @property# bool
     def drag(self):
         """
         returns 'true' if element is dragable and been dragged by the mouse.
@@ -394,7 +394,62 @@ class GuiMaster(pg.Surface):
             self.redraw()
 # all these following elements draw inherition from 'GuiMaster'
 class Layout(GuiMaster):
-    """."""
+    """
+    a layout for better positioning of elements. works similar to a html-table.
+
+    'default' default properties for this object.
+
+    class 'Row' is used to visualize a row in the layout. it's parent-class is
+        'GuiMaster, so we can treat and handle it like a normal pygame.surface'.
+    class 'Col' is used to visualize a col in the layout. it's parent-class is
+        'GuiMaster, so we can treat and handle it like a normal pygame.surface'.
+    """
+    default = {
+        "rows": []
+    }
+    # subordered layout-classes
+    class Row(GuiMaster):
+        """
+        resembles a row of the layout.
+
+        'default' default properties for this object.
+        """
+        default = {
+            size    :   (25, "100%")
+        }
+        def __init__(self, **kwargs):
+            """
+            uses 'GuiMaster' as its parent with additional methodes and
+            attributes.
+            """
+            GuiMaster.__init__(self, **kwargs)
+            self.cfg    =   u.validateDict(**kwargs, self.default)
+    class Col(GuiMaster):
+        """resembles a col of the layout."""
+        def __init__(self, **kwargs):
+            """
+            uses 'GuiMaster' as its parent with additional methodes and
+            attributes.
+            """
+            GuiMaster.__init__(self, **kwargs)
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
         GuiMaster.__init__(self, **kwargs)
+        self.cfg            =   u.validateDict(kwargs, self.default)
+        #self.background     =   self.createStructure(self.cfg["rows"])
+        self.structure
+    @property
+    def structure(self):
+        """."""
+        for row in self.cfg["rows"]:
+            obj = self.Row(**row)
+
+        return
+    def creteStructure(self):# pg.surface
+        """."""
+        for row in self.cfg["rows"]:
+            pass
+
+        return self.background
