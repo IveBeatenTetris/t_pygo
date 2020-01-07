@@ -487,3 +487,13 @@ class Layout(GuiMaster):
             rows.append(obj)
 
         return (rows, cols, surf)
+
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.background = self.structure[2]
+        self.redraw()
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
