@@ -3,6 +3,9 @@ import json, os, re, ctypes, pprint
 import xml.etree.ElementTree as et
 import pygame as pg
 
+# centering window
+os.environ["SDL_VIDEO_CENTERED"] = "1"
+
 # project and library pathes
 PATH = {
     "go": os.path.dirname(__file__),

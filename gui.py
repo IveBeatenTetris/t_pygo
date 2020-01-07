@@ -29,14 +29,14 @@ class App:
         it also declares what arguments can be passed to the app-object.
     """
     defaults = {
-        "size": (320, 240),
-        "title": "Test Project 0.1",
-        "resizable": False,
-        "fullscreen": False,
-        "background": u.LIBPATH["windowbg"],
-        "background_repeat": None,
-        "icon": u.LIBPATH["windowicon"],
-        "fps": 30
+        "size":                 (320, 240),
+        "title":                "Test Project 0.1",
+        "resizable":            False,
+        "fullscreen":           False,
+        "background":           u.LIBPATH["windowbg"],
+        "background_repeat":    None,
+        "icon":                 u.LIBPATH["windowicon"],
+        "fps":                  30
     }
     def __init__(self, **kwargs):
         """
@@ -55,26 +55,24 @@ class App:
         'keys' an empty list. gets automatically filled with pygame-events by
             going through the 'events'-property over and over.
         """
-        self.config = u.validateDict(kwargs, self.defaults)
-        # pygame init and window centering
+        self.config         =   u.validateDict(kwargs, self.defaults)
+        # pygame init
         pg.init()
-        os.environ["SDL_VIDEO_CENTERED"] = "1"
         # creating display surface and drawing background
-        self.display = u.getDisplay(
-            self.config["size"],
-            resizable = self.config["resizable"]
-        )
+        self.display        =   u.getDisplay(
+                                    self.config["size"],
+                                    resizable = self.config["resizable"]
+                                )
         self.draw(self.background)
-
+        # changing windows apprarance
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
-
         # fps settings
-        self.clock = pg.time.Clock()
-        self.preffered_fps = self.config["fps"]
-        self.fps = 0
+        self.clock          =   pg.time.Clock()
+        self.preffered_fps  =   self.config["fps"]
+        self.fps            =   0
         # event related
-        self.keys = []
+        self.keys           =   []
     # dynamic properties
     @property# pg.surface
     def background(self):
@@ -210,13 +208,13 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
-        "parent": None,
-        "size": (300, 200),
-        "position": (0, 0),
-        "background": (35, 35, 45),
-        "background_hover": None,
-        "dragable": False,
-        "drag_area": None,
+        "parent":               None,
+        "size":                 (300, 200),
+        "position":             (0, 0),
+        "background":           (35, 35, 45),
+        "background_hover":     None,
+        "dragable":             False,
+        "drag_area":            None,
         "drag_area_background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
@@ -243,19 +241,28 @@ class GuiMaster(pg.Surface):
         '__clicked' internal bool to check, if the element has been clicked.
         '__hovering' used to determine if the mouse floats over the element.
         """
-        self.config = u.validateDict(kwargs, self.defaults)
-        if self.config["parent"]: self.parent = self.config["parent"]
-        else: self.parent = pg.display.get_surface()
-        self.background = self.config["background"]
-        self.background_hover = self.config["background_hover"]
-        self.rect = pg.Rect(self.config["position"], self.config["size"])
+        self.config             =   u.validateDict(kwargs, self.defaults)
+        # declaring parent
+        if self.config["parent"]:
+            self.parent         =   self.config["parent"]
+        else:
+            self.parent         =   pg.display.get_surface()
+        # visuals and rect-dimensions
+        self.background         =   self.config["background"]
+        self.background_hover   =   self.config["background_hover"]
+        self.rect               =   pg.Rect(
+                                        self.config["position"],
+                                        self.config["size"]
+                                    )
         # event related stuff
-        self.dragable = self.config["dragable"]
-        if self.config["drag_area"]: self.drag_area = pg.Rect(self.config["drag_area"])
-        else: self.drag_area =self.config["drag_area"]
-        self.__dragged_at = None
-        self.__clicked = False
-        self.__hovering = False
+        self.dragable           =   self.config["dragable"]
+        if self.config["drag_area"]:
+            self.drag_area      =   pg.Rect(self.config["drag_area"])
+        else:
+            self.drag_area      =   self.config["drag_area"]
+        self.__dragged_at       =   None
+        self.__clicked          =   False
+        self.__hovering         =   False
         # first time creating surface
         self.resize(self.config["size"])
         # recreating inner element's visuals
@@ -299,9 +306,9 @@ class GuiMaster(pg.Surface):
             else: rect = self.rect
             # on hover and left-click
             if rect.collidepoint(mpos) and mbut[0]:
-                    # if element is not clicked yet, set it's '__clicked'-state
-                    # 'true' and calculate the clicked position on the element's
-                    # rect
+                    # marking the element as clicked ('true). if element is not
+                    # clicked yet, set it's '__clicked'-state 'true' and
+                    # calculate the clicked position on the element's rect
                     if not self.__clicked:
                         # adding left and top of 'drag_area' so the element
                         # doesn't jump on click
@@ -310,21 +317,20 @@ class GuiMaster(pg.Surface):
                             mpos[1] - rect.y + self.drag_area.top
                         )
                         self.__clicked = True
-            # if left mouse-button is released or just not pressed
+            # if left mouse-button is released or just not pressed, mark
+            # element as clicked ('true')
             if not mbut[0]:
                 self.__dragged_at = None
                 self.__clicked = False
-            # if element is clicked, redraw previously blitted element's
-            # position
-            # and update the rect's position
+            # if element is marked as clicked, redraw parent's background on a
+            # specific place and update it's topleft-position. this removes the
+            # previously drawn element's trails from the surface again
             if self.__clicked:
-                # redrawing parent' background on a specific place
                 self.parent.display.blit(
                     self.parent.background,
                     self.rect.topleft,
                     self.rect
                 )
-                # updating rect's position
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
