@@ -392,3 +392,9 @@ class GuiMaster(pg.Surface):
         # visual redrawing of this element depends on the following conditions:
         if self.click or self.hover or self.leave:
             self.redraw()
+# all these following elements draw inherition from 'GuiMaster'
+class Layout(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, **kwargs)
