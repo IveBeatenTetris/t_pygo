@@ -42,18 +42,27 @@ class App:
         """
         inits pygame to act as an app-window.
 
-        'config' validated 'dict' of comparing a user-set dict of properties
-            with this object's default values.
-        'display' holds the actual 'pygame.display.surface' object.
-        'background' used to draw to fill the surface with. might be 'str' or
-            'tuple'. if 'str', use it as image-path and load a
-            pygame.image-surface.
-        'clock' pygame.clock for tracking 'fps'.
-        'preffered_fps' user-defined maximal frames per second.
-        'fps' the actual FPS. it's gonna be updated by the window's
-            'update()'-method.
-        'keys' an empty list. gets automatically filled with pygame-events by
-            going through the 'events'-property over and over.
+        'config'            validated 'dict' of comparing a user-set dict of
+                            properties with this object's default values.
+
+        'display'           holds the actual 'pygame.display.surface' object.
+
+        'background'        used to draw to fill the surface with. might be
+                            'str' or 'tuple'. if 'str', use it as image-path
+                            and load a pygame.image-surface.
+
+        'clock'             pygame.clock for tracking 'fps'.
+
+        'preffered_fps'     user-defined maximal frames per second.
+
+        'fps'               the actual FPS. it's gonna be updated by the
+                            window's 'update()'-method.
+
+        'keys'              an empty list. gets automatically filled with
+                            pygame-events by going through the
+                            'events'-property over and over.
+
+        'resized'           bool to check if the window has been resized.
         """
         self.config         =   u.validateDict(kwargs, self.defaults)
         # pygame init
@@ -73,6 +82,7 @@ class App:
         self.fps            =   0
         # event related
         self.keys           =   []
+        self.resized        =   False
     # dynamic properties
     @property# pg.surface
     def background(self):
@@ -107,21 +117,17 @@ class App:
         updates internal property 'keys' with a fresh list of pressed keys.
         """
         events = pg.event.get()
-        # resetting previous event-list
+        # resetting previous event-list and app's internal events
         self.keys = []
 
         for evt in events:
             # exiting the app
             if evt.type is pg.QUIT:
                 self.quit()
-            # calling 'self.resize()' when window has been resized
-            if evt.type is pg.VIDEORESIZE:
-                self.resize(evt.size)
             # appending a string to list 'self.keys' resembling the pressed key
             if evt.type is pg.KEYDOWN:
                 if evt.key == pg.K_ESCAPE:
                     self.keys.append("esc")
-
         return events
     @property# pg.rect
     def rect(self):
@@ -144,31 +150,15 @@ class App:
                 self.display.blit(object, rect)
             else:
                 self.display.blit(object, rect, area)
-    def resize(self, size=None):# none / tuple
-        """
-        resizes the app's surface.
-
-        'size' needs to be a tuple. if no 'size parameter' is given this method
-            serves as a 'resized-event' checker and returns 'true' or 'false'.
-        """
-        # return a tuple when resized
-        resized = None
-        # on given parameter
-        if size:
-            # make new display surface
-            self.display = u.getDisplay(
-                size,
-                resizable = self.config["resizable"]
-            )
-            # drawing background
-            self.draw(self.background)
-        # with no given parameter
-        else:
-            for evt in self.events:
-                if evt.type is pg.VIDEORESIZE:
-                    resized = evt.size
-
-        return resized
+    def resize(self, size):# none / tuple
+        """resizes the app's surface. 'size' needs to be a tuple."""
+        # make new display surface
+        self.display = u.getDisplay(
+            size,
+            resizable = self.config["resizable"]
+        )
+        # drawing background
+        self.draw(self.background)
     def quit(self):
         """exits the app."""
         pg.quit()
@@ -178,8 +168,14 @@ class App:
         updates dimensions, visuals and physics of the pygame.display with each
         game-loop-tick.
         """
-        # resize has to contain here so the app doesn't hangs itself
-        self.resize()
+        # calling 'self.resize()' when window has been resized. also
+        # marking the app as 'resized' (self.resized = True)
+        for evt in self.events:
+            if evt.type is pg.VIDEORESIZE:
+                self.resize(evt.size)
+                self.resized = True
+            elif self.resized:
+                self.resized = False
         # refreshing display visuals
         pg.display.update()
         # updating fps
@@ -221,25 +217,36 @@ class GuiMaster(pg.Surface):
         """
         first creates a internal setup-config to decleare some properties.
 
-        'config' the validated 'dict' to draw building instructions from.
-            evaluation between pass keyword-args and a dict of predefined
-            attributes.
-        'parent' object which draws this element. must have 'GuiMaster' as
-            master-class.
-        'background' either 'str' or 'tuple' / 'list'. if 'none', leave the
-            surface transparent.
-        'background_hover' might be 'tuple' or 'list'. if it's 'none', don't
-            apply a hover effect later.
-        'rect' initialising rect dimensions.
-        'dragable' user-defined bool for checking if a dragging-operation can
-            come in.
-        'drag_area' user-declared area of dragging an element. if left out, use
-            the whole element-rect for dragging.
-        '__dragged_at' standard 'none' later becomes a tuple of 2 ints. this
-            can be used to calculate the position of an element when the mouse
-            tries to drag it.
-        '__clicked' internal bool to check, if the element has been clicked.
-        '__hovering' used to determine if the mouse floats over the element.
+        'config'            the validated 'dict' to draw building instructions
+                            from. evaluation between pass keyword-args and a
+                            dict of predefined attributes.
+
+        'parent'            object which draws this element. must have
+                            'GuiMaster' as master-class.
+
+        'background'        either 'str' or 'tuple' / 'list'. if 'none', leave
+                            the surface transparent.
+
+        'background_hover'  might be 'tuple' or 'list'. if it's 'none', don't
+                            apply a hover effect later.
+
+        'rect'              initialising rect dimensions.
+
+        'dragable'          user-defined bool for checking if a dragging-
+                            operation can come in.
+
+        'drag_area'         user-declared area of dragging an element. if left
+                            out, use the whole element-rect for dragging.
+
+        '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
+                            this can be used to calculate the position of an
+                            element when the mouse tries to drag it.
+
+        '__clicked'         internal bool to check, if the element has been
+                            clicked.
+
+        '__hovering'        used to determine if the mouse floats over the
+                            element.
         """
         self.config             =   u.validateDict(kwargs, self.defaults)
         # declaring parent
@@ -263,9 +270,8 @@ class GuiMaster(pg.Surface):
         self.__dragged_at       =   None
         self.__clicked          =   False
         self.__hovering         =   False
-        # first time creating surface
+        # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
-        # recreating inner element's visuals
         self.redraw()
     # dynamic properties
     @property# list
@@ -368,10 +374,15 @@ class GuiMaster(pg.Surface):
         """rebuilds the surface with all inner elements updated."""
         # drawing background
         bg = self.background
+
         if self.hover:
             if self.background_hover:
                 bg = self.background_hover
-        self.fill(bg)
+
+        if type(bg) is tuple or type(bg) is list:
+            self.fill(bg)
+        else:
+            self.blit(bg, (0, 0))
         # drawing drag-area if set by user
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
@@ -392,7 +403,7 @@ class GuiMaster(pg.Surface):
         # visual redrawing of this element depends on the following conditions:
         if self.click or self.hover or self.leave:
             self.redraw()
-# all these following elements draw inherition from 'GuiMaster'
+# all these following elements draw their inherition from 'GuiMaster'
 class Layout(GuiMaster):
     """
     a layout for better positioning of elements. works similar to a html-table.
@@ -405,51 +416,71 @@ class Layout(GuiMaster):
         'GuiMaster, so we can treat and handle it like a normal pygame.surface'.
     """
     default = {
-        "rows": []
+        "rows"          :   [],
+        "background"    :   (200, 200, 215)
     }
     # subordered layout-classes
     class Row(GuiMaster):
-        """
-        resembles a row of the layout.
-
-        'default' default properties for this object.
-        """
+        """resembles a row of the layout."""
         default = {
-            size    :   (25, "100%")
+            "background"    :   (190, 190, 205),
+            "size"          :   (25, "100%")
         }
         def __init__(self, **kwargs):
-            """
-            uses 'GuiMaster' as its parent with additional methodes and
-            attributes.
-            """
             GuiMaster.__init__(self, **kwargs)
-            self.cfg    =   u.validateDict(**kwargs, self.default)
+            self.cfg          =   u.validateDict(kwargs, self.default)
+            self.background   =   self.cfg["background"]
+            self.redraw()
     class Col(GuiMaster):
         """resembles a col of the layout."""
+        default = {}
         def __init__(self, **kwargs):
-            """
-            uses 'GuiMaster' as its parent with additional methodes and
-            attributes.
-            """
             GuiMaster.__init__(self, **kwargs)
+            self.cfg          =   u.validateDict(kwargs, self.default)
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'cfg'          'dict' of building instructions for the layout.
+        'background'    overwriting 'GuiMaster's backgruond-property.
         """
         GuiMaster.__init__(self, **kwargs)
         self.cfg            =   u.validateDict(kwargs, self.default)
-        #self.background     =   self.createStructure(self.cfg["rows"])
-        self.structure
+        # redrawing background cause the user can pass a new one on
+        # initialisation
+        self.background     =   self.structure[2]
+        self.redraw()
+    # dynamic properties
+    @property# list
+    def cols(self):
+        """returns a list of layout-cells."""
+        return self.structure[1]
+    @property# list
+    def rows(self):
+        """returns a list of layout-rows."""
+        return self.structure[0]
     @property
-    def structure(self):
-        """."""
+    def structure(self):# tuple
+        """
+        returns a tuple of valuable rows, cols and the surface, all elements
+        have been blitten to.
+        """
+        # creating a surface and filling it with layout's background-color
+        surf = pg.Surface(self.rect.size, pg.SRCALPHA)
+        if self.cfg["background"]:
+            surf.fill(self.cfg["background"])
+        # empty lists for returning filled at the end
+        rows, cols = [], []
+
         for row in self.cfg["rows"]:
+            # appending a parent to the setup
+            if not "parent" in row:
+                row["parent"] = self
+            # init row
             obj = self.Row(**row)
+            # drawing to temporary surface
+            surf.blit(obj, obj.rect)
+            # appending row to returning list
+            rows.append(obj)
 
-        return
-    def creteStructure(self):# pg.surface
-        """."""
-        for row in self.cfg["rows"]:
-            pass
-
-        return self.background
+        return (rows, cols, surf)
