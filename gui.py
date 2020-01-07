@@ -447,8 +447,8 @@ class Layout(GuiMaster):
         'cfg'          'dict' of building instructions for the layout.
         'background'    overwriting 'GuiMaster's backgruond-property.
         """
-        GuiMaster.__init__(self, **kwargs)
         self.cfg            =   u.validateDict(kwargs, self.default)
+        GuiMaster.__init__(self, **kwargs)
         # redrawing background cause the user can pass a new one on
         # initialisation
         self.background     =   self.structure[2]
