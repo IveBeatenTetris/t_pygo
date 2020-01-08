@@ -413,7 +413,7 @@ class GuiMaster(pg.Surface):
         if self.click or self.hover or self.leave:
             self.redraw()
 # all these following elements draw their inherition from 'GuiMaster'
-class Layout(GuiMaster):
+class Layout2(GuiMaster):
     """
     a layout for better positioning of elements. works similar to a html-table.
 
@@ -497,27 +497,30 @@ class Layout(GuiMaster):
         rows, cols = [], []
         # this variable is needed to calculate the next vertical drawing-
         # position of the row
-        y = 0
+        height = 0
 
+        # cycling through rows
         for i, setup in enumerate(self.cfg["rows"]):
-            # appending a parent to the setup
+            # adding additional attributes before initing the row-element
             if not "parent" in setup:
                 setup["parent"] = self
-            # additional attributes
             if i % 2: setup["background"] = (
                 self.cfg["background"][0] + 10,
                 self.cfg["background"][1] + 10,
                 self.cfg["background"][2] + 10
             )
-            # init row and updating it's vertical postion
+            # init row and updating it's vertical postion and drawing to layout
             row = self.Row(**setup)
-            row.rect.top = y
-            # drawing to temporary surface
+            row.rect.top = height
             surf.blit(row, row.rect)
+            # cycling through cols
+            if "cols" in setup:
+                for j, cell in enumerate(setup["cols"]):
+                    pass
             # appending row to returning list
             rows.append(row)
-            # updating 'y'
-            y += row.rect.height
+            # updating 'height'
+            height += row.rect.height
 
         return (rows, cols, surf)
 
@@ -530,3 +533,17 @@ class Layout(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
+class Layout(GuiMaster):
+    """."""
+    default = {
+        "rows"          :   [],
+        "background"    :   (200, 200, 215)
+    }
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'cfg'          'dict' of building instructions for the layout.
+        """
+        self.cfg            =   u.validateDict(kwargs, self.default)
+        GuiMaster.__init__(self, **kwargs)
