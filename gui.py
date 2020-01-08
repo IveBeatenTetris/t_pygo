@@ -598,4 +598,25 @@ class Text(GuiMaster):
         'cfg'       'dict' of building instructions for the table.
         """
         self.cfg        =   u.validateDict(kwargs, self.default)
+        # initialising and styling font-object
+        pg.font.init()
+        self.font       =   pg.font.SysFont(# pygame.font
+                            	self.cfg["font"],
+                            	self.cfg["fontsize"]
+                            )
+        self.font.set_bold(self.cfg["bold"])
+        self.font.set_italic(self.cfg["italic"])
+        # initialising text-object
         GuiMaster.__init__(self, **kwargs)
+        # drawing text to text-surface
+        self.blit(self.text, (0, 0))
+    # dynamic properties
+    @property# pg.surface
+    def text(self):
+        """returns a pygame.surface with blitten text to it."""
+        # rendering font to text-surface
+        return self.font.render(
+            self.cfg["text"],
+            self.cfg["antialias"],
+            self.cfg["color"]
+        )
