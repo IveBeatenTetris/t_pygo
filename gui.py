@@ -432,20 +432,31 @@ class Layout(GuiMaster):
     class Row(GuiMaster):
         """resembles a row of the layout."""
         default = {
-            "background"    :   (190, 190, 205),
-            "size"          :   (25, "100%")
+            "background"    :   (180, 180, 195),
+            "size"          :   ("100%", 25)
         }
         def __init__(self, **kwargs):
             GuiMaster.__init__(self, **kwargs)
-            self.cfg          =   u.validateDict(kwargs, self.default)
-            self.background   =   self.cfg["background"]
-            self.redraw()
+            self.cfg            =   u.validateDict(kwargs, self.default)
+            self.background     =   self.cfg["background"]
+            self.rect           =   u.convertRect(
+                                        [
+                                            0,
+                                            0,
+                                            self.cfg["size"][0],
+                                            self.cfg["size"][1]
+                                        ],
+                                        self.parent.rect
+                                    )
+            # resizing row since it's rect got changed
+            self.resize(self.rect.size)
     class Col(GuiMaster):
         """resembles a col of the layout."""
         default = {}
         def __init__(self, **kwargs):
             GuiMaster.__init__(self, **kwargs)
             self.cfg          =   u.validateDict(kwargs, self.default)
+    # layout initialisation
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
@@ -455,10 +466,8 @@ class Layout(GuiMaster):
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
-        # redrawing background cause the user can pass a new one on
-        # initialisation
         self.background     =   self.structure[2]
-        self.redraw()
+
     # dynamic properties
     @property# list
     def cols(self):
@@ -482,15 +491,16 @@ class Layout(GuiMaster):
         rows, cols = [], []
 
         for row in self.cfg["rows"]:
+            setup = row
             # appending a parent to the setup
-            if not "parent" in row:
-                row["parent"] = self
+            if not "parent" in setup:
+                setup["parent"] = self
             # init row
-            obj = self.Row(**row)
+            row = self.Row(**setup)
             # drawing to temporary surface
-            surf.blit(obj, obj.rect)
+            surf.blit(row, row.rect)
             # appending row to returning list
-            rows.append(obj)
+            rows.append(row)
 
         return (rows, cols, surf)
 
