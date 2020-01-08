@@ -413,7 +413,7 @@ class GuiMaster(pg.Surface):
         if self.click or self.hover or self.leave:
             self.redraw()
 # all these following elements draw their inherition from 'GuiMaster'
-class Layout2(GuiMaster):
+class Layout(GuiMaster):
     """
     a layout for better positioning of elements. works similar to a html-table.
 
@@ -533,8 +533,8 @@ class Layout2(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
-class Layout(GuiMaster):
-    """."""
+class Table(GuiMaster):
+    """works similar to a hmtl-table with rows and cols to draw in."""
     default = {
         "rows"          :   [],
         "background"    :   (200, 200, 215)
@@ -543,7 +543,7 @@ class Layout(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'          'dict' of building instructions for the layout.
+        'cfg'          'dict' of building instructions for the table.
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
