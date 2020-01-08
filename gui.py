@@ -541,8 +541,10 @@ class Layout(GuiMaster):
 class Table(GuiMaster):
     """works similar to a hmtl-table with rows and cols to draw in."""
     default = {
-        "rows"          :   [],
-        "background"    :   (200, 200, 215)
+        "rows"          :   1,
+        "cols"          :   1,
+        "border"        :   None,
+        "background"    :   None
     }
     def __init__(self, **kwargs):
         """
@@ -552,3 +554,5 @@ class Table(GuiMaster):
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
+        self.background     =   self.cfg["background"]
+        self.redraw()
