@@ -535,13 +535,14 @@ class Table(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
-        'columns'   'list' or rect-arguments, each resembling a place in the
-                    table.
+        'columns'   'list' of rect-arguments, each resembling a place in the
+                    table. it's gonna be filled automatically by calling
+                    'self.grid' anywhere.
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        self.columns        =   self.grid.columns
+        self.columns        =   []
         # first time drawing grid
         self.blit(self.grid, (0, 0))
 
