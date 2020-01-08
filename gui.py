@@ -534,13 +534,17 @@ class Table(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'   'dict' of building instructions for the table.
+        'cfg'       'dict' of building instructions for the table.
+        'columns'   'list' or rect-arguments, each resembling a place in the
+                    table.
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        self.columns        =   self.grid.columns
         # first time drawing grid
         self.blit(self.grid, (0, 0))
+
     # dynamic properties
     @property# grid-object
     def grid(self):
@@ -559,6 +563,7 @@ class Table(GuiMaster):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
         pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.columns = self.grid.columns
         # redrawing grid
         self.blit(self.grid, (0, 0))
     def update(self):
