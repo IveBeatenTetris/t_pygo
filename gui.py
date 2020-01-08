@@ -126,14 +126,14 @@ class App:
                 self.quit()
             # appending a string to list 'self.keys' resembling the pressed key
             if evt.type is pg.KEYDOWN:
-                if evt.key == pg.K_ESCAPE:
+                if evt.key is pg.K_ESCAPE:
                     self.keys.append("esc")
             # calling 'self.resize()' when window has been resized. also
             # marking the app as 'resized' (self.resized = True)
             if evt.type is pg.VIDEORESIZE:
                 self.resized = True
                 self.resize(evt.size)
-            elif self.resized:
+            elif evt.type is pg.ACTIVEEVENT and self.resized:
                 self.resized = False
         return events
     @property# pg.rect
