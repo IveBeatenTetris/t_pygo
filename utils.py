@@ -390,6 +390,9 @@ def drawBorder(surface, rect, border):# pg.surface
         surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0, 0, 0))).
     """
     size, line, color = border
+    # converting into pygame.rect if it's a list or a tuple
+    if type(rect) is list or type(rect) is tuple:
+        rect = pg.Rect(rect)
 
     pg.draw.lines(
         surface,

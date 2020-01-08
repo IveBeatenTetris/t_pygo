@@ -491,8 +491,7 @@ class Layout(GuiMaster):
         # position of the row
         y = 0
 
-        for i, row in enumerate(self.cfg["rows"]):
-            setup = row
+        for i, setup in enumerate(self.cfg["rows"]):
             # appending a parent to the setup
             if not "parent" in setup:
                 setup["parent"] = self
