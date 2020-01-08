@@ -59,6 +59,10 @@ class App:
         'fps'               the actual FPS. it's gonna be updated by the
                             window's 'update()'-method.
 
+        '_events'           a 'list' of momentary pygame.events. it's gonna be
+                            filled by calling 'self.events' anywhere. use this
+                            list for checking ongoing events.
+
         'keys'              an empty list. gets automatically filled with
                             pygame-events by going through the
                             'events'-property over and over.
@@ -82,6 +86,7 @@ class App:
         self.preffered_fps  =   self.config["fps"]
         self.fps            =   0
         # event related
+        self._events        =   []
         self.keys           =   []
         self.resized        =   False
     # dynamic properties
@@ -176,7 +181,7 @@ class App:
         updates dimensions, visuals and physics of the pygame.display with each
         game-loop-tick.
         """
-        events = self.events
+        self._events = self.events
         # refreshing display visuals
         pg.display.update()
         # updating fps
