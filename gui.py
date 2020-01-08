@@ -394,13 +394,19 @@ class GuiMaster(pg.Surface):
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
             self.fill(self.config["drag_area_background"], rect)
-        # drawing picked elements
+        # drawing picked elements. expecting no rects in elements
         if element:
             if type(element) is list:
                 for elem in element:
-                    self.blit(elem, elem.rect)
+                    try:
+                        self.blit(elem, elem.rect)
+                    except AttributeError:
+                        self.blit(elem, (0, 0))
             else:
-                self.blit(element, element.rect)
+                try:
+                    self.blit(element, element.rect)
+                except AttributeError:
+                    self.blit(element, (0, 0))
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
