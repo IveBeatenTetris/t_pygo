@@ -272,7 +272,6 @@ class GuiMaster(pg.Surface):
         self.__hovering         =   False
         # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
-        self.redraw()
     # dynamic properties
     @property# list
     def click(self):
@@ -339,7 +338,6 @@ class GuiMaster(pg.Surface):
                         self.rect.topleft,
                         self.rect
                     )
-
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
@@ -373,15 +371,16 @@ class GuiMaster(pg.Surface):
 
             return leaving
 
-    def redraw(self):
-        """rebuilds the surface with all inner elements updated."""
+    def redraw(self, element=None):
+        """
+        rebuilds the surface with all inner elements updated. one can pass a
+        'GuiMaster'-element and blit this to the surface as well.
+        """
         # drawing background
         bg = self.background
-
         if self.hover:
             if self.background_hover:
                 bg = self.background_hover
-
         if type(bg) is tuple or type(bg) is list:
             self.fill(bg)
         else:
@@ -390,6 +389,13 @@ class GuiMaster(pg.Surface):
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
             self.fill(self.config["drag_area_background"], rect)
+        # drawing picked elements
+        if element:
+            if type(element) is list:
+                for elem in element:
+                    self.blit(elem, elem.rect)
+            else:
+                self.blit(element, element.rect)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
