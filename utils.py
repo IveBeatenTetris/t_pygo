@@ -381,31 +381,44 @@ def draw(object, destination, rect=None, blendmode=0):# pg.surface
         destination.blit(object.image, rect)
 
     return destination
-def drawBorder(surface, rect, border):# pg.surface
+def drawBorder(surface, **kwargs):
     """
-    drawing a border to the given surface and return it.
-    syntax for border is (BorderSize<Int>, LineStyle<Str>, Color<Tuple>).
-    example: config = (1, 'solid', (255, 255, 255)).
+    draws a border on the given surface-object and returns it.
+    keyword-arguments can be:
+        'size'  (int)           :   declares how big the line-size draws the
+                                    border.
+        'color' (tuple/list)    :   the line-color of the border requiring 3
+                                    integers to resemble a color-argument.
+        'rect'  (pg.rect/tuple/ :   if this is not given, use the surface's
+                list)               dimensions instead.
+    example:
+        config = (1, (255, 255, 255), [5, 10, 100, 25])
     usage:
-        surf = drawBorder(display, (0, 0, 16, 16), (1, 'solid', (0, 0, 0))).
+        config = (3, (0, 0, 0))
+        surf = drawBorder(display, size=config[0], color=config[1])
     """
-    size, line, color = border
+    # creating a standard-setup for the border
+    cfg = validateDict(kwargs, {
+        "size"      :   1,
+        "color"     :   (0, 0, 0),
+        "rect"      :   surface.get_rect()
+    })
     # converting into pygame.rect if it's a list or a tuple
-    if type(rect) is list or type(rect) is tuple:
-        rect = pg.Rect(rect)
-
+    if type(cfg["rect"]) is list or type(cfg["rect"]) is tuple:
+        cfg["rect"] = pg.Rect(cfg["rect"])
+    # drawing border to the background
     pg.draw.lines(
         surface,
-        color,
+        cfg["color"],
         False,
         [
-            (0, 0),
-            (0, rect.height - 1),
-            (rect.width - 1, rect.height - 1),
-            (rect.width - 1, 0),
-            (0, 0)
+            cfg["rect"].topleft,
+            (cfg["rect"].left, cfg["rect"].height - 1),
+            (cfg["rect"].width - 1, cfg["rect"].height - 1),
+            (cfg["rect"].width - 1, cfg["rect"].top),
+            cfg["rect"].topleft,
         ],
-        size
+        cfg["size"]
     )
 
     return surface
