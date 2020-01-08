@@ -477,15 +477,7 @@ class Table(GuiMaster):
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
-    def resize(self, size):
-        """overwrites parent's 'resize()'-method."""
-        self.rect.size = size
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
-        # redrawing either elements or just background of the surface
-        if self.border:
-            self.redraw(self.border)
-        else:
-            self.redraw()
+
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
