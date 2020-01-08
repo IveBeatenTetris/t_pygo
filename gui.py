@@ -276,11 +276,10 @@ class GuiMaster(pg.Surface):
         self.__hovering         =   False
         # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
+        self.redraw()
         # first time drawing border if preset by user
         if self.border:
-            self.redraw(self.border)
-        else:
-            self.redraw()
+            self.draw(self.border, (0, 0))
     # dynamic properties
     @property# pg.surface
     def border(self):
@@ -395,8 +394,24 @@ class GuiMaster(pg.Surface):
             leaving = True
 
             return leaving
+    # basic methodes
+    def draw(self, object, rect=None, area=None):
+        """
+        blits a surface-object / gui-element to the elements's surface.
+        if 'object' is a list or tuple, fill the surface with this statement
+        instead. 'area' takes a pygame.rect-statement for declaring a specific
+        area to redraw for keep fps up.
+        """
+        if not rect: rect = (0, 0)
 
-    def redraw(self, element=None):
+        if type(object) is list or type(object) is tuple:
+            self.fill(object)
+        else:
+            if not area:
+                self.blit(object, rect)
+            else:
+                self.display.blit(object, rect, area)
+    def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
         'GuiMaster'-element and blit this to the surface as well.
@@ -419,19 +434,9 @@ class GuiMaster(pg.Surface):
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
             self.fill(self.config["drag_area_background"], rect)
-        # drawing picked elements. expecting no rects in elements
-        if element:
-            if type(element) is list:
-                for elem in element:
-                    try:
-                        self.blit(elem, elem.rect)
-                    except AttributeError:
-                        self.blit(elem, (0, 0))
-            else:
-                try:
-                    self.blit(element, element.rect)
-                except AttributeError:
-                    self.blit(element, (0, 0))
+        # drawing background if set by user
+        if self.border:
+            self.draw(self.border, (0, 0))
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -439,11 +444,8 @@ class GuiMaster(pg.Surface):
         """
         self.rect.size = size
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        # redrawing either elements or just background of the surface
-        if self.border:
-            self.redraw(self.border)
-        else:
-            self.redraw()
+        # redrawing backgrounds and stuff
+        self.redraw()
     def update(self):
         """runs with every game-loop."""
         redraw = False
@@ -469,9 +471,18 @@ class Table(GuiMaster):
     }
     # subordered table-classes
     class Row(GuiMaster):
+        """row-surface ready for drawing to the table."""
         def __init__(self, **kwargs):
+            """
+            uses 'GuiMaster' as its parent with additional methodes and
+            attributes.
+            """
             GuiMaster.__init__(self, **kwargs)
+            # drawing border if set
+            if self.border:
+                self.blit(self.border, (0, 0))
     class Col(GuiMaster):
+        """cell-surface ready for drawing to the table."""
         pass
     # table-initialisation
     def __init__(self, **kwargs):
@@ -482,46 +493,50 @@ class Table(GuiMaster):
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
-        self.redraw(self.rows)
+        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        # first time drawing all rows
+        for row in self.rows:
+            self.draw(row, row.rect)
+    # dynamic properties
     @property# list
     def rows(self):
-        """."""
+        """returns a list of ready-to-be-drawn-rows for the table."""
         rows = []
+        # needed to determine the next vertical row-rect-position
         height = 0
 
         for r in range(self.cfg["rows"]):
+            # creating a setup and pass it later to the new row
             setup = {
                 "parent"        :   self,
                 "size"          :   (self.rect.width, 25),
-                "background"    :   self.cfg["background"]
+                "background"    :   self.cfg["background"],
+                "border"        :   self.border
             }
+            # different background for each 2nd row
             if r % 2: setup["background"] = (
                 self.cfg["background"][0] + 10,
                 self.cfg["background"][1] + 10,
                 self.cfg["background"][2] + 10
             )
+            # initing new row
             row = self.Row(**setup)
+            # applying vertical pos and updating next vertical row-rect
+            # position
             row.rect.top = height
             height += row.rect.height
+            # appending the new row to the returning row-list
             rows.append(row)
 
         return rows
-
-    def redraw(self, element=None):
-        """overwrites parent's 'redraw()'-method."""
-        # drawing picked elements. expecting no rects in elements
-        if element:
-            if type(element) is list:
-                for elem in element:
-                    try:
-                        self.blit(elem, elem.rect)
-                    except AttributeError:
-                        self.blit(elem, (0, 0))
-            else:
-                try:
-                    self.blit(element, element.rect)
-                except AttributeError:
-                    self.blit(element, (0, 0))
+    # basic methodes
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        # redrawing all rows
+        for row in self.rows:
+            self.draw(row, row.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.redraw(self.rows)
+        pass
