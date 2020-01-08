@@ -483,7 +483,15 @@ class Table(GuiMaster):
                 self.blit(self.border, (0, 0))
     class Col(GuiMaster):
         """cell-surface ready for drawing to the table."""
-        pass
+        def __init__(self, **kwargs):
+            """
+            uses 'GuiMaster' as its parent with additional methodes and
+            attributes.
+            """
+            GuiMaster.__init__(self, **kwargs)
+            # drawing border if set
+            if self.border:
+                self.blit(self.border, (0, 0))
     # table-initialisation
     def __init__(self, **kwargs):
         """
@@ -494,9 +502,11 @@ class Table(GuiMaster):
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        # first time drawing all rows
-        for row in self.rows:
+        # first time drawing all rows and cells
+        """for row in self.rows:
             self.draw(row, row.rect)
+        for col in self.cols:
+            self.draw(col, col.rect)"""
     # dynamic properties
     @property# list
     def rows(self):
@@ -505,7 +515,7 @@ class Table(GuiMaster):
         # needed to determine the next vertical row-rect-position
         height = 0
 
-        for r in range(self.cfg["rows"]):
+        """for i in range(self.cfg["rows"]):
             # creating a setup and pass it later to the new row
             setup = {
                 "parent"        :   self,
@@ -513,8 +523,9 @@ class Table(GuiMaster):
                 "background"    :   self.cfg["background"],
                 "border"        :   self.border
             }
+            for j in range(self.cfg["cols"]):
             # different background for each 2nd row
-            if r % 2: setup["background"] = (
+            if i % 2: setup["background"] = (
                 self.cfg["background"][0] + 10,
                 self.cfg["background"][1] + 10,
                 self.cfg["background"][2] + 10
@@ -526,7 +537,9 @@ class Table(GuiMaster):
             row.rect.top = height
             height += row.rect.height
             # appending the new row to the returning row-list
-            rows.append(row)
+            rows.append(row)"""
+
+
 
         return rows
     # basic methodes
