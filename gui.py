@@ -496,7 +496,7 @@ class Table(GuiMaster):
             for row in range(kwargs["rows"]):
                 pg.draw.lines(
                     self,
-                    kwargs["border"],
+                    kwargs["border_color"],
                     False,
                     [
                         (self.rect.left, y),
@@ -509,7 +509,7 @@ class Table(GuiMaster):
             for col in range(kwargs["cols"]):
                 pg.draw.lines(
                     self,
-                    kwargs["border"],
+                    kwargs["border_color"],
                     False,
                     [
                         (x, self.rect.top),
