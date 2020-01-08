@@ -550,7 +550,7 @@ class Table(GuiMaster):
     @property# grid-object
     def grid(self):
         """returns a new calculated grid-surface-object ready to be drawn."""
-        return self.Grid(
+        grid = self.Grid(
             size            =   self.rect.size,
             background      =   self.background,
             rows            =   self.cfg["rows"],
@@ -559,12 +559,15 @@ class Table(GuiMaster):
             border_size     =   self.cfg["border_size"],
             border_color    =   self.cfg["border_color"]
         )
+        # updating self.columns
+        self.columns = grid.columns
+
+        return grid
     # basic methodes
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.columns = self.grid.columns
         # redrawing grid
         self.blit(self.grid, (0, 0))
     def update(self):
