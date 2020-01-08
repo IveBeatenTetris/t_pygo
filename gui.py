@@ -433,12 +433,12 @@ class Layout(GuiMaster):
         """resembles a row of the layout."""
         default = {
             "background"    :   (180, 180, 195),
+            "border"        :   None,
             "size"          :   ("100%", 25)
         }
         def __init__(self, **kwargs):
             GuiMaster.__init__(self, **kwargs)
             self.cfg            =   u.validateDict(kwargs, self.default)
-            self.background     =   self.cfg["background"]
             self.rect           =   u.convertRect(
                                         [
                                             0,
@@ -448,8 +448,16 @@ class Layout(GuiMaster):
                                         ],
                                         self.parent.rect
                                     )
+            self.background     =   self.cfg["background"]
             # resizing row since it's rect got changed
             self.resize(self.rect.size)
+            # drawing a border around the row if the user desires so
+            if self.cfg["border"]:
+                self.background =   u.drawBorder(
+                                        self,
+                                        color   =   self.cfg["border"][1],
+                                        size    =   self.cfg["border"][0]
+                                    )
     class Col(GuiMaster):
         """resembles a col of the layout."""
         default = {}
