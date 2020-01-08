@@ -549,8 +549,10 @@ class Table(GuiMaster):
     default = {
         "rows"          :   1,
         "cols"          :   1,
-        "border"        :   None,
-        "background"    :   None
+        "background"    :   None,
+        "border"        :   False,
+        "border_color"  :   (0, 0, 0),
+        "border_size"   :   1
     }
     def __init__(self, **kwargs):
         """
@@ -561,4 +563,36 @@ class Table(GuiMaster):
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
         self.background     =   self.cfg["background"]
-        self.redraw()
+        # first time drawing border if preset by user
+        if self.border:
+            self.redraw(self.border)
+        else:
+            self.redraw()
+    @property
+    def border(self):
+        """returns a surface with a blitten border to it if preset by user."""
+        border = None
+        # drawing border to temprary surface if given
+        if self.cfg["border"]:
+            border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+            u.drawBorder(
+                border_surface,
+                color   =   self.cfg["border_color"],
+                size    =   self.cfg["border_size"]
+            )
+            border = border_surface
+
+        return border
+
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        # redrawing either elements or just background of the surface
+        if self.border:
+            self.redraw(self.border)
+        else:
+            self.redraw()
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
