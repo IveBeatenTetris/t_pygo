@@ -22,21 +22,22 @@ class App:
     pygames-window-module with extended features. can be accessed by calling
     'globals()["app"]'.
 
-    'defaults' is a dict of standard properties. on init, the given parameter
-        'config' is beeing compared to the default dict. if some given
-        properties are missing, they are simply replaced by default values.
-        the result is a validated dict to draw initialisation instructions.
-        it also declares what arguments can be passed to the app-object.
+    'defaults'  is a dict of standard properties. on init, the given parameter
+                'config' is beeing compared to the default dict. if some given
+                properties are missing, they are simply replaced by default
+                values. the result is a validated dict to draw initialisation-
+                instructions. it also declares what arguments can be passed to
+                the app-object.
     """
     defaults = {
-        "size":                 (320, 240),
-        "title":                "Test Project 0.1",
-        "resizable":            False,
-        "fullscreen":           False,
-        "background":           u.LIBPATH["windowbg"],
-        "background_repeat":    None,
-        "icon":                 u.LIBPATH["windowicon"],
-        "fps":                  30
+        "size"              :   (320, 240),
+        "title"             :   "Test Project 0.1",
+        "resizable"         :   False,
+        "fullscreen"        :   False,
+        "background"        :   u.LIBPATH["windowbg"],
+        "background_repeat" :   None,
+        "icon"              :   u.LIBPATH["windowicon"],
+        "fps"               :   30
     }
     def __init__(self, **kwargs):
         """
@@ -204,14 +205,17 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
-        "parent":               None,
-        "size":                 (300, 200),
-        "position":             (0, 0),
-        "background":           (35, 35, 45),
-        "background_hover":     None,
-        "dragable":             False,
-        "drag_area":            None,
-        "drag_area_background": (45, 45, 55)
+        "parent"                :   None,
+        "size"                  :   (300, 200),
+        "position"              :   (0, 0),
+        "background"            :   (35, 35, 45),
+        "background_hover"      :   None,
+        "border"                :   False,
+        "border_color"          :   (0, 0, 0),
+        "border_size"           :   1,
+        "dragable"              :   False,
+        "drag_area"             :   None,
+        "drag_area_background"  :   (45, 45, 55)
     }
     def __init__(self, **kwargs):
         """
@@ -272,7 +276,28 @@ class GuiMaster(pg.Surface):
         self.__hovering         =   False
         # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
+        # first time drawing border if preset by user
+        if self.border:
+            self.redraw(self.border)
+        else:
+            self.redraw()
     # dynamic properties
+    @property# pg.surface
+    def border(self):
+        """returns a surface with a blitten border to it if preset by user."""
+        border = None
+        # drawing border to temprary surface if given
+        if self.config["border"]:
+            border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+            u.drawBorder(
+                border_surface,
+                color   =   self.config["border_color"],
+                size    =   self.config["border_size"]
+            )
+            border = border_surface
+
+        return border
+    # event related properties
     @property# list
     def click(self):
         """
@@ -545,45 +570,33 @@ class Layout(GuiMaster):
         """overwrites parent's 'update()'-method."""
         pass
 class Table(GuiMaster):
-    """works similar to a hmtl-table with rows and cols to draw in."""
+    """
+    works similar to a hmtl-table with rows and cols to draw in.
+
+    'default'   default-properties for this object.
+
+    'Row'       (class) is used to visualize a row in the layout.
+    'Col'       (class) is used to visualize a col in the layout.
+    """
     default = {
         "rows"          :   1,
         "cols"          :   1,
-        "background"    :   None,
-        "border"        :   False,
-        "border_color"  :   (0, 0, 0),
-        "border_size"   :   1
+        "background"    :   None
     }
+    # subordered mini-classes
+    class Row(object):
+        pass
+    class Col(object):
+        pass
+    # table-initialisation
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'          'dict' of building instructions for the table.
+        'cfg'   'dict' of building instructions for the table.
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
-        self.background     =   self.cfg["background"]
-        # first time drawing border if preset by user
-        if self.border:
-            self.redraw(self.border)
-        else:
-            self.redraw()
-    @property
-    def border(self):
-        """returns a surface with a blitten border to it if preset by user."""
-        border = None
-        # drawing border to temprary surface if given
-        if self.cfg["border"]:
-            border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
-            u.drawBorder(
-                border_surface,
-                color   =   self.cfg["border_color"],
-                size    =   self.cfg["border_size"]
-            )
-            border = border_surface
-
-        return border
-
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
