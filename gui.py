@@ -467,10 +467,11 @@ class Table(GuiMaster):
         "cols"          :   1,
         "background"    :   None
     }
-    # subordered mini-classes
-    class Row(object):
-        pass
-    class Col(object):
+    # subordered table-classes
+    class Row(GuiMaster):
+        def __init__(self, **kwargs):
+            GuiMaster.__init__(self, **kwargs)
+    class Col(GuiMaster):
         pass
     # table-initialisation
     def __init__(self, **kwargs):
