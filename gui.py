@@ -574,7 +574,28 @@ class Table(GuiMaster):
         """overwrites parent's 'update()'-method."""
         pass
 class Text(GuiMaster):
-    """resembles a text-object."""
+    """
+    resembles a text-object.
+
+    'default'   default-properties for this object.
+    """
+    default = {
+        "font"         :   u.FONTS["base"]["name"],
+    	"fontsize"     :   u.FONTS["base"]["size"],
+    	"color"        :   u.FONTS["base"]["color"],
+        "background"   :   None,
+    	"text"         :   "Text",
+    	"antialias"    :   True,
+    	"bold"         :   False,
+    	"italic"       :   False,
+        "wrap"         :   None,
+        "position"     :   (0, 0)
+    }
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'cfg'       'dict' of building instructions for the table.
+        """
+        self.cfg        =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
