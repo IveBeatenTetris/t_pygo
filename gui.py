@@ -128,6 +128,13 @@ class App:
             if evt.type is pg.KEYDOWN:
                 if evt.key == pg.K_ESCAPE:
                     self.keys.append("esc")
+            # calling 'self.resize()' when window has been resized. also
+            # marking the app as 'resized' (self.resized = True)
+            if evt.type is pg.VIDEORESIZE:
+                self.resized = True
+                self.resize(evt.size)
+            elif self.resized:
+                self.resized = False
         return events
     @property# pg.rect
     def rect(self):
@@ -168,14 +175,7 @@ class App:
         updates dimensions, visuals and physics of the pygame.display with each
         game-loop-tick.
         """
-        # calling 'self.resize()' when window has been resized. also
-        # marking the app as 'resized' (self.resized = True)
-        for evt in self.events:
-            if evt.type is pg.VIDEORESIZE:
-                self.resize(evt.size)
-                self.resized = True
-            elif self.resized:
-                self.resized = False
+        events = self.events
         # refreshing display visuals
         pg.display.update()
         # updating fps
