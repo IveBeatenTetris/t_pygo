@@ -483,24 +483,34 @@ class Layout(GuiMaster):
         returns a tuple of valuable rows, cols and the surface, all elements
         have been blitten to.
         """
-        # creating a surface and filling it with layout's background-color
+        # creating a surface
         surf = pg.Surface(self.rect.size, pg.SRCALPHA)
-        if self.cfg["background"]:
-            surf.fill(self.cfg["background"])
         # empty lists for returning filled at the end
         rows, cols = [], []
+        # this variable is needed to calculate the next vertical drawing-
+        # position of the row
+        y = 0
 
-        for row in self.cfg["rows"]:
+        for i, row in enumerate(self.cfg["rows"]):
             setup = row
             # appending a parent to the setup
             if not "parent" in setup:
                 setup["parent"] = self
-            # init row
+            # additional attributes
+            if i % 2: setup["background"] = (
+                self.cfg["background"][0] + 10,
+                self.cfg["background"][1] + 10,
+                self.cfg["background"][2] + 10
+            )
+            # init row and updating it's vertical postion
             row = self.Row(**setup)
+            row.rect.top = y
             # drawing to temporary surface
             surf.blit(row, row.rect)
             # appending row to returning list
             rows.append(row)
+            # updating 'y'
+            y += row.rect.height
 
         return (rows, cols, surf)
 
