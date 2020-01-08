@@ -482,7 +482,46 @@ class Table(GuiMaster):
         """
         self.cfg            =   u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
+        self.redraw(self.rows)
+    @property# list
+    def rows(self):
+        """."""
+        rows = []
+        height = 0
 
+        for r in range(self.cfg["rows"]):
+            setup = {
+                "parent"        :   self,
+                "size"          :   (self.rect.width, 25),
+                "background"    :   self.cfg["background"]
+            }
+            if r % 2: setup["background"] = (
+                self.cfg["background"][0] + 10,
+                self.cfg["background"][1] + 10,
+                self.cfg["background"][2] + 10
+            )
+            row = self.Row(**setup)
+            row.rect.top = height
+            height += row.rect.height
+            rows.append(row)
+
+        return rows
+
+    def redraw(self, element=None):
+        """overwrites parent's 'redraw()'-method."""
+        # drawing picked elements. expecting no rects in elements
+        if element:
+            if type(element) is list:
+                for elem in element:
+                    try:
+                        self.blit(elem, elem.rect)
+                    except AttributeError:
+                        self.blit(elem, (0, 0))
+            else:
+                try:
+                    self.blit(element, element.rect)
+                except AttributeError:
+                    self.blit(element, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
+        self.redraw(self.rows)
