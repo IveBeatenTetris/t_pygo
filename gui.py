@@ -381,10 +381,15 @@ class GuiMaster(pg.Surface):
         if self.hover:
             if self.background_hover:
                 bg = self.background_hover
-        if type(bg) is tuple or type(bg) is list:
-            self.fill(bg)
         else:
-            self.blit(bg, (0, 0))
+            if self.background:
+                bg = self.background
+        # drawing if background is not 'none'
+        if bg:
+            if type(bg) is tuple or type(bg) is list:
+                self.fill(bg)
+            else:
+                self.blit(bg, (0, 0))
         # drawing drag-area if set by user
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
