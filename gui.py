@@ -473,14 +473,23 @@ class Table(GuiMaster):
     }
     # subordered table-classes
     class Grid(GuiMaster):
-        """."""
+        """
+        a grid object with a border drawn to it's surface and a list of stores
+        columns for accessing their rect-positions.
+
+        example:
+            surface.blit(element, table.grid.columns[5])
+        """
         def __init__(self, **kwargs):
             """
             uses 'GuiMaster' as its parent with additional methodes and
             attributes.
+
+            'columns'   a list of accessable cell-rects. the main reason for
+                        this class.
             """
             GuiMaster.__init__(self, **kwargs)
-
+            self.columns    =   []
             # using these for calculating next line's position
             x, y = 0, 0
             # drawing rows
@@ -497,7 +506,7 @@ class Table(GuiMaster):
                 )
                 y += int(self.rect.height / kwargs["rows"])
             # drawing cols
-            for row in range(kwargs["cols"]):
+            for col in range(kwargs["cols"]):
                 pg.draw.lines(
                     self,
                     kwargs["border"],
@@ -509,6 +518,16 @@ class Table(GuiMaster):
                     kwargs["border_size"]
                 )
                 x += int(self.rect.width / kwargs["cols"])
+            # storing every cell-rect in columns-list
+            for r in range(kwargs["rows"]):
+                for c in range(kwargs["cols"]):
+                    rect = pg.Rect(
+                        c * int(self.rect.width / kwargs["cols"]),
+                        r * int(self.rect.height / kwargs["rows"]),
+                        int(self.rect.width / kwargs["cols"]),
+                        int(self.rect.height / kwargs["rows"]),
+                    )
+                    self.columns.append(rect)
 
     # table-initialisation
     def __init__(self, **kwargs):
