@@ -439,7 +439,11 @@ class GuiMaster(pg.Surface):
         """
         self.rect.size = size
         pg.Surface.__init__(self, size, pg.SRCALPHA)
-        self.redraw()
+        # redrawing either elements or just background of the surface
+        if self.border:
+            self.redraw(self.border)
+        else:
+            self.redraw()
     def update(self):
         """runs with every game-loop."""
         redraw = False
