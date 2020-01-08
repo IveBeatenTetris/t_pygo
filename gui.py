@@ -277,9 +277,6 @@ class GuiMaster(pg.Surface):
         # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
         self.redraw()
-        # first time drawing border if preset by user
-        if self.border:
-            self.draw(self.border, (0, 0))
     # dynamic properties
     @property# pg.surface
     def border(self):
@@ -457,11 +454,12 @@ class GuiMaster(pg.Surface):
 # all these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
     """
-    works similar to a hmtl-table with rows and cols to draw in.
+    acts like a grid with columns to use their rects for drawing.
+    usage:
+        surface.blit(element, table.columns[5])
 
     'default'   default-properties for this object.
-
-    'Grid'       (class) is used to visualize the table.
+    'Grid'      (class) is used to visualize the table.
     """
     default = {
         "rows"          :   1,
@@ -476,9 +474,6 @@ class Table(GuiMaster):
         """
         a grid object with a border drawn to it's surface and a list of stores
         columns for accessing their rect-positions.
-
-        example:
-            surface.blit(element, table.grid.columns[5])
         """
         def __init__(self, **kwargs):
             """
