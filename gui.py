@@ -590,7 +590,8 @@ class Text(GuiMaster):
     	"italic": False,
         "shadow": None,
         "wrap": None,
-        "position": (0, 0)
+        "position": (0, 0),
+        "padding": 0
     }
     def __init__(self, **kwargs):
         """
@@ -636,8 +637,16 @@ class Text(GuiMaster):
                 self.cfg["antialias"],
                 self.cfg["color"]
             )
+        # creating the former rect for the final surface to return
+        rect = text.get_rect()
+        # looking for padding to apply as size and position
+        if self.cfg["padding"]:
+            rect.width += 2 * self.cfg["padding"]
+            rect.height += 2 * self.cfg["padding"]
+            rect.left = self.cfg["padding"]
+            rect.top = self.cfg["padding"]
         # this is the final surface we will return at the end
-        final_surface = pg.Surface(text.get_rect().size, pg.SRCALPHA)
+        final_surface = pg.Surface(rect.size, pg.SRCALPHA)
         # render a self-made shadow if user disires so
         if self.cfg["shadow"]:
             shadow = self.cfg["shadow"]
@@ -656,7 +665,7 @@ class Text(GuiMaster):
             shadow_surface.fill(color, None, pg.BLEND_RGBA_MULT)
             final_surface.blit(shadow_surface, pos)
         # drawing everything to the returning-surface
-        final_surface.blit(text, (0, 0))
+        final_surface.blit(text, rect.topleft)
 
         return final_surface
     # basic methodes
@@ -669,3 +678,4 @@ class Text(GuiMaster):
         self.blit(self.text, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
+        pass
