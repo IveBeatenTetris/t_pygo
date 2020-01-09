@@ -536,7 +536,52 @@ def scale(surface, factor):# pg.surface
         size = factor
 
     return pg.transform.scale(surface, size)
-def wrapText(text, color, rect, font, aa=False, bkg=None):# pg.surface
+def wrapText(**kwargs):
+    """."""
+    # looking for gaps in the kwargs-dict
+    if not "text" in kwargs:
+        kwargs["text"] = "No Text was passed."
+    if not "color" in kwargs:
+        kwargs["color"] = (0, 0, 0)
+    if not "antialias" in kwargs:
+        kwargs["antialias"] = True
+    if not "size" in kwargs:
+        kwargs["size"] = 200
+    if not "font" in kwargs:
+        kwargs["font"] = pg.font.SysFont(# pygame.font
+        	FONT["base"]["name"],
+        	16
+        )
+
+    font = kwargs["font"]
+    text = kwargs["text"]
+    color = kwargs["color"]
+    rect = pg.Rect(0 ,0, kwargs["size"], 500)
+    aa = kwargs["antialias"]
+    y = rect.top
+    lineSpacing = -2
+    txt_surf = pg.Surface(rect.size, pg.SRCALPHA)
+
+    # get the height of the font
+    fontHeight = font.size("Tg")[1]
+
+    while text:
+        i = 1
+        # declaring maximum width of line
+        while font.size(text[:i])[0] < rect.width and i < len(text):
+            i += 1
+        # if we've wrapped the text, then adjust the wrap to the last word
+        if i < len(text):
+            i = text.rfind(" ", 0, i) + 1
+        # render the line and blit it to the surface
+        image = font.render(text[:i], aa, color)
+        txt_surf.blit(image, (rect.left, y))
+        y += fontHeight + lineSpacing
+        # remove the text we just blit
+        text = text[i:]
+
+    return txt_surf
+def wrapText2(text, color, rect, font, aa=False, bkg=None):# pg.surface
     """
     returns a pygame surface. drew this function from the official pygame wiki.
         modified it a little bit.
