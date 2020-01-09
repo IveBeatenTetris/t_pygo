@@ -30,14 +30,14 @@ class App:
                 the app-object.
     """
     defaults = {
-        "size"              :   (320, 240),
-        "title"             :   "Test Project 0.1",
-        "resizable"         :   False,
-        "fullscreen"        :   False,
-        "background"        :   u.LIBPATH["windowbg"],
-        "background_repeat" :   None,
-        "icon"              :   u.LIBPATH["windowicon"],
-        "fps"               :   30
+        "size" : (320, 240),
+        "title" : "Test Project 0.1",
+        "resizable" : False,
+        "fullscreen" : False,
+        "background" : u.LIBPATH["windowbg"],
+        "background_repeat" : None,
+        "icon" : u.LIBPATH["windowicon"],
+        "fps" : 30
     }
     def __init__(self, **kwargs):
         """
@@ -69,26 +69,26 @@ class App:
 
         'resized'           bool to check if the window has been resized.
         """
-        self.config         =   u.validateDict(kwargs, self.defaults)
+        self.config = u.validateDict(kwargs, self.defaults)
         # pygame init
         pg.init()
         # creating display surface and drawing background
-        self.display        =   u.getDisplay(
-                                    self.config["size"],
-                                    resizable = self.config["resizable"]
-                                )
+        self.display = u.getDisplay(
+            self.config["size"],
+            resizable = self.config["resizable"]
+        )
         self.draw(self.background)
         # changing windows apprarance
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
         # fps settings
-        self.clock          =   pg.time.Clock()
-        self.preffered_fps  =   self.config["fps"]
-        self.fps            =   0
+        self.clock = pg.time.Clock()
+        self.preffered_fps = self.config["fps"]
+        self.fps = 0
         # event related
-        self._events        =   []
-        self.keys           =   []
-        self.resized        =   False
+        self._events = []
+        self.keys = []
+        self.resized = False
     # dynamic properties
     @property# pg.surface
     def background(self):
@@ -210,17 +210,17 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
-        "parent"                :   None,
-        "size"                  :   (300, 200),
-        "position"              :   (0, 0),
-        "background"            :   (35, 35, 45),
-        "background_hover"      :   None,
-        "border"                :   False,
-        "border_color"          :   (0, 0, 0),
-        "border_size"           :   1,
-        "dragable"              :   False,
-        "drag_area"             :   None,
-        "drag_area_background"  :   (45, 45, 55)
+        "parent" : None,
+        "size" : (300, 200),
+        "position" : (0, 0),
+        "background" : (35, 35, 45),
+        "background_hover" : None,
+        "border" : False,
+        "border_color" : (0, 0, 0),
+        "border_size" : 1,
+        "dragable" : False,
+        "drag_area" : None,
+        "drag_area_background" : (45, 45, 55)
     }
     def __init__(self, **kwargs):
         """
@@ -257,28 +257,28 @@ class GuiMaster(pg.Surface):
         '__hovering'        used to determine if the mouse floats over the
                             element.
         """
-        self.config             =   u.validateDict(kwargs, self.defaults)
+        self.config = u.validateDict(kwargs, self.defaults)
         # declaring parent
         if self.config["parent"]:
-            self.parent         =   self.config["parent"]
+            self.parent = self.config["parent"]
         else:
-            self.parent         =   pg.display.get_surface()
+            self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
-        self.background         =   self.config["background"]
-        self.background_hover   =   self.config["background_hover"]
-        self.rect               =   pg.Rect(
-                                        self.config["position"],
-                                        self.config["size"]
-                                    )
+        self.background = self.config["background"]
+        self.background_hover = self.config["background_hover"]
+        self.rect = pg.Rect(
+            self.config["position"],
+            self.config["size"]
+        )
         # event related stuff
-        self.dragable           =   self.config["dragable"]
+        self.dragable = self.config["dragable"]
         if self.config["drag_area"]:
-            self.drag_area      =   pg.Rect(self.config["drag_area"])
+            self.drag_area = pg.Rect(self.config["drag_area"])
         else:
-            self.drag_area      =   self.config["drag_area"]
-        self.__dragged_at       =   None
-        self.__clicked          =   False
-        self.__hovering         =   False
+            self.drag_area = self.config["drag_area"]
+        self.__dragged_at = None
+        self.__clicked = False
+        self.__hovering = False
         # first time creating surface and recreating inner element's visuals
         self.resize(self.config["size"])
         self.redraw()
@@ -292,8 +292,8 @@ class GuiMaster(pg.Surface):
             border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
             u.drawBorder(
                 border_surface,
-                color   =   self.config["border_color"],
-                size    =   self.config["border_size"]
+                color = self.config["border_color"],
+                size = self.config["border_size"]
             )
             border = border_surface
 
@@ -467,12 +467,12 @@ class Table(GuiMaster):
     'Grid'      (class) is used to visualize the table.
     """
     default = {
-        "rows"          :   1,
-        "cols"          :   1,
-        "background"    :   None,
-        "border"        :   False,
-        "border_size"   :   1,
-        "border_color"  :   (0, 0, 0)
+        "rows" : 1,
+        "cols" : 1,
+        "background" : None,
+        "border" : False,
+        "border_size" : 1,
+        "border_color" : (0, 0, 0)
     }
     # subordered table-classes
     class Grid(GuiMaster):
@@ -489,7 +489,7 @@ class Table(GuiMaster):
                         this class.
             """
             GuiMaster.__init__(self, **kwargs)
-            self.columns    =   []
+            self.columns = []
             # using these for calculating next line's position
             x, y = 0, 0
             # drawing rows
@@ -539,10 +539,10 @@ class Table(GuiMaster):
                     table. it's gonna be filled automatically by calling
                     'self.grid' anywhere.
         """
-        self.cfg            =   u.validateDict(kwargs, self.default)
+        self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
         pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
-        self.columns        =   []
+        self.columns = []
         # first time drawing grid
         self.blit(self.grid, (0, 0))
 
@@ -551,13 +551,13 @@ class Table(GuiMaster):
     def grid(self):
         """returns a new calculated grid-surface-object ready to be drawn."""
         grid = self.Grid(
-            size            =   self.rect.size,
-            background      =   self.background,
-            rows            =   self.cfg["rows"],
-            cols            =   self.cfg["cols"],
-            border          =   self.cfg["border"],
-            border_size     =   self.cfg["border_size"],
-            border_color    =   self.cfg["border_color"]
+            size = self.rect.size,
+            background = self.background,
+            rows = self.cfg["rows"],
+            cols = self.cfg["cols"],
+            border = self.cfg["border"],
+            border_size = self.cfg["border_size"],
+            border_color = self.cfg["border_color"]
         )
         # updating self.columns
         self.columns = grid.columns
@@ -580,16 +580,16 @@ class Text(GuiMaster):
     'default'   default-properties for this object.
     """
     default = {
-        "font"         :   u.FONTS["base"]["name"],
-    	"font_size"    :   u.FONTS["base"]["size"],
-    	"color"        :   u.FONTS["base"]["color"],
-        "background"   :   None,
-    	"text"         :   "Text",
-    	"antialias"    :   True,
-    	"bold"         :   False,
-    	"italic"       :   False,
-        "wrap"         :   None,
-        "position"     :   (0, 0)
+        "font" : u.FONTS["base"]["name"],
+    	"font_size" : u.FONTS["base"]["size"],
+    	"color" : u.FONTS["base"]["color"],
+        "background" : None,
+    	"text" : "Text",
+    	"antialias" : True,
+    	"bold" : False,
+    	"italic" : False,
+        "wrap" : None,
+        "position" : (0, 0)
     }
     def __init__(self, **kwargs):
         """
@@ -598,13 +598,13 @@ class Text(GuiMaster):
         'cfg'       'dict' of building instructions for the table.
         'font'      'pygame.font'-object to render a text with.
         """
-        self.cfg        =   u.validateDict(kwargs, self.default)
+        self.cfg = u.validateDict(kwargs, self.default)
         # initialising and styling font-object
         pg.font.init()
-        self.font       =   pg.font.SysFont(# pygame.font
-                            	self.cfg["font"],
-                            	self.cfg["font_size"]
-                            )
+        self.font = pg.font.SysFont(# pygame.font
+        	self.cfg["font"],
+        	self.cfg["font_size"]
+        )
         self.font.set_bold(self.cfg["bold"])
         self.font.set_italic(self.cfg["italic"])
         # initialising text-object and downsizing it to text.rect-size
