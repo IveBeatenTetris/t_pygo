@@ -30,14 +30,14 @@ class App:
                 the app-object.
     """
     defaults = {
-        "size" : (320, 240),
-        "title" : "Test Project 0.1",
-        "resizable" : False,
-        "fullscreen" : False,
-        "background" : u.LIBPATH["windowbg"],
-        "background_repeat" : None,
-        "icon" : u.LIBPATH["windowicon"],
-        "fps" : 30
+        "size": (320, 240),
+        "title": "Test Project 0.1",
+        "resizable": False,
+        "fullscreen": False,
+        "background": u.LIBPATH["windowbg"],
+        "background_repeat": None,
+        "icon": u.LIBPATH["windowicon"],
+        "fps": 30
     }
     def __init__(self, **kwargs):
         """
@@ -210,17 +210,17 @@ class GuiMaster(pg.Surface):
         master-element.
     """
     defaults = {
-        "parent" : None,
-        "size" : (300, 200),
-        "position" : (0, 0),
-        "background" : (35, 35, 45),
-        "background_hover" : None,
-        "border" : False,
-        "border_color" : (0, 0, 0),
-        "border_size" : 1,
-        "dragable" : False,
-        "drag_area" : None,
-        "drag_area_background" : (45, 45, 55)
+        "parent": None,
+        "size": (300, 200),
+        "position": (0, 0),
+        "background": (35, 35, 45),
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55)
     }
     def __init__(self, **kwargs):
         """
@@ -467,12 +467,12 @@ class Table(GuiMaster):
     'Grid'      (class) is used to visualize the table.
     """
     default = {
-        "rows" : 1,
-        "cols" : 1,
-        "background" : None,
-        "border" : False,
-        "border_size" : 1,
-        "border_color" : (0, 0, 0)
+        "rows": 1,
+        "cols": 1,
+        "background": None,
+        "border": False,
+        "border_size": 1,
+        "border_color": (0, 0, 0)
     }
     # subordered table-classes
     class Grid(GuiMaster):
@@ -580,16 +580,17 @@ class Text(GuiMaster):
     'default'   default-properties for this object.
     """
     default = {
-        "font" : u.FONTS["base"]["name"],
-    	"font_size" : u.FONTS["base"]["size"],
-    	"color" : u.FONTS["base"]["color"],
-        "background" : None,
-    	"text" : "Text",
-    	"antialias" : True,
-    	"bold" : False,
-    	"italic" : False,
-        "wrap" : None,
-        "position" : (0, 0)
+        "font": u.FONTS["base"]["name"],
+    	"font_size": u.FONTS["base"]["size"],
+    	"color": u.FONTS["base"]["color"],
+        "background": None,
+    	"text": "Text",
+    	"antialias": True,
+    	"bold": False,
+    	"italic": False,
+        "shadow": None,
+        "wrap": None,
+        "position": (0, 0)
     }
     def __init__(self, **kwargs):
         """
