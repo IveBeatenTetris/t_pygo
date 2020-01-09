@@ -606,8 +606,8 @@ class Text(GuiMaster):
                             )
         self.font.set_bold(self.cfg["bold"])
         self.font.set_italic(self.cfg["italic"])
-        # initialising text-object
-        GuiMaster.__init__(self, **kwargs)
+        # initialising text-object and downsizing it to text.rect-size
+        GuiMaster.__init__(self, size=self.text.get_rect().size, **kwargs)
         # drawing text to text-surface
         self.blit(self.text, (0, 0))
     # dynamic properties
