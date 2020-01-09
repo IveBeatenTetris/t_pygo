@@ -536,8 +536,16 @@ def scale(surface, factor):# pg.surface
         size = factor
 
     return pg.transform.scale(surface, size)
-def wrapText(**kwargs):
-    """."""
+def wrapText(**kwargs):# pygame.surface
+    """returns a pygame surface. drew this function from the official pygame wiki.
+        modified it a little bit.
+
+    'text' str.
+    'color' tuple of 3 ints.
+    'rect' a valid pygame.rect.
+    'font' a valid pygame.font-object.
+    'antialias' needs to be bool.
+    """
     # looking for gaps in the kwargs-dict
     if not "text" in kwargs:
         kwargs["text"] = "No Text was passed."
@@ -552,16 +560,16 @@ def wrapText(**kwargs):
         	FONT["base"]["name"],
         	16
         )
-
+    # local delarations
     font = kwargs["font"]
     text = kwargs["text"]
     color = kwargs["color"]
-    rect = pg.Rect(0 ,0, kwargs["size"], 500)
     aa = kwargs["antialias"]
+    rect = pg.Rect(0 ,0, kwargs["size"], 500)
     y = rect.top
     lineSpacing = -2
+    new_size = [kwargs["size"], 0]
     txt_surf = pg.Surface(rect.size, pg.SRCALPHA)
-
     # get the height of the font
     fontHeight = font.size("Tg")[1]
 
@@ -577,45 +585,13 @@ def wrapText(**kwargs):
         image = font.render(text[:i], aa, color)
         txt_surf.blit(image, (rect.left, y))
         y += fontHeight + lineSpacing
+        new_size[1] = y
         # remove the text we just blit
         text = text[i:]
 
-    return txt_surf
-def wrapText2(text, color, rect, font, aa=False, bkg=None):# pg.surface
-    """
-    returns a pygame surface. drew this function from the official pygame wiki.
-        modified it a little bit.
-    'text' a text 'string'.
-    'color' tuple of 3 ints.
-    'rect' a valid pygame.rect.
-    'font' a valid pygame.font object.
-    'aa' antialias needs to be bool.
-    'bkg' background.
-    """
-    y = rect.top
-    lineSpacing = -2
-    txt_surf = pg.Surface(rect.size, pg.SRCALPHA)
-    # get the height of the font
-    fontHeight = font.size("Tg")[1]
-    while text:
-        i = 1
-        # determine if the row of text will be outside our area
-        if y + fontHeight > rect.bottom:
-            break
-        # determine maximum width of line
-        while font.size(text[:i])[0] < rect.width and i < len(text):
-            i += 1
-        # if we've wrapped the text, then adjust the wrap to the last word
-        if i < len(text):
-            i = text.rfind(" ", 0, i) + 1
-        # render the line and blit it to the surface
-        if bkg:
-            image = font.render(text[:i], 1, color, bkg)
-            image.set_colorkey(bkg)
-        else:
-            image = font.render(text[:i], aa, color)
-        txt_surf.blit(image, (rect.left, y))
-        y += fontHeight + lineSpacing
-        # remove the text we just blitted
-        text = text[i:]
-    return txt_surf
+    # we want only the real text-size so we get to blit everything to a smaller
+    # surface before returning it
+    txt_surf2 = pg.Surface(new_size, pg.SRCALPHA)
+    txt_surf2.blit(txt_surf, (0, 0))
+
+    return txt_surf2
