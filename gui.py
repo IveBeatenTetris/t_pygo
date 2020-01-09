@@ -682,7 +682,21 @@ class Text(GuiMaster):
             self.redraw()
             self.blit(self.text, (0, 0))
 class Button(Text):
-    """."""
+    """
+    represents a button but works like a text with GuiMaster's extended
+    surface-features.
+    """
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
         Text.__init__(self, **kwargs)
+class TextInput(GuiMaster):
+    """
+    resembles a text-inpus-element for typing in some text.
+    """
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, **kwargs)
