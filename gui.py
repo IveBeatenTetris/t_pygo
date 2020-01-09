@@ -592,6 +592,8 @@ class Text(GuiMaster):
 
         'cfg'       'dict' of building instructions for the table.
         'font'      'pygame.font'-object to render a text with.
+        'wrap'      'none' or 'int'. if int, use this value as width-statement
+                    to wrap text-content.
         """
         self.cfg = u.validateDict(kwargs, self.default)
         # initialising and styling font-object
@@ -687,9 +689,21 @@ class Button(Text):
 class TextInput(GuiMaster):
     """
     resembles a text-inpus-element for typing in some text.
+
+    'default'   default-properties for this object.
     """
+    default = {
+        "size": (175, 30),
+        "position": (0, 0),
+        "background": (35, 35, 45),
+        "border": True,
+        "border_color": (15, 15, 25)
+    }
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'cfg'       'dict' of building instructions for the table.
         """
-        GuiMaster.__init__(self, **kwargs)
+        self.cfg = u.validateDict(kwargs, self.default)
+        GuiMaster.__init__(self, **self.cfg)
