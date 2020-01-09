@@ -357,13 +357,6 @@ class GuiMaster(pg.Surface):
             # specific place and update it's topleft-position. this removes the
             # previously drawn element's trails from the surface again
             if self.__clicked:
-                # only redrawing abb-background for now
-                if hasattr(self.parent, "display"):
-                    self.parent.display.blit(
-                        self.parent.background,
-                        self.rect.topleft,
-                        self.rect
-                    )
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
