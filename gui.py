@@ -31,7 +31,7 @@ class App:
     """
     defaults = {
         "size": (320, 240),
-        "title": "Test Project 0.1",
+        "title": "Unnamed Project",
         "resizable": False,
         "fullscreen": False,
         "background": u.LIBPATH["windowbg"],
@@ -678,4 +678,11 @@ class Text(GuiMaster):
         self.blit(self.text, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
+        if self.hover or self.leave:
+            self.redraw()
+            self.blit(self.text, (0, 0))
+class Button(Text):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        Text.__init__(self, **kwargs)
