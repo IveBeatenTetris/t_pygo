@@ -619,6 +619,7 @@ class Text(GuiMaster):
         considering own 'wrap'-attribute, this returns a pygame.surface with
         blitten text to it.
         """
+        # creating text-surface
         if self.cfg["wrap"]:
             text = u.wrapText(
                 font = self.font,
@@ -633,5 +634,21 @@ class Text(GuiMaster):
                 self.cfg["antialias"],
                 self.cfg["color"]
             )
+        # render a self-made shadow if user disires so
+        if self.cfg["shadow"]:
+            s = self.cfg["shadow"]
+            color = (0, 0, 0, 255)
+            pos = (0, 0)
+            # converting passed shadow-arguments
+            if type(s) is list or type(s) is tuple:
+                for each in s:
+                    if type(each) is list or type(each) is tuple:
+                        if len(each) >= 3:
+                            color = each
+                        elif len(each) == 2:
+                            pos = each
+            # drawing shadow
+            copy = text.copy()
+            text.fill(color, None, pg.BLEND_RGBA_MULT)
 
         return text
