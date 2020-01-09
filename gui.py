@@ -608,6 +608,8 @@ class Text(GuiMaster):
         )
         self.font.set_bold(self.cfg["bold"])
         self.font.set_italic(self.cfg["italic"])
+        # additional properties
+        self.wrap = self.cfg["wrap"]
         # initialising text-object and downsizing it to text.rect-size
         GuiMaster.__init__(self, size=self.text.get_rect().size, **kwargs)
         # drawing text to text-surface
@@ -620,13 +622,13 @@ class Text(GuiMaster):
         blitten text to it.
         """
         # creating text-surface
-        if self.cfg["wrap"]:
+        if self.wrap:
             text = u.wrapText(
                 font = self.font,
                 text = self.cfg["text"],
                 color = self.cfg["color"],
                 antialias = self.cfg["antialias"],
-                size = self.cfg["wrap"]
+                size = self.wrap
             )
         else:
             text = self.font.render(
@@ -657,3 +659,13 @@ class Text(GuiMaster):
         final_surface.blit(text, (0, 0))
 
         return final_surface
+    # basic methodes
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        # drawing text to text-surface
+        self.redraw()
+        self.blit(self.text, (0, 0))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
