@@ -581,7 +581,7 @@ class Text(GuiMaster):
     """
     default = {
         "font"         :   u.FONTS["base"]["name"],
-    	"fontsize"     :   u.FONTS["base"]["size"],
+    	"font_size"    :   u.FONTS["base"]["size"],
     	"color"        :   u.FONTS["base"]["color"],
         "background"   :   None,
     	"text"         :   "Text",
@@ -596,13 +596,14 @@ class Text(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
+        'font'      'pygame.font'-object to render a text with.
         """
         self.cfg        =   u.validateDict(kwargs, self.default)
         # initialising and styling font-object
         pg.font.init()
         self.font       =   pg.font.SysFont(# pygame.font
                             	self.cfg["font"],
-                            	self.cfg["fontsize"]
+                            	self.cfg["font_size"]
                             )
         self.font.set_bold(self.cfg["bold"])
         self.font.set_italic(self.cfg["italic"])
@@ -613,10 +614,23 @@ class Text(GuiMaster):
     # dynamic properties
     @property# pg.surface
     def text(self):
-        """returns a pygame.surface with blitten text to it."""
-        # rendering font to text-surface
-        return self.font.render(
-            self.cfg["text"],
-            self.cfg["antialias"],
-            self.cfg["color"]
-        )
+        """
+        considering own 'wrap'-attribute, this returns a pygame.surface with
+        blitten text to it.
+        """
+        if self.cfg["wrap"]:
+            text = u.wrapText(
+                font = self.font,
+                text = self.cfg["text"],
+                color = self.cfg["color"],
+                antialias = self.cfg["antialias"],
+                size = self.cfg["wrap"]
+            )
+        else:
+            text = self.font.render(
+                self.cfg["text"],
+                self.cfg["antialias"],
+                self.cfg["color"]
+            )
+
+        return text
