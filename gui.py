@@ -607,7 +607,10 @@ class Text(GuiMaster):
         # additional properties
         self.wrap = self.cfg["wrap"]
         # initialising text-object and downsizing it to text.rect-size
-        GuiMaster.__init__(self, size=self.text.get_rect().size, **kwargs)
+        kwargs["background"] = self.cfg["background"]
+        kwargs["size"] = self.text.get_rect().size
+        GuiMaster.__init__(self, **kwargs)
+        #GuiMaster.__init__(self, **self.cfg)
         # drawing text to text-surface
         self.blit(self.text, (0, 0))
     # dynamic properties
@@ -707,3 +710,8 @@ class TextInput(GuiMaster):
         """
         self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **self.cfg)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        if self.hover:
+            cursor = (8,8), (4,4), (0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0)
+            #pg.mouse.set_cursor(*cursor)
