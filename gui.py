@@ -634,21 +634,26 @@ class Text(GuiMaster):
                 self.cfg["antialias"],
                 self.cfg["color"]
             )
+        # this is the final surface we will return at the end
+        final_surface = pg.Surface(text.get_rect().size, pg.SRCALPHA)
         # render a self-made shadow if user disires so
         if self.cfg["shadow"]:
-            s = self.cfg["shadow"]
+            shadow = self.cfg["shadow"]
             color = (0, 0, 0, 255)
             pos = (0, 0)
             # converting passed shadow-arguments
-            if type(s) is list or type(s) is tuple:
-                for each in s:
-                    if type(each) is list or type(each) is tuple:
-                        if len(each) >= 3:
-                            color = each
-                        elif len(each) == 2:
-                            pos = each
+            if type(shadow) is list:
+                for attr in shadow:
+                    if type(attr) is list or type(attr) is tuple:
+                        if len(attr) >= 3:
+                            color = attr
+                        elif len(attr) == 2:
+                            pos = attr
             # drawing shadow
-            copy = text.copy()
-            text.fill(color, None, pg.BLEND_RGBA_MULT)
+            shadow_surface = text.copy()
+            shadow_surface.fill(color, None, pg.BLEND_RGBA_MULT)
+            final_surface.blit(shadow_surface, pos)
+        # drawing everything to the returning-surface
+        final_surface.blit(text, (0, 0))
 
-        return text
+        return final_surface

@@ -542,7 +542,7 @@ def wrapText(**kwargs):# pygame.surface
 
     'text' str.
     'color' tuple of 3 ints.
-    'rect' a valid pygame.rect.
+    'size' an int for declaring maximal-width
     'font' a valid pygame.font-object.
     'antialias' needs to be bool.
     """
