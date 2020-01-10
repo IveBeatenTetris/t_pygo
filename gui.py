@@ -39,6 +39,21 @@ class App:
         "icon": u.LIBPATH["windowicon"],
         "fps": 30
     }
+    class Cursor(pg.Surface):
+        """replacement for the native pygame-mouse-cursor."""
+        def __init__(self, image_path=None):
+            """
+            renders the native cursor invisible, loads either an image from a
+            given path or a library-default value.
+            """
+            if not image_path:
+                image_path = u.PATH["sysimg"] + "\\cursors.png"
+
+            pg.mouse.set_visible(False)
+            image = pg.image.load(image_path)
+            pg.Surface.__init__(self, image.get_rect().size, pg.SRCALPHA)
+            self.blit(image, (0, 0), [0, 0, 16, 16])
+
     def __init__(self, **kwargs):
         """
         inits pygame to act as an app-window.
@@ -47,6 +62,10 @@ class App:
                             properties with this object's default values.
 
         'display'           holds the actual 'pygame.display.surface' object.
+
+        'mouse_cursor'      image-surface to use instead of the original one.
+                            when cursor-object gets initialized, it renders the
+                            native pygame-cursor invisible.
 
         'background'        used to draw to fill the surface with. might be
                             'str' or 'tuple'. if 'str', use it as image-path
@@ -78,9 +97,10 @@ class App:
             resizable = self.config["resizable"]
         )
         self.draw(self.background)
-        # changing windows apprarance
+        # changing window- and mouse-cursor apprarance
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
+        self.mouse_cursor = self.Cursor()
         # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
