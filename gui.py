@@ -53,6 +53,14 @@ class App:
             image = pg.image.load(image_path)
             pg.Surface.__init__(self, image.get_rect().size, pg.SRCALPHA)
             self.blit(image, (0, 0), [0, 0, 16, 16])
+        # dynamic properties
+        @property
+        def rect(self):
+            """returns a valid pygame-rect"""
+            rect = self.get_rect()
+            rect.center = pg.mouse.get_pos()
+
+            return rect
 
     def __init__(self, **kwargs):
         """
