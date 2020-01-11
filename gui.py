@@ -215,6 +215,9 @@ class App:
         # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
+        # drawing cursor-image to app's surface
+        self.draw(self.background, self.mouse_cursor.rect.topleft, self.mouse_cursor.rect)
+        self.draw(self.mouse_cursor, self.mouse_cursor.rect.center)
     # window appearance
     def changeIcon(self, path):
         """creates an icon for the window from an image."""
