@@ -53,7 +53,7 @@ class App:
         def rect(self):
             """returns a valid pygame-rect."""
             rect = pg.Rect(0, 0, 16, 16)
-            rect.center = pg.mouse.get_pos()
+            rect.topleft = pg.mouse.get_pos()
 
             return rect
     defaults = {
