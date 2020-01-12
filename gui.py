@@ -69,8 +69,11 @@ class App:
 
         'display'           holds the actual 'pygame.display.surface' object.
 
-        'mouse_cursor'      image-surface to use instead of the original one.
-                            when cursor-object gets initialized, it renders the
+        'accessories'       an extended sprite-group for sprites that have to
+                            always be blitten on top of the visuals.
+
+        'mouse_cursor'      sprite to use instead of the original one. when
+                            cursor-object gets initialized, it renders the
                             native pygame-cursor invisible.
 
         'background'        used to draw to fill the surface with. might be
@@ -106,7 +109,8 @@ class App:
         # changing window- and mouse-cursor apprarance
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
-        self.mouse_cursor = self.Cursor()
+        self.accessories = pg.sprite.RenderUpdates()
+        self.mouse_cursor = self.Cursor(); self.accessories.add(self.mouse_cursor)
         # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
@@ -217,14 +221,13 @@ class App:
         game-loop-tick.
         """
         self._events = self.events
-        # drawing cursor-image to app's surface
-        bg = pg.Surface(self.rect.size)
-        bg.fill(self.background)
-        self.display.blit(
-            self.mouse_cursor.image,
-            self.mouse_cursor.rect.topleft,
-            [0, 0, 16, 16]
-        )
+        # drawing all accessories to apps surface
+        #bg = pg.Surface(self.rect.size, pg.SRCALPHA)
+        bg = self.display.copy()
+        #bg.fill(self.background)
+        self.accessories.clear(self.display, bg)
+        changes = self.accessories.draw(self.display)
+        pg.display.update(changes)
         # refreshing display visuals
         pg.display.update()
         # updating fps
