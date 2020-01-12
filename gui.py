@@ -29,17 +29,7 @@ class App:
                 instructions. it also declares what arguments can be passed to
                 the app-object.
     """
-    defaults = {
-        "size": (320, 240),
-        "title": "Unnamed Project",
-        "resizable": False,
-        "fullscreen": False,
-        "background": u.LIBPATH["windowbg"],
-        "background_repeat": None,
-        "icon": u.LIBPATH["windowicon"],
-        "fps": 30
-    }
-    class Cursor(pg.Surface):
+    class Cursor(pg.sprite.Sprite):
         """replacement for the native pygame-mouse-cursor."""
         def __init__(self, image_path=None):
             """
@@ -50,18 +40,26 @@ class App:
                 image_path = u.PATH["sysimg"] + "\\cursors.png"
 
             pg.mouse.set_visible(False)
-            image = pg.image.load(image_path)
-            pg.Surface.__init__(self, image.get_rect().size, pg.SRCALPHA)
-            self.blit(image, (0, 0), [0, 0, 16, 16])
+            pg.sprite.Sprite.__init__(self)
+            self.image = pg.image.load(image_path)
         # dynamic properties
         @property
         def rect(self):
-            """returns a valid pygame-rect"""
-            rect = self.get_rect()
+            """returns a valid pygame-rect."""
+            rect = pg.Rect(0, 0, 16, 16)
             rect.center = pg.mouse.get_pos()
 
             return rect
-
+    defaults = {
+        "size": (320, 240),
+        "title": "Unnamed Project",
+        "resizable": False,
+        "fullscreen": False,
+        "background": u.LIBPATH["windowbg"],
+        "background_repeat": None,
+        "icon": u.LIBPATH["windowicon"],
+        "fps": 30
+    }
     def __init__(self, **kwargs):
         """
         inits pygame to act as an app-window.
@@ -188,7 +186,16 @@ class App:
             self.display.fill(object)
         else:
             if not area:
-                self.display.blit(object, rect)
+                # drawing sprites
+                if object.__class__.__bases__[0] is pg.sprite.Sprite:
+                    self.display.blit(object.image, rect)
+                # drawing surfaces
+                elif (
+                        object.__class__.__bases__[0] is pg.Surface or
+                        type(object) is pg.Surface or
+                        issubclass(type(object), pg.Surface)
+                    ):
+                    self.display.blit(object, rect)
             else:
                 self.display.blit(object, rect, area)
     def resize(self, size):# none / tuple
