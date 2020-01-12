@@ -69,7 +69,7 @@ class App:
 
         'display'           holds the actual 'pygame.display.surface' object.
 
-        'accessories'       an extended sprite-group for sprites that have to
+        'draw_list'         an extended sprite-group for sprites that have to
                             always be blitten on top of the visuals.
 
         'mouse_cursor'      sprite to use instead of the original one. when
@@ -109,8 +109,11 @@ class App:
         # changing window- and mouse-cursor apprarance
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
-        self.accessories = pg.sprite.RenderUpdates()
-        #self.mouse_cursor = self.Cursor(); self.accessories.add(self.mouse_cursor)
+        self.cursor = self.Cursor()
+        # everything in this list will be drawn to the app-screen on their
+        # event-updates.
+        self.draw_list = pg.sprite.RenderUpdates()
+        self.draw_list.add(self.cursor)
         # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
@@ -219,19 +222,24 @@ class App:
         """
         updates dimensions, visuals and physics of the pygame.display with each
         game-loop-tick.
+        it also cycles trough 'self.draw_list' to draw everything that is given
+        to this list.
         """
         self._events = self.events
-
-        """
-        # drawing all accessories to apps surface
-        #bg = pg.Surface(self.rect.size, pg.SRCALPHA)
-        bg = self.display.copy()
-        #bg.fill(self.background)
-        self.accessories.clear(self.display, bg)
-        changes = self.accessories.draw(self.display)
+        # creating a background-surface if 'self.background' is a list or tuple
+        if type(self.background) is not pg.Surface:
+            bg = pg.Surface(self.rect.size)
+            bg.fill(self.background)
+        else:
+            bg = self.background
+        # overdrawing old moved sprite-trails on backgrounds
+        self.draw_list.clear(self.display, bg)
+        changes = self.draw_list.draw(self.display)
+        # drawing the new mouse-cursor
+        self.display.blit(self.cursor.image, self.cursor.rect.topleft)
+        # updating all drawn sprites
+        for each in self.draw_list: each.update()
         pg.display.update(changes)
-        """
-
         # refreshing display visuals
         pg.display.update()
         # updating fps
@@ -308,6 +316,8 @@ class GuiMaster(pg.sprite.Sprite):
                             element.
         """
         self.config = u.validateDict(kwargs, self.defaults)
+        # initialising sprite
+        pg.sprite.Sprite.__init__(self)
         # declaring parent
         if self.config["parent"]:
             self.parent = self.config["parent"]
