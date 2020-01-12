@@ -252,7 +252,7 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
-class GuiMaster(pg.Surface):
+class GuiMaster(pg.sprite.Sprite):
     """
     resembles a 'pygame.surface' but with advanced operations.
 
@@ -472,23 +472,23 @@ class GuiMaster(pg.Surface):
         # drawing if background is not 'none'
         if bg:
             if type(bg) is tuple or type(bg) is list:
-                self.fill(bg)
+                self.image.fill(bg)
             else:
-                self.blit(bg, (0, 0))
+                self.image.blit(bg, (0, 0))
         # drawing drag-area if set by user
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
-            self.fill(self.config["drag_area_background"], rect)
+            self.image.fill(self.config["drag_area_background"], rect)
         # drawing background if set by user
         if self.border:
-            self.draw(self.border, (0, 0))
+            self.image.blit(self.border, (0, 0))
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
         the background if there is one.
         """
         self.rect.size = size
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.image = pg.Surface(size, pg.SRCALPHA)
         # redrawing backgrounds and stuff
         self.redraw()
     def update(self):
@@ -538,7 +538,7 @@ class Table(GuiMaster):
             # drawing rows
             for row in range(kwargs["rows"]):
                 pg.draw.lines(
-                    self,
+                    self.image,
                     kwargs["border_color"],
                     False,
                     [
@@ -551,7 +551,7 @@ class Table(GuiMaster):
             # drawing cols
             for col in range(kwargs["cols"]):
                 pg.draw.lines(
-                    self,
+                    self.image,
                     kwargs["border_color"],
                     False,
                     [
@@ -584,10 +584,10 @@ class Table(GuiMaster):
         """
         self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
-        pg.Surface.__init__(self, self.rect.size, pg.SRCALPHA)
+        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.columns = []
         # first time drawing grid
-        self.blit(self.grid, (0, 0))
+        self.image.blit(self.grid.image, (0, 0))
 
     # dynamic properties
     @property# grid-object
@@ -610,9 +610,9 @@ class Table(GuiMaster):
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.image = pg.Surface(size, pg.SRCALPHA)
         # redrawing grid
-        self.blit(self.grid, (0, 0))
+        self.image.blit(self.grid.image, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
@@ -662,7 +662,7 @@ class Text(GuiMaster):
         GuiMaster.__init__(self, **kwargs)
         #GuiMaster.__init__(self, **self.cfg)
         # drawing text to text-surface
-        self.blit(self.text, (0, 0))
+        self.image.blit(self.text, (0, 0))
     # dynamic properties
     @property# pg.surface
     def text(self):
@@ -720,19 +720,19 @@ class Text(GuiMaster):
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
-        pg.Surface.__init__(self, size, pg.SRCALPHA)
+        self.image = pg.Surface(size, pg.SRCALPHA)
         # drawing text to text-surface
         self.redraw()
-        self.blit(self.text, (0, 0))
+        self.image.blit(self.text, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.hover or self.leave:
             self.redraw()
-            self.blit(self.text, (0, 0))
+            self.image.blit(self.text, (0, 0))
 class Button(Text):
     """
-    represents a button but works like a text with GuiMaster's extended
-    surface-features.
+    represents a button but works like a text with GuiMaster's extended sprite-
+    features.
     """
     def __init__(self, **kwargs):
         """
