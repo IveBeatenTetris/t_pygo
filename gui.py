@@ -110,7 +110,7 @@ class App:
         self.changeTitle(self.config["title"])
         self.changeIcon(self.config["icon"])
         self.accessories = pg.sprite.RenderUpdates()
-        self.mouse_cursor = self.Cursor(); self.accessories.add(self.mouse_cursor)
+        #self.mouse_cursor = self.Cursor(); self.accessories.add(self.mouse_cursor)
         # fps settings
         self.clock = pg.time.Clock()
         self.preffered_fps = self.config["fps"]
@@ -221,6 +221,8 @@ class App:
         game-loop-tick.
         """
         self._events = self.events
+
+        """
         # drawing all accessories to apps surface
         #bg = pg.Surface(self.rect.size, pg.SRCALPHA)
         bg = self.display.copy()
@@ -228,6 +230,8 @@ class App:
         self.accessories.clear(self.display, bg)
         changes = self.accessories.draw(self.display)
         pg.display.update(changes)
+        """
+
         # refreshing display visuals
         pg.display.update()
         # updating fps
