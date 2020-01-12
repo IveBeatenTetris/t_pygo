@@ -36,13 +36,19 @@ class App:
             renders the native cursor invisible, loads either an image from a
             given path or a library-default value.
             """
-            if not image_path:
-                image_path = u.PATH["sysimg"] + "\\cursors.png"
-
+            if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
+            self.path = image_path
             pg.mouse.set_visible(False)
             pg.sprite.Sprite.__init__(self)
-            self.image = pg.image.load(image_path)
         # dynamic properties
+        @property
+        def image(self):
+            """returns a croped pg.surface-image."""
+            full_image = pg.image.load(self.path)
+            image = pg.Surface((16, 16), pg.SRCALPHA)
+            image.blit(full_image, (0, 0))
+
+            return image
         @property
         def rect(self):
             """returns a valid pygame-rect."""
