@@ -217,14 +217,19 @@ class App:
         game-loop-tick.
         """
         self._events = self.events
+        # drawing cursor-image to app's surface
+        bg = pg.Surface(self.rect.size)
+        bg.fill(self.background)
+        self.display.blit(
+            self.mouse_cursor.image,
+            self.mouse_cursor.rect.topleft,
+            [0, 0, 16, 16]
+        )
         # refreshing display visuals
         pg.display.update()
         # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
-        # drawing cursor-image to app's surface
-        self.draw(self.background, self.mouse_cursor.rect.topleft, self.mouse_cursor.rect)
-        self.draw(self.mouse_cursor, self.mouse_cursor.rect.center)
     # window appearance
     def changeIcon(self, path):
         """creates an icon for the window from an image."""
@@ -376,7 +381,7 @@ class GuiMaster(pg.Surface):
             # on hover and left-click
             if rect.collidepoint(mpos) and mbut[0]:
                     # marking the element as clicked ('true). if element is not
-                    # clicked yet, set it's '__clicked'-state 'true' and
+                    # clicked yet, set its '__clicked'-state 'true' and
                     # calculate the clicked position on the element's rect
                     if not self.__clicked:
                         # adding left and top of 'drag_area' so the element
@@ -392,7 +397,7 @@ class GuiMaster(pg.Surface):
                 self.__dragged_at = None
                 self.__clicked = False
             # if element is marked as clicked, redraw parent's background on a
-            # specific place and update it's topleft-position. this removes the
+            # specific place and update its topleft-position. this removes the
             # previously drawn element's trails from the surface again
             if self.__clicked:
                 self.rect.topleft = (
@@ -508,7 +513,7 @@ class Table(GuiMaster):
     # subordered table-classes
     class Grid(GuiMaster):
         """
-        a grid object with a border drawn to it's surface and a list of stores
+        a grid object with a border drawn to its surface and a list of stores
         columns for accessing their rect-positions.
         """
         def __init__(self, **kwargs):
