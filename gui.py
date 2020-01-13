@@ -858,6 +858,20 @@ class TextField(GuiMaster):
 
         return text
     # basic methodes
+    def handleCursor(self):
+        """
+        checks 'cooldown' and draws either 'cursor' or 'background'. draws the
+        cursor on 'active' and clears it again on 'waiting'.
+        """
+        if self.cursor.cooldown >= 50:
+            self.image.blit(self.cursor, self.cursor.rect)
+        elif self.cursor.cooldown < 50:
+            self.image.fill(self.background, self.cursor.rect)
+        # resetting cooldown or further reducing it
+        if self.cursor.cooldown == 0:
+            self.cursor.cooldown = 100
+        else:
+            self.cursor.cooldown -= 1
     def handleInput(self):
         """
         translates pressed keys and adds their char to 'text_string'. draws the
@@ -870,7 +884,7 @@ class TextField(GuiMaster):
                 # special operations if key is longer than a single char/letter
                 if len(char) > 1:
                     # adding an empty space to string
-                    if evt.key == pg.K_SPACE:
+                    if evt.key is pg.K_SPACE:
                         char = " "
                 # appending char to string
                 self.text_string += char
@@ -883,23 +897,14 @@ class TextField(GuiMaster):
         self.checkCursor(default="normal", hover="text")
         # provoking a 'click'- event
         self.click
-        # making text-cursor blink.
-        if self.state == "active":
-            # checking cooldown and drawing either cursor or background
-            if self.cursor.cooldown >= 50:
-                self.image.blit(self.cursor, self.cursor.rect)
-            elif self.cursor.cooldown < 50:
-                self.image.fill(self.background, self.cursor.rect)
-            # resetting cooldown or further reducing it
-            if self.cursor.cooldown == 0: self.cursor.cooldown = 100
-            else: self.cursor.cooldown -= 1
+        # drawing cursor on activation
+        if self.state == "active": self.handleCursor()
         # resetting cursor by clicking somewhere else
         elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
             self.image.fill(self.background, self.cursor.rect)
         # adding chars for pressed keys to 'self.text' for drawing a text to
         # text-field
-        if self.state == "active":
-            self.handleInput()
+        if self.state == "active": self.handleInput()
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
