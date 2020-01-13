@@ -794,6 +794,8 @@ class TextInput(GuiMaster):
         GuiMaster.__init__(self, **self.cfg)
     def update(self):
         """overwrites parent's 'update()'-method."""
+        # changing mouse-cursor depending on element-hover
         if self.hover:
-            cursor = (8,8), (4,4), (0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0)
-            #pg.mouse.set_cursor(*cursor)
+            globals()["app"].cursor.state = "text"
+        elif not self.hover and globals()["app"].cursor.state != "normal":
+            globals()["app"].cursor.state = "normal"
