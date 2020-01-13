@@ -903,14 +903,14 @@ class TextField(GuiMaster):
         self.checkCursor(default="normal", hover="text")
         # provoking a 'click'- event
         self.click
-        # drawing cursor on activation
-        if self.state == "active": self.handleCursor()
         # resetting cursor by clicking somewhere else
-        elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
+        if not self.hover and (mbut[0] or mbut[1] or mbut[2]):
             self.image.fill(self.background, self.cursor.rect)
         # adding chars for pressed keys to 'self.text' for drawing a text to
         # text-field
         if self.state == "active": self.handleInput()
+        # drawing cursor on activation
+        if self.state == "active": self.handleCursor()
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
