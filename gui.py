@@ -315,6 +315,9 @@ class GuiMaster(pg.sprite.Sprite):
         'background_hover'  might be 'tuple' or 'list'. if it's 'none', don't
                             apply a hover effect later.
         'rect'              initialising rect dimensions.
+        'state'             (str) can be changed to mark the event-related
+                            state of this event. values are "waiting" and
+                            "active".
         'dragable'          user-defined bool for checking if a dragging-
                             operation can come in.
         'drag_area'         user-declared area of dragging an element. if left
@@ -343,6 +346,7 @@ class GuiMaster(pg.sprite.Sprite):
             self.config["size"]
         )
         # event related stuff
+        self.state = "waiting"
         self.dragable = self.config["dragable"]
         if self.config["drag_area"]:
             self.drag_area = pg.Rect(self.config["drag_area"])
@@ -380,10 +384,14 @@ class GuiMaster(pg.sprite.Sprite):
         mbut = pg.mouse.get_pressed()
         buttons = []
 
+        # adding marking for used button on hover
         if self.hover:
             if mbut[0]: buttons.append("left")
             if mbut[1]: buttons.append("wheel")
             if mbut[2]: buttons.append("right")
+        # marking element as activated
+        if "left" in buttons:
+            self.state = "active"
 
         return buttons
     @property# bool
@@ -442,11 +450,15 @@ class GuiMaster(pg.sprite.Sprite):
         sets 'self.__hovering' to 'true' so we can check for several mouse events.
         """
         mpos = pg.mouse.get_pos()
+        mbut = pg.mouse.get_pressed()
         hover = False
-
+        # mark as hovered
         if self.rect.collidepoint(mpos):
             hover = True
             self.__hovering = True
+        # if not hovered and clicked somwhere else, reset 'self.state'
+        if not hover and (mbut[0] or mbut[1] or mbut[2]):
+            self.state = "waiting"
 
         return hover
     @property# bool
