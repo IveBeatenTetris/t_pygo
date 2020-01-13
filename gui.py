@@ -842,8 +842,8 @@ class TextField(GuiMaster):
         GuiMaster.__init__(self, **self.cfg)
         self.text_string = ""
         self.cursor = self.TextCursor(
-            size=(2, self.rect.height - 6),
-            position=(3, 3)
+            size=(2, self.rect.height - 10),
+            position=(5, 5)
         )
     # dynamic properties
     @property
@@ -852,7 +852,7 @@ class TextField(GuiMaster):
         text = Text(
             text = self.text_string,
             font_size = 16,
-            position = (self.cursor.rect.right, 0)
+            position = (5, 0)
         )
         text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
 
@@ -863,8 +863,8 @@ class TextField(GuiMaster):
         checks 'cooldown' and draws either 'cursor' or 'background'. draws the
         cursor on 'active' and clears it again on 'waiting'.
         """
-        #self.cursor.rect.left = self.text.rect.width
-        print(self.text.rect)
+        self.cursor.rect.left = self.text.rect.right
+        #print(self.text.rect)
 
         if self.cursor.cooldown >= 50:
             self.image.blit(self.cursor, self.cursor.rect)
