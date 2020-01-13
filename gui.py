@@ -461,6 +461,17 @@ class GuiMaster(pg.sprite.Sprite):
             leaving = True
 
             return leaving
+    # internal methodes
+    def checkCursor(self, default="normal", hover="pointer"):
+        """
+        changes apps mouse-cursor depending on element-hover. putting this in
+        an elements 'update'-method, this results in a change of the mouse-
+        cursor on element-hover.
+        """
+        if self.hover:
+            globals()["app"].cursor.state = hover
+        elif not self.hover and globals()["app"].cursor.state != "normal":
+            globals()["app"].cursor.state = default
     # basic methodes
     def draw(self, object, rect=None, area=None):
         """
@@ -784,8 +795,4 @@ class TextInput(GuiMaster):
         GuiMaster.__init__(self, **self.cfg)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        # changing mouse-cursor depending on element-hover
-        if self.hover:
-            globals()["app"].cursor.state = "text"
-        elif not self.hover and globals()["app"].cursor.state != "normal":
-            globals()["app"].cursor.state = "normal"
+        self.checkCursor(default="normal", hover="text")
