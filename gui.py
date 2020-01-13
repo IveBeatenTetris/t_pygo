@@ -863,40 +863,42 @@ class TextField(GuiMaster):
         checks 'cooldown' and draws either 'cursor' or 'background'. draws the
         cursor on 'active' and clears it again on 'waiting'.
         """
-        self.cursor.rect.left = self.text.rect.right
-        #print(self.text.rect)
+        if self.state == "active":
+            self.cursor.rect.left = self.text.rect.right
+            #print(self.text.rect)
 
-        if self.cursor.cooldown >= 50:
-            self.image.blit(self.cursor, self.cursor.rect)
-        elif self.cursor.cooldown < 50:
-            self.image.fill(self.background, self.cursor.rect)
-        # resetting cooldown or further reducing it
-        if self.cursor.cooldown == 0:
-            self.cursor.cooldown = 100
-        else:
-            self.cursor.cooldown -= 1
+            if self.cursor.cooldown >= 50:
+                self.image.blit(self.cursor, self.cursor.rect)
+            elif self.cursor.cooldown < 50:
+                self.image.fill(self.background, self.cursor.rect)
+            # resetting cooldown or further reducing it
+            if self.cursor.cooldown == 0:
+                self.cursor.cooldown = 100
+            else:
+                self.cursor.cooldown -= 1
     def handleInput(self):
         """
         translates pressed keys and adds their char to 'text_string'. draws the
         text to textfields-surface afterwards.
         """
-        for evt in globals()["app"]._events:
-            if evt.type is pg.KEYDOWN:
-                # translating key to unicode
-                char = pg.key.name(evt.key)
-                # special operations if key is longer than a single char/letter
-                # adding an empty space to string
-                if evt.key is pg.K_SPACE:
-                        char = " "
-                # removing last entered char from string
-                elif evt.key is pg.K_BACKSPACE:
-                    self.text_string = self.text_string[:-1]
-                    char = ""
-                # appending char to string
-                self.text_string += char
-            # recreating background and drawing text to textfield
-            self.redraw()
-            self.image.blit(self.text.image, self.text.rect)
+        if self.state == "active":
+            for evt in globals()["app"]._events:
+                if evt.type is pg.KEYDOWN:
+                    # translating key to unicode
+                    char = pg.key.name(evt.key)
+                    # special operations if key is longer than a single char/letter
+                    # adding an empty space to string
+                    if evt.key is pg.K_SPACE:
+                            char = " "
+                    # removing last entered char from string
+                    elif evt.key is pg.K_BACKSPACE:
+                        self.text_string = self.text_string[:-1]
+                        char = ""
+                    # appending char to string
+                    self.text_string += char
+                # recreating background and drawing text to textfield
+                self.redraw()
+                self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
         mbut = pg.mouse.get_pressed()
@@ -906,11 +908,10 @@ class TextField(GuiMaster):
         # resetting cursor by clicking somewhere else
         if not self.hover and (mbut[0] or mbut[1] or mbut[2]):
             self.image.fill(self.background, self.cursor.rect)
-        # adding chars for pressed keys to 'self.text' for drawing a text to
-        # text-field
-        if self.state == "active": self.handleInput()
+        # handling input-chars & letters for displaying them in the textfield
+        self.handleInput()
         # drawing cursor on activation
-        if self.state == "active": self.handleCursor()
+        self.handleCursor()
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
