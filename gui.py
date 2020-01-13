@@ -483,12 +483,12 @@ class GuiMaster(pg.sprite.Sprite):
         if not rect: rect = (0, 0)
 
         if type(object) is list or type(object) is tuple:
-            self.fill(object)
+            self.image.fill(object)
         else:
             if not area:
-                self.blit(object, rect)
+                self.image.blit(object, rect)
             else:
-                self.display.blit(object, rect, area)
+                self.image.blit(object, rect, area)
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
