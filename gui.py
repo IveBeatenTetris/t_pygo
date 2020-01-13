@@ -863,6 +863,9 @@ class TextField(GuiMaster):
         checks 'cooldown' and draws either 'cursor' or 'background'. draws the
         cursor on 'active' and clears it again on 'waiting'.
         """
+        #self.cursor.rect.left = self.text.rect.width
+        print(self.text.rect)
+
         if self.cursor.cooldown >= 50:
             self.image.blit(self.cursor, self.cursor.rect)
         elif self.cursor.cooldown < 50:
@@ -882,14 +885,17 @@ class TextField(GuiMaster):
                 # translating key to unicode
                 char = pg.key.name(evt.key)
                 # special operations if key is longer than a single char/letter
-                if len(char) > 1:
-                    # adding an empty space to string
-                    if evt.key is pg.K_SPACE:
+                # adding an empty space to string
+                if evt.key is pg.K_SPACE:
                         char = " "
+                # removing last entered char from string
+                elif evt.key is pg.K_BACKSPACE:
+                    self.text_string = self.text_string[:-1]
+                    char = ""
                 # appending char to string
                 self.text_string += char
-            # drawing text to textfield
-            self.image.fill(self.background, self.text.rect)
+            # recreating background and drawing text to textfield
+            self.redraw()
             self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
