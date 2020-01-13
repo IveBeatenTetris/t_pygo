@@ -833,18 +833,31 @@ class TextField(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'       'dict' of building instructions for the table.
-        'text'      with entered keys combined as a str.
-        'cursor'    (class) 'pg.surface' that comes along with some operations
-                    for correctly drawing itself to its parent.
+        'cfg'           'dict' of building instructions for the table.
+        'text_string'   with entered keys combined as a str.
+        'cursor'        (class) 'pg.surface' that comes along with some
+                        operations for correctly drawing itself to its parent.
         """
         self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **self.cfg)
-        self.text = ""
+        self.text_string = ""
         self.cursor = self.TextCursor(
             size=(2, self.rect.height - 6),
             position=(3, 3)
         )
+    # dynamic properties
+    @property
+    def text(self):
+        """returns a text-object."""
+        text = Text(
+            text = self.text_string,
+            font_size = 16,
+            position = (self.cursor.rect.right, 0)
+        )
+        text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
+
+        return text
+    # basic methodes
     def update(self):
         """overwrites parent's 'update()'-method."""
         mbut = pg.mouse.get_pressed()
@@ -873,8 +886,10 @@ class TextField(GuiMaster):
                     if len(char) > 1:
                         if evt.key == pg.K_SPACE:
                             char = " "
+                    self.text_string += char
 
-                    self.text += char
+                self.image.fill(self.background, self.text.rect)
+                self.image.blit(self.text.image, self.text.rect)
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
