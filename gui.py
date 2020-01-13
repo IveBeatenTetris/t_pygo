@@ -35,18 +35,32 @@ class App:
             """
             renders the native cursor invisible, loads either an image from a
             given path or a library-default value.
+
+            'path'      (str) image-path for the 'image'-property to load the
+                        image from.
+            'state'     the actual state of the mouse in a str. by changing
+                        this, the app will draw another mouse-curor based on
+                        following names:
+                            'normal',
+                            'text'
             """
             if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
             self.path = image_path
+            self.state = "normal"
             pg.mouse.set_visible(False)
             pg.sprite.Sprite.__init__(self)
         # dynamic properties
         @property
         def image(self):
-            """returns a croped pg.surface-image."""
+            """returns a cropped pg.surface-image."""
             full_image = pg.image.load(self.path)
             image = pg.Surface((16, 16), pg.SRCALPHA)
-            image.blit(full_image, (0, 0))
+            # calculate image-position to draw (each 16x16-steps there is
+            # another cursor on the image)
+            if self.state == "normal": pos = (0, 0)
+            elif self.state == "text": pos = (-16, 0)
+            # drawing picked cursor to returning image-surface
+            image.blit(full_image, pos)
 
             return image
         @property
