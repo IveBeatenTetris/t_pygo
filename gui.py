@@ -480,15 +480,28 @@ class GuiMaster(pg.sprite.Sprite):
         instead. 'area' takes a pygame.rect-statement for declaring a specific
         area to redraw for keep fps up.
         """
-        if not rect: rect = (0, 0)
-
+        if not rect:
+            rect = (0, 0, *self.rect.size)
+        # filling self.image with color
         if type(object) is list or type(object) is tuple:
-            self.image.fill(object)
-        else:
-            if not area:
-                self.image.blit(object, rect)
-            else:
-                self.image.blit(object, rect, area)
+            self.image.fill(object, rect)
+        # drawing sprite.image to self.image
+        elif (
+            type(object) is pg.sprite.Sprite or
+            object.__class__.__bases__[0] is GuiMaster
+        ):
+            # with drawing boundaries
+            if area: self.image.blit(object.image, rect, area)
+            else: self.image.blit(object.image, rect)
+        # drawing surface-object to self.image
+        elif (
+            type(object) is pg.Surface or
+            issubclass(type(object), pg.Surface) or
+            object.__class__.__bases__[0] is pg.Surface
+        ):
+            # with drawing boundaries
+            if area: self.image.blit(object, rect, area)
+            else: self.image.blit(object, rect)
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
