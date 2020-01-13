@@ -796,3 +796,17 @@ class TextInput(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.checkCursor(default="normal", hover="text")
+class Panel(GuiMaster):
+    """
+    a panel-surface to draw information or elements on.
+
+    'default'   default-properties for this object.
+    """
+    default = {
+
+    }
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, **kwargs)
