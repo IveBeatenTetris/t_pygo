@@ -858,6 +858,25 @@ class TextField(GuiMaster):
 
         return text
     # basic methodes
+    def handleInput(self):
+        """
+        translates pressed keys and adds their char to 'text_string'. draws the
+        text to textfields-surface afterwards.
+        """
+        for evt in globals()["app"]._events:
+            if evt.type is pg.KEYDOWN:
+                # translating key to unicode
+                char = pg.key.name(evt.key)
+                # special operations if key is longer than a single char/letter
+                if len(char) > 1:
+                    # adding an empty space to string
+                    if evt.key == pg.K_SPACE:
+                        char = " "
+                # appending char to string
+                self.text_string += char
+            # drawing text to textfield
+            self.image.fill(self.background, self.text.rect)
+            self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
         mbut = pg.mouse.get_pressed()
@@ -880,16 +899,7 @@ class TextField(GuiMaster):
         # adding chars for pressed keys to 'self.text' for drawing a text to
         # text-field
         if self.state == "active":
-            for evt in globals()["app"]._events:
-                if evt.type is pg.KEYDOWN:
-                    char = pg.key.name(evt.key)
-                    if len(char) > 1:
-                        if evt.key == pg.K_SPACE:
-                            char = " "
-                    self.text_string += char
-
-                self.image.fill(self.background, self.text.rect)
-                self.image.blit(self.text.image, self.text.rect)
+            self.handleInput()
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
