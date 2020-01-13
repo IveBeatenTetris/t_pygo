@@ -128,6 +128,8 @@ class App:
         self._events = []
         self.keys = []
         self.resized = False
+        # adding this instance to 'globals'
+        globals()["app"] = self
     # dynamic properties
     @property# pg.surface
     def background(self):
