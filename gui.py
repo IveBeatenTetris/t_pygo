@@ -695,14 +695,16 @@ class Text(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'       'dict' of building instructions for the table.
-        'font'      'pygame.font'-object to render a text with.
-        'wrap'      'none' or 'int'. if int, use this value as width-statement
-                    to wrap text-content.
+        'cfg'           'dict' of building instructions for the table.
+        'text_string'   actual text-string (str).
+        'font'          'pygame.font'-object to render a text with.
+        'wrap'          'none' or 'int'. if int, use this value as width-
+                        statement to wrap text-content.
         """
         self.cfg = u.validateDict(kwargs, self.default)
         # initialising and styling font-object
         pg.font.init()
+        self.text_string = self.cfg["text"]
         self.font = pg.font.SysFont(# pygame.font
         	self.cfg["font"],
         	self.cfg["font_size"]
@@ -729,14 +731,14 @@ class Text(GuiMaster):
         if self.wrap:
             text = u.wrapText(
                 font = self.font,
-                text = self.cfg["text"],
+                text = self.text_string,
                 color = self.cfg["color"],
                 antialias = self.cfg["antialias"],
                 size = self.wrap
             )
         else:
             text = self.font.render(
-                self.cfg["text"],
+                self.text_string,
                 self.cfg["antialias"],
                 self.cfg["color"]
             )
@@ -787,6 +789,10 @@ class Text(GuiMaster):
             self.redraw()
             if self.background:
                 self.image.blit(self.text, (0, 0))
+    def update_text(self, text):
+        """."""
+        self.text_string = text
+        self.resize(self.text.get_rect().size)
 class Button(Text):
     """
     represents a button but works like a text with GuiMaster's extended sprite-
@@ -846,7 +852,7 @@ class TextField(GuiMaster):
             position=(5, 5)
         )
     # dynamic properties
-    @property
+    @property# text-object
     def text(self):
         """returns a text-object."""
         text = Text(
@@ -863,12 +869,15 @@ class TextField(GuiMaster):
         checks 'cooldown' and draws either 'cursor' or 'background'. draws the
         cursor on 'active' and clears it again on 'waiting'.
         """
+        # mouse-events
+        mbut = pg.mouse.get_pressed()
         if self.state == "active":
+            # updating blinking-cursors drawing-position
             self.cursor.rect.left = self.text.rect.right
-            #print(self.text.rect)
-
+            # drawing cursor if cooldown over 50
             if self.cursor.cooldown >= 50:
                 self.image.blit(self.cursor, self.cursor.rect)
+            # redrawing background over cursor if cooldown falls below 50
             elif self.cursor.cooldown < 50:
                 self.image.fill(self.background, self.cursor.rect)
             # resetting cooldown or further reducing it
@@ -876,6 +885,9 @@ class TextField(GuiMaster):
                 self.cursor.cooldown = 100
             else:
                 self.cursor.cooldown -= 1
+        # resetting cursor by clicking somewhere else
+        elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
+            self.image.fill(self.background, self.cursor.rect)
     def handleInput(self):
         """
         translates pressed keys and adds their char to 'text_string'. draws the
@@ -901,13 +913,9 @@ class TextField(GuiMaster):
                 self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        mbut = pg.mouse.get_pressed()
         self.checkCursor(default="normal", hover="text")
         # provoking a 'click'- event
         self.click
-        # resetting cursor by clicking somewhere else
-        if not self.hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.image.fill(self.background, self.cursor.rect)
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
         # drawing cursor on activation
