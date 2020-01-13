@@ -803,6 +803,25 @@ class TextInput(GuiMaster):
 
     'default'   default-properties for this object.
     """
+    class TextCursor(pg.Surface):
+        """blinking text-cursor for text-input."""
+        default = {
+            "size": (1, 30),
+            "position": (2, 0),
+            "color": (100, 100, 100)
+        }
+        def __init__(self, **kwargs):
+            """
+            'cfg'           validated dict with building-instructions.
+            'rect'          (pg.rect) cursor dimensions.
+            'cooldown'      int to decrease on update for drawing a blinking
+                            cursor to the txt-input-element.
+            """
+            self.cfg = u.validateDict(kwargs, self.default)
+            pg.Surface.__init__(self, self.cfg["size"])
+            self.fill(self.cfg["color"])
+            self.rect = pg.Rect(self.cfg["position"], self.get_rect().size)
+            self.cooldown = 100
     default = {
         "size": (175, 30),
         "position": (0, 0),
@@ -815,12 +834,34 @@ class TextInput(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
+        'cursor'    (class) 'pg.surface' that comes along with some operations
+                    for correctly drawing itself to its parent.
         """
         self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **self.cfg)
+        self.cursor = self.TextCursor(
+            size=(2, self.rect.height - 6),
+            position=(3, 3)
+        )
     def update(self):
         """overwrites parent's 'update()'-method."""
+        mbut = pg.mouse.get_pressed()
         self.checkCursor(default="normal", hover="text")
+        # provoking a 'click'- event
+        self.click
+        # making text-cursor blink.
+        if self.state == "active":
+            # checking cooldown and drawing either cursor or background
+            if self.cursor.cooldown >= 50:
+                self.image.blit(self.cursor, self.cursor.rect)
+            elif self.cursor.cooldown < 50:
+                self.image.fill(self.background, self.cursor.rect)
+            # resetting cooldown or further reducing it
+            if self.cursor.cooldown == 0: self.cursor.cooldown = 100
+            else: self.cursor.cooldown -= 1
+        # resetting cursor by clicking somewhere else
+        elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
+            self.image.fill(self.background, self.cursor.rect)
 class Panel(GuiMaster):
     """
     a panel-surface to draw information or elements on.
