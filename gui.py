@@ -797,14 +797,14 @@ class Button(Text):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, **kwargs)
-class TextInput(GuiMaster):
+class TextField(GuiMaster):
     """
-    resembles a text-input-element for typing in some text.
+    resembles a text-field-element for typing in some text.
 
     'default'   default-properties for this object.
     """
     class TextCursor(pg.Surface):
-        """blinking text-cursor for text-input."""
+        """blinking text-cursor for text-field."""
         default = {
             "size": (1, 30),
             "position": (2, 0),
@@ -815,7 +815,7 @@ class TextInput(GuiMaster):
             'cfg'           validated dict with building-instructions.
             'rect'          (pg.rect) cursor dimensions.
             'cooldown'      int to decrease on update for drawing a blinking
-                            cursor to the txt-input-element.
+                            cursor to the text-field-element.
             """
             self.cfg = u.validateDict(kwargs, self.default)
             pg.Surface.__init__(self, self.cfg["size"])
