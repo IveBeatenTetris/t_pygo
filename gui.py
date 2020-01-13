@@ -22,6 +22,7 @@ class App:
     pygames-window-module with extended features. can be accessed by calling
     'globals()["app"]'.
 
+    'Cursor'    (class) a cursor-image for replacing the real one.
     'defaults'  is a dict of standard properties. on init, the given parameter
                 'config' is beeing compared to the default dict. if some given
                 properties are missing, they are simply replaced by default
@@ -307,31 +308,22 @@ class GuiMaster(pg.sprite.Sprite):
         'config'            the validated 'dict' to draw building instructions
                             from. evaluation between pass keyword-args and a
                             dict of predefined attributes.
-
         'parent'            object which draws this element. must have
                             'GuiMaster' as master-class.
-
         'background'        either 'str' or 'tuple' / 'list'. if 'none', leave
                             the surface transparent.
-
         'background_hover'  might be 'tuple' or 'list'. if it's 'none', don't
                             apply a hover effect later.
-
         'rect'              initialising rect dimensions.
-
         'dragable'          user-defined bool for checking if a dragging-
                             operation can come in.
-
         'drag_area'         user-declared area of dragging an element. if left
                             out, use the whole element-rect for dragging.
-
         '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
                             this can be used to calculate the position of an
                             element when the mouse tries to drag it.
-
         '__clicked'         internal bool to check, if the element has been
                             clicked.
-
         '__hovering'        used to determine if the mouse floats over the
                             element.
         """
@@ -539,15 +531,6 @@ class Table(GuiMaster):
     'default'   default-properties for this object.
     'Grid'      (class) is used to visualize the table.
     """
-    default = {
-        "rows": 1,
-        "cols": 1,
-        "background": None,
-        "border": False,
-        "border_size": 1,
-        "border_color": (0, 0, 0)
-    }
-    # subordered table-classes
     class Grid(GuiMaster):
         """
         a grid object with a border drawn to its surface and a list of stores
@@ -601,13 +584,20 @@ class Table(GuiMaster):
                         int(self.rect.height / kwargs["rows"]),
                     )
                     self.columns.append(rect)
-
-    # table-initialisation
+    default = {
+        "rows": 1,
+        "cols": 1,
+        "background": None,
+        "border": False,
+        "border_size": 1,
+        "border_color": (0, 0, 0)
+    }
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
+        'image'     'pg.surface'-image the original surface-image.
         'columns'   'list' of rect-arguments, each resembling a place in the
                     table. it's gonna be filled automatically by calling
                     'self.grid' anywhere.
@@ -618,7 +608,6 @@ class Table(GuiMaster):
         self.columns = []
         # first time drawing grid
         self.image.blit(self.grid.image, (0, 0))
-
     # dynamic properties
     @property# grid-object
     def grid(self):
@@ -757,8 +746,11 @@ class Text(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.hover or self.leave:
+            # only redrawing text if there is a background. else it would oddly
+            # overdraw the old text
             self.redraw()
-            self.image.blit(self.text, (0, 0))
+            if self.background:
+                self.image.blit(self.text, (0, 0))
 class Button(Text):
     """
     represents a button but works like a text with GuiMaster's extended sprite-
@@ -771,7 +763,7 @@ class Button(Text):
         Text.__init__(self, **kwargs)
 class TextInput(GuiMaster):
     """
-    resembles a text-inpus-element for typing in some text.
+    resembles a text-input-element for typing in some text.
 
     'default'   default-properties for this object.
     """
