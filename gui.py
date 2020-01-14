@@ -423,10 +423,16 @@ class GuiMaster(pg.sprite.Sprite):
                     if not self.__clicked:
                         # adding left and top of 'drag_area' so the element
                         # doesn't jump on click
-                        self.__dragged_at = (
-                            mpos[0] - rect.x + self.drag_area.left,
-                            mpos[1] - rect.y + self.drag_area.top
-                        )
+                        if self.drag_area:
+                            self.__dragged_at = (
+                                mpos[0] - rect.x + self.drag_area.left,
+                                mpos[1] - rect.y + self.drag_area.top
+                            )
+                        else:
+                            self.__dragged_at = (
+                                mpos[0] - rect.x,
+                                mpos[1] - rect.y
+                            )
                         self.__clicked = True
             # if left mouse-button is released or just not pressed, mark
             # element as clicked ('true')
@@ -551,11 +557,14 @@ class GuiMaster(pg.sprite.Sprite):
         self.redraw()
     def update(self):
         """runs with every game-loop."""
+        # mouse-events
+        mrel = pg.mouse.get_rel()
+        # default-redraw is turned off at start
         redraw = False
         # invoking drag-operation
         self.drag
         # visual redrawing of this element depends on the following conditions:
-        if self.click or self.hover or self.leave:
+        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
 # all these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
@@ -612,7 +621,7 @@ class Table(GuiMaster):
                         kwargs["border_size"]
                     )
                     x += int(self.rect.width / kwargs["cols"])
-                    
+
             # storing every cell-rect in columns-list
             for r in range(kwargs["rows"]):
                 for c in range(kwargs["cols"]):
