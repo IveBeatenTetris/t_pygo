@@ -638,7 +638,8 @@ class Table(GuiMaster):
         "background": None,
         "border": False,
         "border_size": 1,
-        "border_color": (0, 0, 0)
+        "border_color": (0, 0, 0),
+        "content": ()
     }
     def __init__(self, **kwargs):
         """
@@ -692,6 +693,13 @@ class Table(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
+class Table2(GuiMaster):
+    """."""
+    default = {}
+    def __init__(self, **kwargs):
+        """."""
+        self.cfg = u.validateDict(kwargs, self.default)
+        GuiMaster.__init__(self, **kwargs)
 class Text(GuiMaster):
     """
     resembles a text-object.
