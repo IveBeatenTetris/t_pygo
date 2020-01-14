@@ -645,20 +645,23 @@ class Table(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
-        '_rows'      'int' number of rows to draw.
-        '_cols'      'int' number of cells to draw.
-        'image'     'pg.surface'-image the original surface-image.
+        '_rows'     'int' number of rows to draw.
+        '_cols'     'int' number of cells to draw.
+        'rows'      'list' of dicts with key-names and either gui-elements or
+                    native python types.
         'columns'   'list' of rect-arguments, each resembling a place in the
                     table. it's gonna be filled automatically by calling
                     'self.grid' anywhere.
+        'image'     'pg.surface'-image the original surface-image.
         """
         self.cfg = u.validateDict(kwargs, self.default)
         self._rows = self.cfg["rows"]
         self._cols = self.cfg["cols"]
-        GuiMaster.__init__(self, **kwargs)
-        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
+        self.rows = []
         self.columns = []
+        GuiMaster.__init__(self, **kwargs)
         # first time drawing grid
+        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.image.blit(self.grid.image, (0, 0))
     # dynamic properties
     @property# grid-object
