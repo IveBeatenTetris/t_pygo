@@ -660,9 +660,8 @@ class Table(GuiMaster):
         self.rows = []
         self.columns = []
         GuiMaster.__init__(self, **kwargs)
-        # first time drawing grid
-        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
-        self.image.blit(self.grid.image, (0, 0))
+        # first time reating surface and drawing grid
+        self.resize(self.rect.size)
     # dynamic properties
     @property# grid-object
     def grid(self):
@@ -670,7 +669,7 @@ class Table(GuiMaster):
         grid = self.Grid(
             size = self.rect.size,
             background = self.background,
-            rows = self._rows,
+            rows = len(self.rows),
             cols = self._cols,
             border = self.cfg["border"],
             border_size = self.cfg["border_size"],
