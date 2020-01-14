@@ -645,12 +645,16 @@ class Table(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
+        '_rows'      'int' number of rows to draw.
+        '_cols'      'int' number of cells to draw.
         'image'     'pg.surface'-image the original surface-image.
         'columns'   'list' of rect-arguments, each resembling a place in the
                     table. it's gonna be filled automatically by calling
                     'self.grid' anywhere.
         """
         self.cfg = u.validateDict(kwargs, self.default)
+        self._rows = self.cfg["rows"]
+        self._cols = self.cfg["cols"]
         GuiMaster.__init__(self, **kwargs)
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.columns = []
@@ -663,8 +667,8 @@ class Table(GuiMaster):
         grid = self.Grid(
             size = self.rect.size,
             background = self.background,
-            rows = self.cfg["rows"],
-            cols = self.cfg["cols"],
+            rows = self._rows,
+            cols = self._cols,
             border = self.cfg["border"],
             border_size = self.cfg["border_size"],
             border_color = self.cfg["border_color"]
