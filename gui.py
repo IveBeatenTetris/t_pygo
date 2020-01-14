@@ -681,6 +681,9 @@ class Table(GuiMaster):
 
         return grid
     # basic methodes
+    def add(self, row):
+        """appending a row (dict) to 'self.rows'."""
+        self.rows.append(row)
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
