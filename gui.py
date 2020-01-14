@@ -700,6 +700,11 @@ class Table2(GuiMaster):
         """."""
         self.cfg = u.validateDict(kwargs, self.default)
         GuiMaster.__init__(self, **kwargs)
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        #self.redraw()
 class Text(GuiMaster):
     """
     resembles a text-object.
