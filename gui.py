@@ -582,34 +582,37 @@ class Table(GuiMaster):
             """
             GuiMaster.__init__(self, **kwargs)
             self.columns = []
-            # using these for calculating next line's position
-            x, y = 0, 0
-            # drawing rows
-            for row in range(kwargs["rows"]):
-                pg.draw.lines(
-                    self.image,
-                    kwargs["border_color"],
-                    False,
-                    [
-                        (self.rect.left, y),
-                        (self.rect.right, y)
-                    ],
-                    kwargs["border_size"]
-                )
-                y += int(self.rect.height / kwargs["rows"])
-            # drawing cols
-            for col in range(kwargs["cols"]):
-                pg.draw.lines(
-                    self.image,
-                    kwargs["border_color"],
-                    False,
-                    [
-                        (x, self.rect.top),
-                        (x, self.rect.bottom)
-                    ],
-                    kwargs["border_size"]
-                )
-                x += int(self.rect.width / kwargs["cols"])
+
+            if kwargs["border"]:
+                # using these for calculating next line's position
+                x, y = 0, 0
+                # drawing rows
+                for row in range(kwargs["rows"]):
+                    pg.draw.lines(
+                        self.image,
+                        kwargs["border_color"],
+                        False,
+                        [
+                            (self.rect.left, y),
+                            (self.rect.right, y)
+                        ],
+                        kwargs["border_size"]
+                    )
+                    y += int(self.rect.height / kwargs["rows"])
+                # drawing cols
+                for col in range(kwargs["cols"]):
+                    pg.draw.lines(
+                        self.image,
+                        kwargs["border_color"],
+                        False,
+                        [
+                            (x, self.rect.top),
+                            (x, self.rect.bottom)
+                        ],
+                        kwargs["border_size"]
+                    )
+                    x += int(self.rect.width / kwargs["cols"])
+                    
             # storing every cell-rect in columns-list
             for r in range(kwargs["rows"]):
                 for c in range(kwargs["cols"]):
