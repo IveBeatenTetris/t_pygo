@@ -329,6 +329,7 @@ class GuiMaster(pg.sprite.Sprite):
                             clicked.
         '__hovering'        used to determine if the mouse floats over the
                             element.
+        'image'             image-surface of this sprite class.
         """
         self.config = u.validateDict(kwargs, self.defaults)
         # initialising sprite
@@ -356,7 +357,7 @@ class GuiMaster(pg.sprite.Sprite):
         self.__clicked = False
         self.__hovering = False
         # first time creating surface and recreating inner element's visuals
-        self.resize(self.config["size"])
+        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
     # dynamic properties
     @property# pg.surface
