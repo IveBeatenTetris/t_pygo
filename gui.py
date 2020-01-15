@@ -646,6 +646,9 @@ class Table(GuiMaster):
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
+        # recreating table-visuals
+        self.redrawBackground()
+        self.redrawBorder()
         self.image.blit(self.grid["image"], (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
