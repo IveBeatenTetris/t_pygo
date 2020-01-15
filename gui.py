@@ -660,13 +660,17 @@ class Table(GuiMaster):
                 i += 1
 
         return image
+    def redrawVisuals(self):
+        """redrawing everything to display the table with its contents."""
+        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
+        self.redrawBackground()
+        self.redrawBorder()
+        self.image.blit(self.grid["image"], (0, 0))
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
         # recreating table-visuals
-        self.redrawBackground()
-        self.redrawBorder()
-        self.image.blit(self.grid["image"], (0, 0))
+        self.redrawVisuals()
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
