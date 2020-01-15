@@ -609,46 +609,32 @@ class Table(GuiMaster):
         surface = pg.Surface(self.rect.size, pg.SRCALPHA)
         rects = []
 
-        # drawing a border only if one is given by user
-        if self.border:
-            # using these for calculating next line's position
-            x, y = 0, 0
-            # drawing rows
-            for row in range(len(self.rows)):
-                pg.draw.lines(
-                    surface,
-                    self.config["border_color"],
-                    False,
-                    [
-                        (self.rect.left, y),
-                        (self.rect.right, y)
-                    ],
-                    self.config["border_size"]
-                )
-                y += int(self.rect.height / len(self.rows))
-            # drawing cols
-            for col in range(len(self.rows[0])):
-                pg.draw.lines(
-                    surface,
-                    self.config["border_color"],
-                    False,
-                    [
-                        (x, self.rect.top),
-                        (x, self.rect.bottom)
-                    ],
-                    self.config["border_size"]
-                )
-                x += int(self.rect.width / len(self.rows[0]))
         # storing every cell-rect in columns-list
         for r in range(len(self.rows)):
             for c in range(len(self.rows[0])):
+                # creating a pg.rect for the momentary column
                 rect = pg.Rect(
                     c * int(self.rect.width / len(self.rows[0])),
                     r * int(self.rect.height / len(self.rows)),
                     int(self.rect.width / len(self.rows[0])),
                     int(self.rect.height / len(self.rows)),
                 )
+                # drawing a border only if one is given by user
+                if self.border: pg.draw.lines(
+                    surface,
+                    self.config["border_color"],
+                    False,
+                    [
+                        rect.bottomleft,
+                        rect.topleft,
+                        rect.topright
+                    ],
+                    self.config["border_size"]
+                )
+                # appending rect to returning-dict
                 rects.append(rect)
+                # drawing passed elements to surface
+                # //TODO
 
         grid = {
             "image": surface,
