@@ -527,26 +527,37 @@ class GuiMaster(pg.sprite.Sprite):
         'GuiMaster'-element and blit this to the surface as well.
         """
         # drawing background
+        self.redrawBackground()
+        # drawing drag-area if set by user
+        self.redrawDragArea()
+        # drawing background if set by user
+        self.redrawBorder()
+    def redrawBackground(self):
+        """recreates only the background."""
         bg = self.background
+
         if self.hover:
             if self.background_hover:
                 bg = self.background_hover
         else:
             if self.background:
                 bg = self.background
+
         # drawing if background is not 'none'
         if bg:
             if type(bg) is tuple or type(bg) is list:
                 self.image.fill(bg)
             else:
                 self.image.blit(bg, (0, 0))
-        # drawing drag-area if set by user
+    def redrawBorder(self):
+        """only recreates border for the sprite.image."""
+        if self.border:
+            self.image.blit(self.border, (0, 0))
+    def redrawDragArea(self):
+        """only recreates a drag-area if set by user."""
         if self.config["drag_area"]:
             rect = pg.Rect(self.config["drag_area"])
             self.image.fill(self.config["drag_area_background"], rect)
-        # drawing background if set by user
-        if self.border:
-            self.image.blit(self.border, (0, 0))
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
