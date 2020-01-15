@@ -600,7 +600,7 @@ class Table(GuiMaster):
         GuiMaster.__init__(self, **kwargs)
         self.image.blit(self.grid["image"], (0, 0))
     # dynamic propeties
-    @property
+    @property# dict
     def grid(self):
         """
         returns a dict acting as a grid-element. use 'self.grid["image"]' to
@@ -633,8 +633,8 @@ class Table(GuiMaster):
                 )
                 # appending rect to returning-dict
                 rects.append(rect)
-                # drawing passed elements to surface
-                # //TODO
+        # drawing passed elements to surface
+        surface = self.drawElements(self.rows, surface, rects)
 
         grid = {
             "image": surface,
@@ -643,6 +643,23 @@ class Table(GuiMaster):
 
         return grid
     # basic methodes
+    def drawElements(self, elements, surface, rect_list):# pg.surface
+        """returns a pg.surface with already drawn elements on it."""
+        image = surface
+        i = 0
+        # cycling trough elements
+        for r in range(len(elements)):
+            for c in range(len(elements[r])):
+                elem = elements[r][c]
+                # drawing depends on element-type
+                if type(elem) is str:
+                    image.blit(Text(text = elem).image, rect_list[i])
+                else:
+                    image.blit(elem.image, rect_list[i])
+
+                i += 1
+
+        return image
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
