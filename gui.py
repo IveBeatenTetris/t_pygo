@@ -570,142 +570,89 @@ class GuiMaster(pg.sprite.Sprite):
 # all these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
     """
-    acts like a grid with columns to use their rects for drawing.
-    usage:
-        surface.blit(element, table.columns[5])
-
+    table-object to pass gui-elements to its 'rows'-attribute.
     'default'   default-properties for this object.
-    'Grid'      (class) is used to visualize the table.
     """
-    class Grid(GuiMaster):
-        """
-        a grid object with a border drawn to its surface and a list of stores
-        columns for accessing their rect-positions.
-        """
-        def __init__(self, **kwargs):
-            """
-            uses 'GuiMaster' as its parent with additional methodes and
-            attributes.
-
-            'columns'   a list of accessable cell-rects. the main reason for
-                        this class.
-            """
-            GuiMaster.__init__(self, **kwargs)
-            self.columns = []
-
-            if kwargs["border"]:
-                # using these for calculating next line's position
-                x, y = 0, 0
-                # drawing rows
-                for row in range(kwargs["rows"]):
-                    pg.draw.lines(
-                        self.image,
-                        kwargs["border_color"],
-                        False,
-                        [
-                            (self.rect.left, y),
-                            (self.rect.right, y)
-                        ],
-                        kwargs["border_size"]
-                    )
-                    y += int(self.rect.height / kwargs["rows"])
-                # drawing cols
-                for col in range(kwargs["cols"]):
-                    pg.draw.lines(
-                        self.image,
-                        kwargs["border_color"],
-                        False,
-                        [
-                            (x, self.rect.top),
-                            (x, self.rect.bottom)
-                        ],
-                        kwargs["border_size"]
-                    )
-                    x += int(self.rect.width / kwargs["cols"])
-
-            # storing every cell-rect in columns-list
-            for r in range(kwargs["rows"]):
-                for c in range(kwargs["cols"]):
-                    rect = pg.Rect(
-                        c * int(self.rect.width / kwargs["cols"]),
-                        r * int(self.rect.height / kwargs["rows"]),
-                        int(self.rect.width / kwargs["cols"]),
-                        int(self.rect.height / kwargs["rows"]),
-                    )
-                    self.columns.append(rect)
     default = {
-        "rows": 1,
-        "cols": 1,
-        "background": None,
-        "border": False,
-        "border_size": 1,
-        "border_color": (0, 0, 0),
-        "content": ()
+        "rows": ()
     }
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
         'cfg'       'dict' of building instructions for the table.
-        '_rows'     'int' number of rows to draw.
-        '_cols'     'int' number of cells to draw.
-        'rows'      'list' of dicts with key-names and either gui-elements or
-                    native python types.
-        'columns'   'list' of rect-arguments, each resembling a place in the
-                    table. it's gonna be filled automatically by calling
-                    'self.grid' anywhere.
-        'image'     'pg.surface'-image the original surface-image.
+        'rows'      'tuple' of tuples that hold gui-elements or native python-
+                    types.
         """
         self.cfg = u.validateDict(kwargs, self.default)
-        self._rows = self.cfg["rows"]
-        self._cols = self.cfg["cols"]
-        self.rows = []
-        self.columns = []
+        self.rows = self.cfg["rows"]
         GuiMaster.__init__(self, **kwargs)
-        # first time reating surface and drawing grid
-        self.resize(self.rect.size)
-    # dynamic properties
-    @property# grid-object
+        self.image.blit(self.grid["image"], (0, 0))
+    # dynamic propeties
+    @property
     def grid(self):
-        """returns a new calculated grid-surface-object ready to be drawn."""
-        grid = self.Grid(
-            size = self.rect.size,
-            background = self.background,
-            rows = len(self.rows),
-            cols = self._cols,
-            border = self.cfg["border"],
-            border_size = self.cfg["border_size"],
-            border_color = self.cfg["border_color"]
-        )
-        # updating self.columns
-        self.columns = grid.columns
+        """
+        returns a dict acting as a grid-element. use 'self.grid["image"]' to
+        draw the grid to the sprite-image-surface.
+        """
+        surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+        rects = []
+
+        # drawing a border only if one is given by user
+        if self.border:
+            # using these for calculating next line's position
+            x, y = 0, 0
+            # drawing rows
+            for row in range(len(self.rows)):
+                pg.draw.lines(
+                    surface,
+                    self.config["border_color"],
+                    False,
+                    [
+                        (self.rect.left, y),
+                        (self.rect.right, y)
+                    ],
+                    self.config["border_size"]
+                )
+                y += int(self.rect.height / len(self.rows))
+            # drawing cols
+            for col in range(len(self.rows[0])):
+                pg.draw.lines(
+                    surface,
+                    self.config["border_color"],
+                    False,
+                    [
+                        (x, self.rect.top),
+                        (x, self.rect.bottom)
+                    ],
+                    self.config["border_size"]
+                )
+                x += int(self.rect.width / len(self.rows[0]))
+        # storing every cell-rect in columns-list
+        for r in range(len(self.rows)):
+            for c in range(len(self.rows[0])):
+                rect = pg.Rect(
+                    c * int(self.rect.width / len(self.rows[0])),
+                    r * int(self.rect.height / len(self.rows)),
+                    int(self.rect.width / len(self.rows[0])),
+                    int(self.rect.height / len(self.rows)),
+                )
+                rects.append(rect)
+
+        grid = {
+            "image": surface,
+            "rects": rects
+        }
 
         return grid
     # basic methodes
-    def add(self, row):
-        """appending a row (dict) to 'self.rows'."""
-        self.rows.append(row)
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
-        self.image = pg.Surface(size, pg.SRCALPHA)
-        # redrawing grid
-        self.image.blit(self.grid.image, (0, 0))
+        self.image.blit(self.grid["image"], (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
-class Table2(GuiMaster):
-    """."""
-    default = {}
-    def __init__(self, **kwargs):
-        """."""
-        self.cfg = u.validateDict(kwargs, self.default)
-        GuiMaster.__init__(self, **kwargs)
-    def resize(self, size):
-        """overwrites parent's 'resize()'-method."""
-        self.rect.size = size
-        self.image = pg.Surface(size, pg.SRCALPHA)
-        #self.redraw()
 class Text(GuiMaster):
     """
     resembles a text-object.
