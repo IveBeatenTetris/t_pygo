@@ -642,6 +642,21 @@ class Table(GuiMaster):
         }
 
         return grid
+    # element mutation
+    def replace_rows(self, rows):
+        """
+        this methode replaces the internal 'rows'-value with the given one.
+        snytax looks like this:
+            my_row = (
+                ("column1", "object1"),
+                ("column2", "object2")
+            )
+        each single str-value can also be replaced with drawable objects. but
+        if it comes as a string, the table automatically creates a text-object
+        to draw it on itself.
+        """
+        self.rows = rows
+        self.redrawVisuals()
     # basic methodes
     def drawElements(self, elements, surface, rect_list):# pg.surface
         """returns a pg.surface with already drawn elements on it."""
