@@ -37,7 +37,6 @@ class Stylesheet:
             "fps": 30
         },
         "none": {
-            "parent": None,
             "size": (300, 200),
             "position": (0, 0),
             "background_color": None,
@@ -49,8 +48,19 @@ class Stylesheet:
             "drag_area": None,
             "drag_area_background": (45, 45, 55)
         },
+        "panel": {
+            "size": (150, 200),
+        	"position": (0, 0),
+            "background_color": (50, 50, 60),
+            "background_hover": None,
+            "border": False,
+            "border_color": (0, 0, 0),
+            "border_size": 1,
+        	"dragable": False,
+        	"drag_area": None,
+        	"drag_area_background": (70, 70, 80)
+        },
         "table": {
-            "parent": None,
             "rows": ()
         }
     }
@@ -968,16 +978,9 @@ class TextField(GuiMaster):
         # drawing cursor on activation
         self.handleCursor()
 class Panel(GuiMaster):
-    """
-    a panel-surface to draw information or elements on.
-
-    'default'   default-properties for this object.
-    """
-    default = {
-
-    }
+    """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
-        GuiMaster.__init__(self, **kwargs)
+        GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
