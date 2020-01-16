@@ -72,6 +72,20 @@ class Stylesheet:
         	"drag_area": None,
         	"drag_area_background": (70, 70, 80),
             "rows": ()
+        },
+        "text": {
+            "position": (0, 0),
+            "font": u.FONTS["base"]["name"],
+        	"font_size": u.FONTS["base"]["size"],
+        	"color": u.FONTS["base"]["color"],
+            "background_color": None,
+        	"text": "Text",
+        	"antialias": True,
+        	"bold": False,
+        	"italic": False,
+            "shadow": None,
+            "wrap": None,
+            "padding": 0
         }
     }
     def __init__(self, type="none", style={}):
