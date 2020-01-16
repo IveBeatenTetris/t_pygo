@@ -18,14 +18,20 @@ def loadXMLInterface(name):
             return cfg
 # special overall classes
 class Stylesheet:
-    """serves as gui-element-building-instructions."""
+    """
+    serves as gui-element-building-instructions.
+
+    'defaults'      dict of dicts holding basic building-instructions for every
+                    gui-element.
+    """
     defaults = {
         "app": {
             "size": (320, 240),
             "title": "Unnamed Project",
             "resizable": False,
             "fullscreen": False,
-            "background": u.LIBPATH["windowbg"],
+            "background_color": None,
+            "background_image": u.LIBPATH["windowbg"],
             "background_repeat": None,
             "icon": u.LIBPATH["windowicon"],
             "fps": 30
@@ -48,7 +54,7 @@ class Stylesheet:
             "rows": ()
         }
     }
-    def __init__(self, **kwargs):
+    def __init__(self, type="none", style={}):
         """
         'config'    'dict' that holds the contructed attributes for the chosen
                     element.
@@ -59,10 +65,7 @@ class Stylesheet:
         stylesheet-attributes.
         """
         # validating config
-        self.config = u.validateDict(
-            kwargs["style"],
-            self.defaults[kwargs["type"]]
-        )
+        self.config = u.validateDict(style, self.defaults[type])
         # dynamically creating stylesheet-attributes
         for name, attr in self.config.items():
             setattr(self, name, attr)
@@ -118,35 +121,25 @@ class App:
 
         'stylesheet'        validated 'dict' of comparing a user-set dict of
                             properties with this object's default values.
-
         'display'           holds the actual 'pygame.display.surface' object.
-
+        'background'        used to draw to fill the surface with. might be
+                            'str', 'tuple' or 'pg.surface'. if 'str', use it as
+                            an image-path and load a pygame.image-surface.
         'draw_list'         an extended sprite-group for sprites that have to
                             always be blitten on top of the visuals.
-
         'mouse_cursor'      sprite to use instead of the original one. when
                             cursor-object gets initialized, it renders the
                             native pygame-cursor invisible.
-
-        'background'        used to draw to fill the surface with. might be
-                            'str' or 'tuple'. if 'str', use it as image-path
-                            and load a pygame.image-surface.
-
         'clock'             pygame.clock for tracking 'fps'.
-
         'preffered_fps'     user-defined maximal frames per second.
-
         'fps'               the actual FPS. it's gonna be updated by the
                             window's 'update()'-method.
-
         '_events'           a 'list' of momentary pygame.events. it's gonna be
                             filled by calling 'self.events' anywhere. use this
                             list for checking ongoing events.
-
         'keys'              an empty list. gets automatically filled with
                             pygame-events by going through the
                             'events'-property over and over.
-
         'resized'           bool to check if the window has been resized.
         """
         self.stylesheet = Stylesheet(
@@ -324,19 +317,6 @@ class GuiMaster(pg.sprite.Sprite):
     'defaults' serves as a setup-dict to evaluate building instructions for the
         master-element.
     """
-    """defaults = {
-        "parent": None,
-        "size": (300, 200),
-        "position": (0, 0),
-        "background": (35, 35, 45),
-        "background_hover": None,
-        "border": False,
-        "border_color": (0, 0, 0),
-        "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55)
-    }"""
     def __init__(self, **kwargs):
         """
         first creates a internal setup-config to decleare some properties.
@@ -367,13 +347,13 @@ class GuiMaster(pg.sprite.Sprite):
                             element.
         'image'             image-surface of this sprite class.
         """
-        if "type" in kwargs:
-            type = kwargs["type"]
-        else:
-            type = "none"
+        if "type" in kwargs: type = kwargs["type"]
+        else: type = "none"
+        if "style" in kwargs: style = kwargs["style"]
+        else: style = {}
         self.stylesheet = Stylesheet(
             type = type,
-            style = kwargs
+            style = style
         )
         #self.config = u.validateDict(kwargs, self.defaults)
         # initialising sprite
