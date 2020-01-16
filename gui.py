@@ -40,7 +40,7 @@ class Stylesheet:
             "parent": None,
             "size": (300, 200),
             "position": (0, 0),
-            "background": (35, 35, 45),
+            "background_color": None,
             "background_hover": None,
             "border": False,
             "border_color": (0, 0, 0),
@@ -351,11 +351,9 @@ class GuiMaster(pg.sprite.Sprite):
         """
         if "type" in kwargs: type = kwargs["type"]
         else: type = "none"
-        if "style" in kwargs: style = kwargs["style"]
-        else: style = {}
         self.stylesheet = Stylesheet(
             type = type,
-            style = style
+            style = kwargs
         )
         #self.config = u.validateDict(kwargs, self.defaults)
         # initialising sprite
@@ -390,7 +388,12 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a ready to draw background-surface."""
         background = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-        if self.stylesheet.background_color:
+        # draws hover-color if element is hovered
+        if self.hover:
+            if self.stylesheet.background_hover:
+                background.fill(self.stylesheet.background_hover)
+        # else redraw background-color if it's not 'none'
+        elif self.stylesheet.background_color:
             background.fill(self.stylesheet.background_color)
 
         return background
@@ -568,21 +571,9 @@ class GuiMaster(pg.sprite.Sprite):
         self.redrawBorder()
     def redrawBackground(self):
         """recreates only the background."""
-        bg = self.background
-
-        if self.hover:
-            if self.background_hover:
-                bg = self.background_hover
-        else:
-            if self.background:
-                bg = self.background
-
         # drawing if background is not 'none'
-        if bg:
-            if type(bg) is tuple or type(bg) is list:
-                self.image.fill(bg)
-            else:
-                self.image.blit(bg, (0, 0))
+        if self.background:
+            self.image.blit(self.background, (0, 0))
     def redrawBorder(self):
         """only recreates border for the sprite.image."""
         if self.border:
