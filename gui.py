@@ -31,6 +31,7 @@ class Stylesheet:
             "fps": 30
         },
         "none": {
+            "parent": None,
             "size": (300, 200),
             "position": (0, 0),
             "background": (35, 35, 45),
@@ -41,6 +42,10 @@ class Stylesheet:
             "dragable": False,
             "drag_area": None,
             "drag_area_background": (45, 45, 55)
+        },
+        "table": {
+            "parent": None,
+            "rows": ()
         }
     }
     def __init__(self, **kwargs):
@@ -319,7 +324,7 @@ class GuiMaster(pg.sprite.Sprite):
     'defaults' serves as a setup-dict to evaluate building instructions for the
         master-element.
     """
-    defaults = {
+    """defaults = {
         "parent": None,
         "size": (300, 200),
         "position": (0, 0),
@@ -331,12 +336,12 @@ class GuiMaster(pg.sprite.Sprite):
         "dragable": False,
         "drag_area": None,
         "drag_area_background": (45, 45, 55)
-    }
+    }"""
     def __init__(self, **kwargs):
         """
         first creates a internal setup-config to decleare some properties.
 
-        'config'            the validated 'dict' to draw building instructions
+        'stylesheet'        the validated 'dict' to draw building instructions
                             from. evaluation between pass keyword-args and a
                             dict of predefined attributes.
         'parent'            object which draws this element. must have
@@ -362,28 +367,36 @@ class GuiMaster(pg.sprite.Sprite):
                             element.
         'image'             image-surface of this sprite class.
         """
-        self.config = u.validateDict(kwargs, self.defaults)
+        if "type" in kwargs:
+            type = kwargs["type"]
+        else:
+            type = "none"
+        self.stylesheet = Stylesheet(
+            type = type,
+            style = kwargs
+        )
+        #self.config = u.validateDict(kwargs, self.defaults)
         # initialising sprite
         pg.sprite.Sprite.__init__(self)
         # declaring parent
-        if self.config["parent"]:
-            self.parent = self.config["parent"]
+        if "parent" in kwargs:
+            self.parent = kwargs["parent"]
         else:
             self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
-        self.background = self.config["background"]
-        self.background_hover = self.config["background_hover"]
+        self.background = self.stylesheet.background
+        self.background_hover = self.stylesheet.background_hover
         self.rect = pg.Rect(
-            self.config["position"],
-            self.config["size"]
+            self.stylesheet.position,
+            self.stylesheet.size
         )
         # event related stuff
         self.state = "waiting"
-        self.dragable = self.config["dragable"]
-        if self.config["drag_area"]:
-            self.drag_area = pg.Rect(self.config["drag_area"])
+        self.dragable = self.stylesheet.dragable
+        if self.stylesheet.drag_area:
+            self.drag_area = pg.Rect(self.stylesheet.drag_area)
         else:
-            self.drag_area = self.config["drag_area"]
+            self.drag_area = self.stylesheet.drag_area
         self.__dragged_at = None
         self.__clicked = False
         self.__hovering = False
@@ -396,12 +409,12 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a surface with a blitten border to it if preset by user."""
         border = None
         # drawing border to temprary surface if given
-        if self.config["border"]:
+        if self.stylesheet.border:
             border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
             u.drawBorder(
                 border_surface,
-                color = self.config["border_color"],
-                size = self.config["border_size"]
+                color = self.stylesheet.border_color,
+                size = self.stylesheet.border_size
             )
             border = border_surface
 
@@ -586,9 +599,9 @@ class GuiMaster(pg.sprite.Sprite):
             self.image.blit(self.border, (0, 0))
     def redrawDragArea(self):
         """only recreates a drag-area if set by user."""
-        if self.config["drag_area"]:
-            rect = pg.Rect(self.config["drag_area"])
-            self.image.fill(self.config["drag_area_background"], rect)
+        if self.stylesheet.drag_area:
+            rect = pg.Rect(self.stylesheet.drag_area)
+            self.image.fill(self.stylesheet.drag_area_background, rect)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -626,6 +639,10 @@ class Table(GuiMaster):
         'rows'      'tuple' of tuples that hold gui-elements or native python-
                     types.
         """
+        self.stylesheet = Stylesheet(
+            type = "table",
+            style = kwargs
+        )
         self.cfg = u.validateDict(kwargs, self.default)
         self.rows = self.cfg["rows"]
         GuiMaster.__init__(self, **kwargs)
