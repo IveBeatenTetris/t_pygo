@@ -16,7 +16,26 @@ def loadXMLInterface(name):
     for cfg in u.loadAssets(u.PATH["interface"] + "\\" + name):
         if cfg["type"] == "interface":
             return cfg
-# first step to creating a pygame window
+# special overall classes
+class Stylesheet:
+    """."""
+    defaults = {
+        "none": {
+            "size": (300, 200),
+            "position": (0, 0),
+            "background": (35, 35, 45),
+            "background_hover": None,
+            "border": False,
+            "border_color": (0, 0, 0),
+            "border_size": 1,
+            "dragable": False,
+            "drag_area": None,
+            "drag_area_background": (45, 45, 55)
+        }
+    }
+    def __init__(self, **kwargs):
+        """."""
+        pass
 class App:
     """
     pygames-window-module with extended features. can be accessed by calling
