@@ -604,6 +604,20 @@ class GuiMaster(pg.sprite.Sprite):
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
+class GuiMaster2(pg.sprite.Sprite):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        self.stylesheet = Stylesheet(
+            type = "none",
+            style = {}
+        )
+        style = self.stylesheet
+        pg.sprite.Sprite.__init__(self)
+        self.image = pg.Surface(style.size, pg.SRCALPHA)
+        self.rect = self.image.get_rect()
+        if hasattr(style, "background_color"):
+            self.image.fill(style.background_color)
 # all these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
     """
