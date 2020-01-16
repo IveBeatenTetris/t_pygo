@@ -153,6 +153,7 @@ class App:
             self.stylesheet.size,
             resizable = self.stylesheet.resizable
         )
+        self.background = self.createBackground()
         self.draw(self.background)
         # changing window- and mouse-cursor apprarance
         self.changeTitle(self.stylesheet.title)
@@ -172,33 +173,7 @@ class App:
         self.resized = False
         # adding this instance to 'globals'
         globals()["app"] = self
-    # dynamic properties
-    @property# pg.surface
-    def background(self):
-        """returns a pygame.surface based on background-properties."""
-        bg = self.stylesheet.background
-
-        if type(bg) is str:
-            # overwriting app's local 'background_repeat'-property if 'bg'
-            # is the library's standard background-image.
-            if bg == str(u.LIBPATH["windowbg"]):
-                self.stylesheet.background_repeat = "xy"
-            bg = pg.image.load(bg)
-        elif type(bg) is tuple:
-            pass
-        # checking background repeat
-        if type(bg) is pg.Surface:
-            if self.stylesheet.background_repeat:
-                # creating surfact with repeated background
-                # 'self.config["background_repeat"]' is the indicator:
-                # ('x', 'y', 'xy')
-                bg = u.repeatBG(
-                    bg,
-                    self.display.get_rect().size,
-                    self.stylesheet.background_repeat
-                )
-
-        return bg
+    # dynamic attributes
     @property# list
     def events(self):
         """
@@ -310,6 +285,34 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
+    def createBackground(self):# pg surface
+        """returns a pygame.surface based on background-properties."""
+        if self.stylesheet.background_color:
+            bg = self.stylesheet.background_color
+        else:
+            bg = self.stylesheet.background_image
+
+        if type(bg) is str:
+            # overwriting app's local 'background_repeat'-property if 'bg'
+            # is the library's standard background-image.
+            if bg == str(u.LIBPATH["windowbg"]):
+                self.stylesheet.background_repeat = "xy"
+            bg = pg.image.load(bg)
+        elif type(bg) is tuple:
+            pass
+        # checking background repeat
+        if type(bg) is pg.Surface:
+            if self.stylesheet.background_repeat:
+                # creating surfact with repeated background
+                # 'self.config["background_repeat"]' is the indicator:
+                # ('x', 'y', 'xy')
+                bg = u.repeatBG(
+                    bg,
+                    self.display.get_rect().size,
+                    self.stylesheet.background_repeat
+                )
+
+        return bg
 class GuiMaster(pg.sprite.Sprite):
     """
     resembles a 'pygame.surface' but with advanced operations.
