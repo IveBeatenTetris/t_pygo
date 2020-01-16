@@ -366,7 +366,6 @@ class GuiMaster(pg.sprite.Sprite):
         else:
             self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
-        self.background = self.stylesheet.background
         self.background_hover = self.stylesheet.background_hover
         self.rect = pg.Rect(
             self.stylesheet.position,
@@ -386,6 +385,15 @@ class GuiMaster(pg.sprite.Sprite):
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
     # dynamic properties
+    @property
+    def background(self):
+        """returns a ready to draw background-surface."""
+        background = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+        if self.stylesheet.background_color:
+            background.fill(self.stylesheet.background_color)
+
+        return background
     @property# pg.surface
     def border(self):
         """returns a surface with a blitten border to it if preset by user."""
