@@ -18,8 +18,18 @@ def loadXMLInterface(name):
             return cfg
 # special overall classes
 class Stylesheet:
-    """."""
+    """serves as gui-element-building-instructions."""
     defaults = {
+        "app": {
+            "size": (320, 240),
+            "title": "Unnamed Project",
+            "resizable": False,
+            "fullscreen": False,
+            "background": u.LIBPATH["windowbg"],
+            "background_repeat": None,
+            "icon": u.LIBPATH["windowicon"],
+            "fps": 30
+        },
         "none": {
             "size": (300, 200),
             "position": (0, 0),
@@ -34,20 +44,29 @@ class Stylesheet:
         }
     }
     def __init__(self, **kwargs):
-        """."""
-        pass
+        """
+        'config'    'dict' that holds the contructed attributes for the chosen
+                    element.
+
+        every attribute form here on will be created on the fly. means:
+        depending on element-type, the stylesheet will have different
+        attributes. us 'self.__dict__' to get a dict of all available
+        stylesheet-attributes.
+        """
+        # validating config
+        self.config = u.validateDict(
+            kwargs["style"],
+            self.defaults[kwargs["type"]]
+        )
+        # dynamically creating stylesheet-attributes
+        for name, attr in self.config.items():
+            setattr(self, name, attr)
 class App:
     """
     pygames-window-module with extended features. can be accessed by calling
     'globals()["app"]'.
 
     'Cursor'    (class) a cursor-image for replacing the real one.
-    'defaults'  is a dict of standard properties. on init, the given parameter
-                'config' is beeing compared to the default dict. if some given
-                properties are missing, they are simply replaced by default
-                values. the result is a validated dict to draw initialisation-
-                instructions. it also declares what arguments can be passed to
-                the app-object.
     """
     class Cursor(pg.sprite.Sprite):
         """replacement for the native pygame-mouse-cursor."""
@@ -88,21 +107,11 @@ class App:
             rect.topleft = pg.mouse.get_pos()
 
             return rect
-    defaults = {
-        "size": (320, 240),
-        "title": "Unnamed Project",
-        "resizable": False,
-        "fullscreen": False,
-        "background": u.LIBPATH["windowbg"],
-        "background_repeat": None,
-        "icon": u.LIBPATH["windowicon"],
-        "fps": 30
-    }
     def __init__(self, **kwargs):
         """
         inits pygame to act as an app-window.
 
-        'config'            validated 'dict' of comparing a user-set dict of
+        'stylesheet'        validated 'dict' of comparing a user-set dict of
                             properties with this object's default values.
 
         'display'           holds the actual 'pygame.display.surface' object.
@@ -135,18 +144,21 @@ class App:
 
         'resized'           bool to check if the window has been resized.
         """
-        self.config = u.validateDict(kwargs, self.defaults)
+        self.stylesheet = Stylesheet(
+            type = "app",
+            style = kwargs
+        )
         # pygame init
         pg.init()
         # creating display surface and drawing background
         self.display = u.getDisplay(
-            self.config["size"],
-            resizable = self.config["resizable"]
+            self.stylesheet.size,
+            resizable = self.stylesheet.resizable
         )
         self.draw(self.background)
         # changing window- and mouse-cursor apprarance
-        self.changeTitle(self.config["title"])
-        self.changeIcon(self.config["icon"])
+        self.changeTitle(self.stylesheet.title)
+        self.changeIcon(self.stylesheet.icon)
         self.cursor = self.Cursor()
         # everything in this list will be drawn to the app-screen on their
         # event-updates.
@@ -154,7 +166,7 @@ class App:
         self.draw_list.add(self.cursor)
         # fps settings
         self.clock = pg.time.Clock()
-        self.preffered_fps = self.config["fps"]
+        self.preffered_fps = self.stylesheet.fps
         self.fps = 0
         # event related
         self._events = []
@@ -166,26 +178,26 @@ class App:
     @property# pg.surface
     def background(self):
         """returns a pygame.surface based on background-properties."""
-        bg = self.config["background"]
+        bg = self.stylesheet.background
 
         if type(bg) is str:
             # overwriting app's local 'background_repeat'-property if 'bg'
             # is the library's standard background-image.
             if bg == str(u.LIBPATH["windowbg"]):
-                self.config["background_repeat"] = "xy"
+                self.stylesheet.background_repeat = "xy"
             bg = pg.image.load(bg)
         elif type(bg) is tuple:
             pass
         # checking background repeat
         if type(bg) is pg.Surface:
-            if self.config["background_repeat"]:
+            if self.stylesheet.background_repeat:
                 # creating surfact with repeated background
                 # 'self.config["background_repeat"]' is the indicator:
                 # ('x', 'y', 'xy')
                 bg = u.repeatBG(
                     bg,
                     self.display.get_rect().size,
-                    self.config["background_repeat"]
+                    self.stylesheet.background_repeat
                 )
 
         return bg
@@ -250,7 +262,7 @@ class App:
         # make new display surface
         self.display = u.getDisplay(
             size,
-            resizable = self.config["resizable"]
+            resizable = self.stylesheet.resizable
         )
         # drawing background
         self.draw(self.background)
