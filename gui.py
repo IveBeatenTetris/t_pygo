@@ -237,7 +237,8 @@ class App:
             size,
             resizable = self.stylesheet.resizable
         )
-        # drawing background
+        # drawing new created background
+        self.background = self.createBackground()
         self.draw(self.background)
     def quit(self):
         """exits the app."""
@@ -251,14 +252,8 @@ class App:
         to this list.
         """
         self._events = self.events
-        # creating a background-surface if 'self.background' is a list or tuple
-        if type(self.background) is not pg.Surface:
-            bg = pg.Surface(self.rect.size)
-            bg.fill(self.background)
-        else:
-            bg = self.background
         # overdrawing old moved sprite-trails on backgrounds
-        self.draw_list.clear(self.display, bg)
+        self.draw_list.clear(self.display, self.background)
         changes = self.draw_list.draw(self.display)
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
@@ -287,20 +282,24 @@ class App:
         pg.display.set_caption(title)
     def createBackground(self):# pg surface
         """returns a pygame.surface based on background-properties."""
+        # prioritizing backgorund-statement
         if self.stylesheet.background_color:
             bg = self.stylesheet.background_color
         else:
             bg = self.stylesheet.background_image
-
+        # looking for default-background-statement
         if type(bg) is str:
             # overwriting app's local 'background_repeat'-property if 'bg'
             # is the library's standard background-image.
             if bg == str(u.LIBPATH["windowbg"]):
                 self.stylesheet.background_repeat = "xy"
             bg = pg.image.load(bg)
+        # filling a newly created surface
         elif type(bg) is tuple:
-            pass
-        # checking background repeat
+            color = bg
+            bg = pg.Surface(self.rect.size)
+            bg.fill(color)
+        # checking for background-repeat
         if type(bg) is pg.Surface:
             if self.stylesheet.background_repeat:
                 # creating surfact with repeated background
