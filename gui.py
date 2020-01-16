@@ -61,6 +61,16 @@ class Stylesheet:
         	"drag_area_background": (70, 70, 80)
         },
         "table": {
+            "size": (150, 50),
+            "position": (0, 0),
+            "background_color": (50, 50, 60),
+            "background_hover": None,
+            "border": True,
+            "border_color": (0, 0, 0),
+            "border_size": 1,
+        	"dragable": False,
+        	"drag_area": None,
+        	"drag_area_background": (70, 70, 80),
             "rows": ()
         }
     }
@@ -617,6 +627,7 @@ class GuiMaster(pg.sprite.Sprite):
 class Table(GuiMaster):
     """
     table-object to pass gui-elements to its 'rows'-attribute.
+
     'default'   default-properties for this object.
     """
     default = {
