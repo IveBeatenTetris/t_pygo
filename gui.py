@@ -625,29 +625,16 @@ class GuiMaster(pg.sprite.Sprite):
             self.redraw()
 # all these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
-    """
-    table-object to pass gui-elements to its 'rows'-attribute.
-
-    'default'   default-properties for this object.
-    """
-    default = {
-        "rows": ()
-    }
+    """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'       'dict' of building instructions for the table.
         'rows'      'tuple' of tuples that hold gui-elements or native python-
                     types.
         """
-        self.stylesheet = Stylesheet(
-            type = "table",
-            style = kwargs
-        )
-        self.cfg = u.validateDict(kwargs, self.default)
-        self.rows = self.cfg["rows"]
-        GuiMaster.__init__(self, **kwargs)
+        GuiMaster.__init__(self, type="table", style=kwargs, **kwargs)
+        self.rows = self.stylesheet.rows
         self.image.blit(self.grid["image"], (0, 0))
     # dynamic propeties
     @property# dict
@@ -672,14 +659,14 @@ class Table(GuiMaster):
                 # drawing a border only if one is given by user
                 if self.border: pg.draw.lines(
                     surface,
-                    self.config["border_color"],
+                    self.stylesheet.border_color,
                     False,
                     [
                         rect.bottomleft,
                         rect.topleft,
                         rect.topright
                     ],
-                    self.config["border_size"]
+                    self.stylesheet.border_size
                 )
                 # appending rect to returning-dict
                 rects.append(rect)
@@ -705,6 +692,7 @@ class Table(GuiMaster):
         if it comes as a string, the table automatically creates a text-object
         to draw it on itself.
         """
+        self.stylesheet.rows = rows
         self.rows = rows
         self.redrawVisuals()
     # basic methodes
