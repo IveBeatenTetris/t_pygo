@@ -493,6 +493,9 @@ def getFrames(image, framesize):# list
 def getMouse():
     """returns pygame.mouse position."""
     return pg.mouse.get_pos()
+def listAttributes(object):
+    """pretty-prints all available object-attributes."""
+    prettyPrint(object.__dict__.keys())
 def repeatBG(image, size, axis="xy", pos=(0, 0)):# pg.surface
     """
     returns a pygame surface where the given image will be drawn repeatedly.
