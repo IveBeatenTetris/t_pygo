@@ -74,11 +74,16 @@ class Stylesheet:
             "rows": ()
         },
         "text": {
+            "size": (0, 0),
             "position": (0, 0),
             "font": u.FONTS["base"]["name"],
         	"font_size": u.FONTS["base"]["size"],
         	"color": u.FONTS["base"]["color"],
             "background_color": None,
+            "background_hover": None,
+            "dragable": False,
+            "drag_area": None,
+            "border": None,
         	"text": "Text",
         	"antialias": True,
         	"bold": False,
@@ -86,7 +91,29 @@ class Stylesheet:
             "shadow": None,
             "wrap": None,
             "padding": 0
-        }
+        },
+        "button": {
+            "text": "New Button",
+            "font": u.FONTS["base"]["name"],
+        	"font_size": u.FONTS["base"]["size"],
+        	"color": u.FONTS["base"]["color"],
+            "size": (100, 25),
+            "position": (0, 0),
+            "background_color": (40, 45, 35),
+            "background_hover": (50, 55, 45),
+            "border": True,
+            "border_size": 1,
+            "border_color": (10, 10, 20),
+            "dragable": False,
+            "drag_area": None,
+            "drag_area_background": (45, 45, 55),
+            "bold": False,
+        	"italic": False,
+            "antialias": True,
+            "shadow": None,
+            "wrap": None,
+            "padding": 10
+        },
     }
     def __init__(self, type="none", style={}):
         """
@@ -606,7 +633,7 @@ class GuiMaster(pg.sprite.Sprite):
     def redrawBackground(self):
         """recreates only the background."""
         # drawing if background is not 'none'
-        if self.background:
+        if self.style.background_color:
             self.image.blit(self.background, (0, 0))
     def redrawBorder(self):
         """only recreates border for the sprite.image."""
@@ -742,52 +769,33 @@ class Table(GuiMaster):
         """overwrites parent's 'update()'-method."""
         pass
 class Text(GuiMaster):
-    """
-    resembles a text-object.
-
-    'default'   default-properties for this object.
-    """
-    default = {
-        "font": u.FONTS["base"]["name"],
-    	"font_size": u.FONTS["base"]["size"],
-    	"color": u.FONTS["base"]["color"],
-        "background": None,
-    	"text": "Text",
-    	"antialias": True,
-    	"bold": False,
-    	"italic": False,
-        "shadow": None,
-        "wrap": None,
-        "position": (0, 0),
-        "padding": 0
-    }
+    """resembles a text-object."""
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'           'dict' of building instructions for the table.
         'text_string'   actual text-string (str).
         'font'          'pygame.font'-object to render a text with.
         'wrap'          'none' or 'int'. if int, use this value as width-
                         statement to wrap text-content.
         """
-        self.cfg = u.validateDict(kwargs, self.default)
+        # initialising text-object
+        if not "type" in kwargs: kwargs["type"] = "text"
+        GuiMaster.__init__(self, style=kwargs, **kwargs)
         # initialising and styling font-object
         pg.font.init()
-        self.text_string = self.cfg["text"]
-        self.font = pg.font.SysFont(# pygame.font
-        	self.cfg["font"],
-        	self.cfg["font_size"]
+        self.text_string = self.style.text
+        self.font = pg.font.SysFont(
+        	self.style.font,
+        	self.style.font_size
         )
-        self.font.set_bold(self.cfg["bold"])
-        self.font.set_italic(self.cfg["italic"])
+        self.font.set_bold(self.style.bold)
+        self.font.set_italic(self.style.italic)
         # additional properties
-        self.wrap = self.cfg["wrap"]
-        # initialising text-object and downsizing it to text.rect-size
-        kwargs["background"] = self.cfg["background"]
-        kwargs["size"] = self.text.get_rect().size
-        GuiMaster.__init__(self, **kwargs)
-        #GuiMaster.__init__(self, **self.cfg)
+        self.wrap = self.style.wrap
+        # downsizing element to text.rect-size
+        self.style.size = self.text.get_rect().size
+        self.resize(self.style.size)
         # drawing text to text-surface
         self.image.blit(self.text, (0, 0))
     # dynamic properties
@@ -802,29 +810,29 @@ class Text(GuiMaster):
             text = u.wrapText(
                 font = self.font,
                 text = self.text_string,
-                color = self.cfg["color"],
-                antialias = self.cfg["antialias"],
+                color = self.style.color,
+                antialias = self.style.antialias,
                 size = self.wrap
             )
         else:
             text = self.font.render(
                 self.text_string,
-                self.cfg["antialias"],
-                self.cfg["color"]
+                self.style.antialias,
+                self.style.color
             )
         # creating the former rect for the final surface to return
         rect = text.get_rect()
         # looking for padding to apply as size and position
-        if self.cfg["padding"]:
-            rect.width += 2 * self.cfg["padding"]
-            rect.height += 2 * self.cfg["padding"]
-            rect.left = self.cfg["padding"]
-            rect.top = self.cfg["padding"]
+        if self.style.padding:
+            rect.width += 2 * self.style.padding
+            rect.height += 2 * self.style.padding
+            rect.left = self.style.padding
+            rect.top = self.style.padding
         # this is the final surface we will return at the end
         final_surface = pg.Surface(rect.size, pg.SRCALPHA)
         # render a self-made shadow if user disires so
-        if self.cfg["shadow"]:
-            shadow = self.cfg["shadow"]
+        if self.style.shadow:
+            shadow = self.style.shadow
             color = (0, 0, 0, 255)
             pos = (0, 0)
             # converting passed shadow-arguments
@@ -856,9 +864,10 @@ class Text(GuiMaster):
         if self.hover or self.leave:
             # only redrawing text if there is a background. else it would oddly
             # overdraw the old text
-            self.redraw()
-            if self.background:
-                self.image.blit(self.text, (0, 0))
+            if self.style.background_color:
+                if self.style.background_hover:
+                    self.redrawBackground()
+                    self.image.blit(self.text, (0, 0))
     def update_text(self, text):
         """."""
         self.text_string = text
@@ -872,7 +881,7 @@ class Button(Text):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
-        Text.__init__(self, **kwargs)
+        Text.__init__(self, type="button", **kwargs)
 class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
