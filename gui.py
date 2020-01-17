@@ -176,7 +176,7 @@ class App:
                             'events'-property over and over.
         'resized'           bool to check if the window has been resized.
         """
-        self.stylesheet = Stylesheet(
+        self.style = Stylesheet(
             type = "app",
             style = kwargs
         )
@@ -184,14 +184,14 @@ class App:
         pg.init()
         # creating display surface and drawing background
         self.display = u.getDisplay(
-            self.stylesheet.size,
-            resizable = self.stylesheet.resizable
+            self.style.size,
+            resizable = self.style.resizable
         )
         self.background = self.createBackground()
         self.draw(self.background)
         # changing window- and mouse-cursor apprarance
-        self.changeTitle(self.stylesheet.title)
-        self.changeIcon(self.stylesheet.icon)
+        self.changeTitle(self.style.title)
+        self.changeIcon(self.style.icon)
         self.cursor = self.Cursor()
         # everything in this list will be drawn to the app-screen on their
         # event-updates.
@@ -199,7 +199,7 @@ class App:
         self.draw_list.add(self.cursor)
         # fps settings
         self.clock = pg.time.Clock()
-        self.preffered_fps = self.stylesheet.fps
+        self.preffered_fps = self.style.fps
         self.fps = 0
         # event related
         self._events = []
@@ -269,7 +269,7 @@ class App:
         # make new display surface
         self.display = u.getDisplay(
             size,
-            resizable = self.stylesheet.resizable
+            resizable = self.style.resizable
         )
         # drawing new created background
         self.background = self.createBackground()
@@ -317,16 +317,16 @@ class App:
     def createBackground(self):# pg surface
         """returns a pygame.surface based on background-properties."""
         # prioritizing backgorund-statement
-        if self.stylesheet.background_color:
-            bg = self.stylesheet.background_color
+        if self.style.background_color:
+            bg = self.style.background_color
         else:
-            bg = self.stylesheet.background_image
+            bg = self.style.background_image
         # looking for default-background-statement
         if type(bg) is str:
             # overwriting app's local 'background_repeat'-property if 'bg'
             # is the library's standard background-image.
             if bg == str(u.LIBPATH["windowbg"]):
-                self.stylesheet.background_repeat = "xy"
+                self.style.background_repeat = "xy"
             bg = pg.image.load(bg)
         # filling a newly created surface
         elif type(bg) is tuple:
@@ -335,14 +335,14 @@ class App:
             bg.fill(color)
         # checking for background-repeat
         if type(bg) is pg.Surface:
-            if self.stylesheet.background_repeat:
+            if self.style.background_repeat:
                 # creating surfact with repeated background
                 # 'self.config["background_repeat"]' is the indicator:
                 # ('x', 'y', 'xy')
                 bg = u.repeatBG(
                     bg,
                     self.display.get_rect().size,
-                    self.stylesheet.background_repeat
+                    self.style.background_repeat
                 )
 
         return bg
@@ -385,7 +385,7 @@ class GuiMaster(pg.sprite.Sprite):
         """
         if "type" in kwargs: type = kwargs["type"]
         else: type = "none"
-        self.stylesheet = Stylesheet(
+        self.style = Stylesheet(
             type = type,
             style = kwargs
         )
@@ -398,18 +398,18 @@ class GuiMaster(pg.sprite.Sprite):
         else:
             self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
-        self.background_hover = self.stylesheet.background_hover
+        self.background_hover = self.style.background_hover
         self.rect = pg.Rect(
-            self.stylesheet.position,
-            self.stylesheet.size
+            self.style.position,
+            self.style.size
         )
         # event related stuff
         self.state = "waiting"
-        self.dragable = self.stylesheet.dragable
-        if self.stylesheet.drag_area:
-            self.drag_area = pg.Rect(self.stylesheet.drag_area)
+        self.dragable = self.style.dragable
+        if self.style.drag_area:
+            self.drag_area = pg.Rect(self.style.drag_area)
         else:
-            self.drag_area = self.stylesheet.drag_area
+            self.drag_area = self.style.drag_area
         self.__dragged_at = None
         self.__clicked = False
         self.__hovering = False
@@ -424,11 +424,11 @@ class GuiMaster(pg.sprite.Sprite):
 
         # draws hover-color if element is hovered
         if self.hover:
-            if self.stylesheet.background_hover:
-                background.fill(self.stylesheet.background_hover)
+            if self.style.background_hover:
+                background.fill(self.style.background_hover)
         # else redraw background-color if it's not 'none'
-        elif self.stylesheet.background_color:
-            background.fill(self.stylesheet.background_color)
+        elif self.style.background_color:
+            background.fill(self.style.background_color)
 
         return background
     @property# pg.surface
@@ -436,12 +436,12 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a surface with a blitten border to it if preset by user."""
         border = None
         # drawing border to temprary surface if given
-        if self.stylesheet.border:
+        if self.style.border:
             border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
             u.drawBorder(
                 border_surface,
-                color = self.stylesheet.border_color,
-                size = self.stylesheet.border_size
+                color = self.style.border_color,
+                size = self.style.border_size
             )
             border = border_surface
 
@@ -614,9 +614,9 @@ class GuiMaster(pg.sprite.Sprite):
             self.image.blit(self.border, (0, 0))
     def redrawDragArea(self):
         """only recreates a drag-area if set by user."""
-        if self.stylesheet.drag_area:
-            rect = pg.Rect(self.stylesheet.drag_area)
-            self.image.fill(self.stylesheet.drag_area_background, rect)
+        if self.style.drag_area:
+            rect = pg.Rect(self.style.drag_area)
+            self.image.fill(self.style.drag_area_background, rect)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -648,7 +648,7 @@ class Table(GuiMaster):
                     types.
         """
         GuiMaster.__init__(self, type="table", style=kwargs, **kwargs)
-        self.rows = self.stylesheet.rows
+        self.rows = self.style.rows
         self.image.blit(self.grid["image"], (0, 0))
     # dynamic propeties
     @property# dict
@@ -673,14 +673,14 @@ class Table(GuiMaster):
                 # drawing a border only if one is given by user
                 if self.border: pg.draw.lines(
                     surface,
-                    self.stylesheet.border_color,
+                    self.style.border_color,
                     False,
                     [
                         rect.bottomleft,
                         rect.topleft,
                         rect.topright
                     ],
-                    self.stylesheet.border_size
+                    self.style.border_size
                 )
                 # appending rect to returning-dict
                 rects.append(rect)
@@ -706,7 +706,7 @@ class Table(GuiMaster):
         if it comes as a string, the table automatically creates a text-object
         to draw it on itself.
         """
-        self.stylesheet.rows = rows
+        self.style.rows = rows
         self.rows = rows
         self.redrawVisuals()
     # basic methodes
