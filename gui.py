@@ -114,6 +114,28 @@ class Stylesheet:
             "wrap": None,
             "padding": 10
         },
+        "textfield": {
+            "text": "New Button",
+            "font": u.FONTS["base"]["name"],
+            "font_size": u.FONTS["base"]["size"],
+            "color": u.FONTS["base"]["color"],
+            "size": (175, 30),
+            "position": (0, 0),
+            "background_color": (40, 45, 35),
+            "background_hover": (50, 55, 45),
+            "border": True,
+            "border_size": 1,
+            "border_color": (10, 10, 20),
+            "dragable": False,
+            "drag_area": None,
+            "drag_area_background": (45, 45, 55),
+            "bold": False,
+            "italic": False,
+            "antialias": True,
+            "shadow": None,
+            "wrap": None,
+            "padding": 10
+        }
     }
     def __init__(self, type="none", style={}):
         """
