@@ -781,7 +781,8 @@ class Text(GuiMaster):
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text"
-        GuiMaster.__init__(self, style=kwargs, **kwargs)
+        if not "style" in kwargs: kwargs["style"] = kwargs
+        GuiMaster.__init__(self, **kwargs)
         # initialising and styling font-object
         pg.font.init()
         self.text_string = self.style.text
@@ -861,13 +862,15 @@ class Text(GuiMaster):
         self.image.blit(self.text, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
-        if self.hover or self.leave:
+        if self.hover or self.leave or self.click:
             # only redrawing text if there is a background. else it would oddly
             # overdraw the old text
             if self.style.background_color:
                 if self.style.background_hover:
                     self.redrawBackground()
+                    self.redrawBorder()
                     self.image.blit(self.text, (0, 0))
+
     def update_text(self, text):
         """."""
         self.text_string = text
@@ -881,7 +884,7 @@ class Button(Text):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
-        Text.__init__(self, type="button", **kwargs)
+        Text.__init__(self, type="button", style=kwargs, **kwargs)
 class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
