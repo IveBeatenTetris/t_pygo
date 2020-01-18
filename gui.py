@@ -798,8 +798,6 @@ class Text(GuiMaster):
 
         'text_string'   actual text-string (str).
         'font'          'pygame.font'-object to render a text with.
-        'wrap'          'none' or 'int'. if int, use this value as width-
-                        statement to wrap text-content.
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text"
@@ -814,8 +812,6 @@ class Text(GuiMaster):
         )
         self.font.set_bold(self.style.bold)
         self.font.set_italic(self.style.italic)
-        # additional properties
-        self.wrap = self.style.wrap
         # downsizing element to text.rect-size
         self.style.size = self.text.get_rect().size
         self.resize(self.style.size)
@@ -829,13 +825,13 @@ class Text(GuiMaster):
         blitten text to it.
         """
         # creating text-surface
-        if self.wrap:
+        if self.style.wrap:
             text = u.wrapText(
                 font = self.font,
                 text = self.text_string,
                 color = self.style.color,
                 antialias = self.style.antialias,
-                size = self.wrap
+                size = self.style.wrap
             )
         else:
             text = self.font.render(
@@ -892,9 +888,9 @@ class Text(GuiMaster):
                     self.redrawBackground()
                     self.redrawBorder()
                     self.image.blit(self.text, (0, 0))
-
     def update_text(self, text):
         """."""
+        self.style.text = text
         self.text_string = text
         self.resize(self.text.get_rect().size)
 class Button(Text):
