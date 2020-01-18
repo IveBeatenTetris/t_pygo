@@ -932,24 +932,15 @@ class TextField(GuiMaster):
             self.fill(self.cfg["color"])
             self.rect = pg.Rect(self.cfg["position"], self.get_rect().size)
             self.cooldown = 100
-    default = {
-        "size": (175, 30),
-        "position": (0, 0),
-        "background": (35, 35, 45),
-        "border": True,
-        "border_color": (15, 15, 25)
-    }
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'cfg'           'dict' of building instructions for the table.
         'text_string'   with entered keys combined as a str.
         'cursor'        (class) 'pg.surface' that comes along with some
                         operations for correctly drawing itself to its parent.
         """
-        self.cfg = u.validateDict(kwargs, self.default)
-        GuiMaster.__init__(self, **self.cfg)
+        GuiMaster.__init__(self, type="textfield", style=kwargs, **kwargs)
         self.text_string = ""
         self.cursor = self.TextCursor(
             size=(2, self.rect.height - 10),
@@ -975,6 +966,7 @@ class TextField(GuiMaster):
         """
         # mouse-events
         mbut = pg.mouse.get_pressed()
+
         if self.state == "active":
             # updating blinking-cursors drawing-position
             self.cursor.rect.left = self.text.rect.right
@@ -983,7 +975,8 @@ class TextField(GuiMaster):
                 self.image.blit(self.cursor, self.cursor.rect)
             # redrawing background over cursor if cooldown falls below 50
             elif self.cursor.cooldown < 50:
-                self.image.fill(self.background, self.cursor.rect)
+                self.image.blit(self.background, self.cursor.rect)
+                self.redrawBorder()
             # resetting cooldown or further reducing it
             if self.cursor.cooldown == 0:
                 self.cursor.cooldown = 100
@@ -991,7 +984,8 @@ class TextField(GuiMaster):
                 self.cursor.cooldown -= 1
         # resetting cursor by clicking somewhere else
         elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.image.fill(self.background, self.cursor.rect)
+            self.image.blit(self.background, self.cursor.rect)
+            self.redrawBorder()
     def handleInput(self):
         """
         translates pressed keys and adds their char to 'text_string'. draws the
