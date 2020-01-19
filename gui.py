@@ -48,6 +48,28 @@ class Stylesheet:
             "drag_area": None,
             "drag_area_background": (45, 45, 55)
         },
+        "button": {
+            "text": "New Button",
+            "font": u.FONTS["base"]["name"],
+        	"font_size": u.FONTS["base"]["size"],
+        	"color": u.FONTS["base"]["color"],
+            "size": (100, 25),
+            "position": (0, 0),
+            "background_color": (40, 45, 35),
+            "background_hover": (50, 55, 45),
+            "border": True,
+            "border_size": 1,
+            "border_color": (10, 10, 20),
+            "dragable": False,
+            "drag_area": None,
+            "drag_area_background": (45, 45, 55),
+            "bold": False,
+        	"italic": False,
+            "antialias": True,
+            "shadow": None,
+            "wrap": None,
+            "padding": 10
+        },
         "panel": {
             "size": (150, 200),
         	"position": (0, 0),
@@ -73,6 +95,16 @@ class Stylesheet:
         	"drag_area_background": (70, 70, 80),
             "rows": ()
         },
+        "slider": {
+            "size": (150, 50),
+            "position": (0, 0),
+            "background_color": (50, 50, 60),
+            "background_hover": None,
+            "border": True,
+            "border_color": (0, 0, 0),
+            "border_size": 1,
+        	"dragable": False,
+        },
         "text": {
             "size": (0, 0),
             "position": (0, 0),
@@ -91,28 +123,6 @@ class Stylesheet:
             "shadow": None,
             "wrap": None,
             "padding": 0
-        },
-        "button": {
-            "text": "New Button",
-            "font": u.FONTS["base"]["name"],
-        	"font_size": u.FONTS["base"]["size"],
-        	"color": u.FONTS["base"]["color"],
-            "size": (100, 25),
-            "position": (0, 0),
-            "background_color": (40, 45, 35),
-            "background_hover": (50, 55, 45),
-            "border": True,
-            "border_size": 1,
-            "border_color": (10, 10, 20),
-            "dragable": False,
-            "drag_area": None,
-            "drag_area_background": (45, 45, 55),
-            "bold": False,
-        	"italic": False,
-            "antialias": True,
-            "shadow": None,
-            "wrap": None,
-            "padding": 10
         },
         "textfield": {
             "text": "New Button",
@@ -897,6 +907,20 @@ class Button(Text):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", style=kwargs, **kwargs)
+class Panel(GuiMaster):
+    """a panel-surface to draw information or elements on."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
+class Slider(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
 class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
@@ -1008,10 +1032,3 @@ class TextField(GuiMaster):
         self.handleInput()
         # drawing cursor on activation
         self.handleCursor()
-class Panel(GuiMaster):
-    """a panel-surface to draw information or elements on."""
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
-        """
-        GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
