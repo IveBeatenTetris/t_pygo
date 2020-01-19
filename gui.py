@@ -98,9 +98,9 @@ class Stylesheet:
         "slider": {
             "size": (150, 20),
             "position": (0, 0),
-            "background_color": (50, 50, 60),
+            "background_color": None,
             "background_hover": None,
-            "border": False,
+            "border": True,
             "border_color": (0, 0, 0),
             "border_size": 1,
         	"dragable": False,
@@ -957,7 +957,7 @@ class Slider(GuiMaster):
         GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
         self.handle = self.Handle(
             size = (self.rect.height, self.rect.height),
-            background_color = (40, 50, 60)
+            #background_color = (40, 50, 60)
         )
         self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
         self.image.blit(self.handle.image, self.handle.rect)
@@ -1008,7 +1008,15 @@ class Slider(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.dragged:
-            self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
+            # recreating transparent background if there is no color for it
+            if not self.style.background_color:
+                self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
+            # drawing the slider-track (rail)
+            self.image.blit(self.rail,(0,int(self.rail.get_rect().height/2)))
+            # recreating border if there is one
+            if self.style.border:
+                self.redrawBorder()
+            # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
 class TextField(GuiMaster):
     """
