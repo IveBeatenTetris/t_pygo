@@ -490,12 +490,53 @@ def getFrames(image, framesize):# list
     del(clip, rect)
 
     return frames
-def getMouse():
+def getMouse():# tuple
     """returns pygame.mouse position."""
     return pg.mouse.get_pos()
 def listAttributes(object):
     """pretty-prints all available object-attributes."""
     prettyPrint(object.__dict__.keys())
+def makeText(**kwargs):
+    """returns a pg.surface with the text already blitten to it."""
+    default = {
+        "text": "No Text was passed.",
+        "font": "ebrima",
+        "size": 16,
+        "color": (255, 255, 255),
+        "background": None,
+        "antialias": True,
+        "bold": False,
+        "italic": False,
+        "wrap": None
+    }
+    # validating arguments
+    cfg = validateDict(kwargs, default)
+    # building font-object
+    font = pg.font.SysFont(cfg["font"], cfg["size"])
+    font.set_bold(cfg["bold"])
+    font.set_italic(cfg["italic"])
+    # normal render for none-wrapping content
+    if not cfg["wrap"]:
+        text = font.render(
+            cfg["text"],
+            cfg["antialias"],
+            cfg["color"]
+        )
+    # wrapping text
+    else:
+        text = wrapText(
+            font = font,
+            text = cfg["text"],
+            size = cfg["wrap"],
+            color = cfg["color"],
+            antialias = cfg["antialias"]
+        )
+    # drawing background if one is given
+    surface = pg.Surface((text.get_rect().size), pg.SRCALPHA)
+    if cfg["background"]: surface.fill(cfg["background"])
+    surface.blit(text, (0, 0))
+
+    return surface
 def repeatBG(image, size, axis="xy", pos=(0, 0)):# pg.surface
     """
     returns a pygame surface where the given image will be drawn repeatedly.
@@ -539,7 +580,7 @@ def scale(surface, factor):# pg.surface
         size = factor
 
     return pg.transform.scale(surface, size)
-def wrapText(**kwargs):# pygame.surface
+def wrapText(**kwargs):# pg.surface
     """returns a pygame surface. drew this function from the official pygame wiki.
         modified it a little bit.
 
