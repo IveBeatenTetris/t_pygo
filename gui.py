@@ -1021,14 +1021,18 @@ class Slider(GuiMaster):
             for evt in globals()["app"]._events:
                 if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
                     self.handle.dragged = True
-                if evt.type is pg.MOUSEBUTTONUP:
+                elif evt.type is pg.MOUSEBUTTONUP:
                     self.handle.dragged = False
         # updating handle-position on drag
         if self.handle.dragged:
-            self.handle.rect.topleft = (
-                self.handle.rect.left + mrel[0],
-                self.handle.rect.top
-                )
+            # restricting drag-left and right
+            if self.handle.rect.left + mrel[0] < 0:
+                self.handle.rect.left = 0
+            elif self.handle.rect.right + mrel[0] > self.rect.width:
+                self.handle.rect.right = self.rect.width
+            # updating handle-position if not to small or to big
+            else:
+                self.handle.rect.left += mrel[0]
 
         return self.handle.dragged
     # basic methodes
