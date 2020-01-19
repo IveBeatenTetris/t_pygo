@@ -136,7 +136,7 @@ class Stylesheet:
             "wrap": None,
             "padding": 0
         },
-        "textfield": {
+        "text_field": {
             "text": "New Textfield",
             "font": u.FONTS["base"]["name"],
             "font_size": u.FONTS["base"]["size"],
@@ -157,6 +157,11 @@ class Stylesheet:
             "shadow": None,
             "wrap": None,
             "padding": 10
+        },
+        "text_cursor": {
+            "size": (1, 30),
+            "position": (2, 0),
+            "color": (100, 100, 150)
         }
     }
     def __init__(self, type="none", style={}):
@@ -955,16 +960,7 @@ class Slider(GuiMaster):
     becomes the value of this element.
     """
     class Rail(pg.sprite.Sprite):
-        """
-        resembling the moving-tracks of a slider-element.
-
-        'defaults'      default building-instructions in a 'dict'.
-        """
-        defaults = {
-            "size": (20, 20),
-            "position": (0, 0),
-            "background_color": (25, 25, 35)
-        }
+        """resembling the moving-tracks of a slider-element."""
         def __init__(self, **kwargs):
             """
             'stylesheet'        the validated 'dict' to draw building-
@@ -983,16 +979,7 @@ class Slider(GuiMaster):
             self.image = pg.Surface(self.style.size)
             self.image.fill(self.style.background_color)
     class Handle(pg.sprite.Sprite):
-        """
-        resembling a dragable handle for a slider-element.
-
-        'defaults'      default building-instructions in a 'dict'.
-        """
-        defaults = {
-            "size": (20, 20),
-            "position": (0, 0),
-            "background_color": (50, 50, 60)
-        }
+        """resembling a dragable handle for a slider-element."""
         def __init__(self, **kwargs):
             """
             'stylesheet'        the validated 'dict' to draw building-
@@ -1079,27 +1066,24 @@ class Slider(GuiMaster):
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     class TextCursor(pg.Surface):
-        """
-        blinking text-cursor for text-field.
-
-        'default'   default-properties for this object.
-        """
-        default = {
-            "size": (1, 30),
-            "position": (2, 0),
-            "color": (100, 100, 100)
-        }
+        """blinking text-cursor for text-field."""
         def __init__(self, **kwargs):
             """
-            'cfg'           validated dict with building-instructions.
+            'stylesheet'        the validated 'dict' to draw building-
+                                instructions from. evaluation between passed
+                                keyword-args and a dict of predefined
+                                attributes.
             'rect'          (pg.rect) cursor dimensions.
             'cooldown'      int to decrease on update for drawing a blinking
                             cursor to the text-field-element.
             """
-            self.cfg = u.validateDict(kwargs, self.default)
-            pg.Surface.__init__(self, self.cfg["size"])
-            self.fill(self.cfg["color"])
-            self.rect = pg.Rect(self.cfg["position"], self.get_rect().size)
+            self.style = Stylesheet(
+                type = "text_cursor",
+                style = kwargs
+            )
+            pg.Surface.__init__(self, self.style.size)
+            self.fill(self.style.color)
+            self.rect = pg.Rect(self.style.position, self.get_rect().size)
             self.cooldown = 100
     def __init__(self, **kwargs):
         """
@@ -1109,7 +1093,7 @@ class TextField(GuiMaster):
         'cursor'        (class) 'pg.surface' that comes along with some
                         operations for correctly drawing itself to its parent.
         """
-        GuiMaster.__init__(self, type="textfield", style=kwargs, **kwargs)
+        GuiMaster.__init__(self, type="text_field", style=kwargs, **kwargs)
         self.text_string = ""
         self.cursor = self.TextCursor(
             size = (2, self.rect.height - 10),
@@ -1168,10 +1152,10 @@ class TextField(GuiMaster):
                 if evt.type is pg.KEYDOWN:
                     # translating key to unicode
                     char = pg.key.name(evt.key)
-                    # special operations if key is longer than a single char/letter
-                    # adding an empty space to string
+                    # special operations if key is longer than a single char or
+                    # letter. adding an empty space to string
                     if evt.key is pg.K_SPACE:
-                            char = " "
+                        char = " "
                     # removing last entered char from string
                     elif evt.key is pg.K_BACKSPACE:
                         self.text_string = self.text_string[:-1]
