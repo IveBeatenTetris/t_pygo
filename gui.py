@@ -610,6 +610,24 @@ class GuiMaster(pg.sprite.Sprite):
             leaving = True
 
             return leaving
+    @property
+    def mouse_events(self):
+        """
+        returns a tuple of 3 tuples containing clicked mouse-button, mouse-
+        position and mouse-movement.
+        """
+        # somehow pg.mouse.get_rel() doesn't work here, so we have to get rels
+        # from the app
+        mrel = (0, 0)
+        for evt in globals()["app"]._events:
+            if evt.type == pg.MOUSEMOTION:
+                mrel = evt.rel
+
+        return (
+            pg.mouse.get_pressed(),
+            pg.mouse.get_pos(),
+            mrel
+        )
     # internal methodes
     def checkCursor(self, default="normal", hover="pointer"):
         """
