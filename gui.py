@@ -106,6 +106,16 @@ class Stylesheet:
         	"dragable": False,
             "drag_area": None
         },
+        "slider_rail": {
+            "size": (20, 20),
+            "position": (0, 0),
+            "background_color": (25, 25, 35)
+        },
+        "slider_handle": {
+            "size": (20, 20),
+            "position": (0, 0),
+            "background_color": (50, 50, 60)
+        },
         "text": {
             "size": (0, 0),
             "position": (0, 0),
@@ -933,31 +943,10 @@ class Panel(GuiMaster):
         """
         GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
 class Slider(GuiMaster):
-    """."""
-    class Handle(pg.sprite.Sprite):
-        """
-        resembling a dragable handle for a slider-element.
-
-        'defaults'      default building-instructions in a 'dict'.
-        """
-        defaults = {
-            "size": (20, 20),
-            "position": (0, 0),
-            "background_color": (50, 50, 60)
-        }
-        def __init__(self, **kwargs):
-            """
-            'cfg'       validated building-instructions in a 'dict'.
-            'rect'      element's dimensions.
-            'image'     'pg.surface' of this element to draw on.
-            'dragged'   'bool' - 'true' if handle is dragged around.
-            """
-            pg.sprite.Sprite.__init__(self)
-            cfg = u.validateDict(kwargs, self.defaults)
-            self.rect = pg.Rect(cfg["position"], cfg["size"])
-            self.image = pg.Surface(cfg["size"])
-            self.image.fill(cfg["background_color"])
-            self.dragged = False
+    """
+    slider-element with a handle to drag around. the position of the handle
+    becomes the value of this element.
+    """
     class Rail(pg.sprite.Sprite):
         """
         resembling the moving-tracks of a slider-element.
@@ -971,15 +960,51 @@ class Slider(GuiMaster):
         }
         def __init__(self, **kwargs):
             """
-            'cfg'       validated building-instructions in a 'dict'.
-            'rect'      element's dimensions.
-            'image'     'pg.surface' of this element to draw on.
+            'stylesheet'        the validated 'dict' to draw building-
+                                instructions from. evaluation between passed
+                                keyword-args and a dict of predefined
+                                attributes.
+            'rect'              element's dimensions.
+            'image'             'pg.surface' of this element to draw on.
             """
             pg.sprite.Sprite.__init__(self)
-            cfg = u.validateDict(kwargs, self.defaults)
-            self.rect = pg.Rect(cfg["position"], cfg["size"])
-            self.image = pg.Surface(cfg["size"])
-            self.image.fill(cfg["background_color"])
+            self.style = Stylesheet(
+                type = "slider_rail",
+                style = kwargs
+            )
+            self.rect = pg.Rect(self.style.position, self.style.size)
+            self.image = pg.Surface(self.style.size)
+            self.image.fill(self.style.background_color)
+    class Handle(pg.sprite.Sprite):
+        """
+        resembling a dragable handle for a slider-element.
+
+        'defaults'      default building-instructions in a 'dict'.
+        """
+        defaults = {
+            "size": (20, 20),
+            "position": (0, 0),
+            "background_color": (50, 50, 60)
+        }
+        def __init__(self, **kwargs):
+            """
+            'stylesheet'        the validated 'dict' to draw building-
+                                instructions from. evaluation between passed
+                                keyword-args and a dict of predefined
+                                attributes.
+            'rect'      element's dimensions.
+            'image'     'pg.surface' of this element to draw on.
+            'dragged'   'bool' - 'true' if handle is dragged around.
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.style = Stylesheet(
+                type = "slider_handle",
+                style = kwargs
+            )
+            self.rect = pg.Rect(self.style.position, self.style.size)
+            self.image = pg.Surface(self.style.size)
+            self.image.fill(self.style.background_color)
+            self.dragged = False
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
