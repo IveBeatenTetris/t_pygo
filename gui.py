@@ -293,6 +293,7 @@ class App:
                 self.resize(evt.size)
             elif evt.type is pg.ACTIVEEVENT and self.resized:
                 self.resized = False
+
         return events
     @property# pg.rect
     def rect(self):
@@ -513,7 +514,7 @@ class GuiMaster(pg.sprite.Sprite):
         returns the mouse-button the element has just been clicked with.
         otherwise returns 'none'.
         """
-        mbut = pg.mouse.get_pressed()
+        mbut = self.mouse_events[0]
         buttons = []
 
         # adding marking for used button on hover
@@ -535,8 +536,7 @@ class GuiMaster(pg.sprite.Sprite):
         """
         if self.dragable:
             # mouse events
-            mpos = pg.mouse.get_pos()
-            mbut = pg.mouse.get_pressed()
+            mbut, mpos, _ = self.mouse_events
             # using 'drag_area' as rect for collisions if available
             if self.drag_area:
                 rect = pg.Rect(
@@ -587,8 +587,7 @@ class GuiMaster(pg.sprite.Sprite):
         returns 'true' if the mouse-cursor floats over the element's rect. also
         sets 'self.__hovering' to 'true' so we can check for several mouse events.
         """
-        mpos = pg.mouse.get_pos()
-        mbut = pg.mouse.get_pressed()
+        mbut, mpos, _ = self.mouse_events
         hover = False
         # mark as hovered
         if self.rect.collidepoint(mpos):
@@ -1104,7 +1103,7 @@ class TextField(GuiMaster):
         cursor on 'active' and clears it again on 'waiting'.
         """
         # mouse-events
-        mbut = pg.mouse.get_pressed()
+        mbut = self.mouse_events[0]
 
         if self.state == "active":
             # updating blinking-cursors drawing-position
