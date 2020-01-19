@@ -825,20 +825,14 @@ class Text(GuiMaster):
         blitten text to it.
         """
         # creating text-surface
-        if self.style.wrap:
-            text = u.wrapText(
-                font = self.font,
-                text = self.text_string,
-                color = self.style.color,
-                antialias = self.style.antialias,
-                size = self.style.wrap
-            )
-        else:
-            text = self.font.render(
-                self.text_string,
-                self.style.antialias,
-                self.style.color
-            )
+        text = u.makeText(
+            font = self.style.font,
+            text = self.style.text,
+            size = self.style.font_size,
+            color = self.style.color,
+            antialias = self.style.antialias,
+            wrap = self.style.wrap
+        )
         # creating the former rect for the final surface to return
         rect = text.get_rect()
         # looking for padding to apply as size and position
