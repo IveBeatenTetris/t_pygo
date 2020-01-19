@@ -137,7 +137,7 @@ class Stylesheet:
             "padding": 0
         },
         "textfield": {
-            "text": "New Button",
+            "text": "New Textfield",
             "font": u.FONTS["base"]["name"],
             "font_size": u.FONTS["base"]["size"],
             "color": u.FONTS["base"]["color"],
@@ -1077,13 +1077,13 @@ class Slider(GuiMaster):
             # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
 class TextField(GuiMaster):
-    """
-    resembles a text-field-element for typing in some text.
-
-    'default'   default-properties for this object.
-    """
+    """resembles a text-field-element for typing in some text."""
     class TextCursor(pg.Surface):
-        """blinking text-cursor for text-field."""
+        """
+        blinking text-cursor for text-field.
+
+        'default'   default-properties for this object.
+        """
         default = {
             "size": (1, 30),
             "position": (2, 0),
@@ -1112,8 +1112,8 @@ class TextField(GuiMaster):
         GuiMaster.__init__(self, type="textfield", style=kwargs, **kwargs)
         self.text_string = ""
         self.cursor = self.TextCursor(
-            size=(2, self.rect.height - 10),
-            position=(5, 5)
+            size = (2, self.rect.height - 10),
+            position = (5, 5)
         )
     # dynamic properties
     @property# text-object
@@ -1155,6 +1155,9 @@ class TextField(GuiMaster):
         elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
             self.redrawBackground()
             self.redrawBorder()
+            # redrawing text if there is one typed in
+            if len(self.text_string) >= 1:
+                self.image.blit(self.text.image, self.text.rect)
     def handleInput(self):
         """
         translates pressed keys and adds their char to 'text_string'. draws the
