@@ -707,7 +707,7 @@ class GuiMaster(pg.sprite.Sprite):
     def update(self):
         """runs with every game-loop."""
         # mouse-events
-        mrel = pg.mouse.get_rel()
+        mrel = self.mouse_events[2]
         # default-redraw is turned off at start
         redraw = False
         # invoking drag-operation
@@ -935,14 +935,32 @@ class Panel(GuiMaster):
         GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
 class Slider(GuiMaster):
     """."""
+    class Handle(pg.sprite.Sprite):
+        """."""
+        defaults = {
+            "size": (20, 20),
+            "position": (0, 0),
+            "background_color": (0, 0, 0)
+        }
+        def __init__(self, **kwargs):
+            """."""
+            cfg = u.validateDict(kwargs, self.defaults)
+            pg.sprite.Sprite.__init__(self)
+            self.rect = pg.Rect(cfg["position"], cfg["size"])
+            self.image = pg.Surface(cfg["size"])
+            self.image.fill(cfg["background_color"])
+            self.dragged = False
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
         GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
-        self.handle_pos = (0, 0)
+        self.handle = self.Handle(
+            size = (self.rect.height, self.rect.height),
+            background_color = (40, 50, 60)
+        )
         self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
-        self.image.blit(self.handle, self.handle_pos)
+        self.image.blit(self.handle.image, self.handle.rect)
     # dynamic attributes
     @property
     def dragged(self):
@@ -953,31 +971,26 @@ class Slider(GuiMaster):
         # absolute position of the handle
         handle = pg.Rect(
             (
-                self.handle_pos[0] + self.style.position[0],
-                self.handle_pos[1] + self.style.position[1],
+                self.handle.rect.left + self.style.position[0],
+                self.handle.rect.top + self.style.position[1],
             ),
-            self.handle.get_rect().size
+            self.handle.rect.size
         )
         # checking for drag
-        if handle.collidepoint(mpos) and mbut[0]:
-            dragged = True
+        if handle.collidepoint(mpos):
+            for evt in globals()["app"]._events:
+                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
+                    self.handle.dragged = True
+                if evt.type is pg.MOUSEBUTTONUP:
+                    self.handle.dragged = False
         # updating handle-position on drag
-        if dragged:
-            self.handle_pos = (
-                self.handle_pos[0] + mrel[0],
-                self.handle_pos[1]
+        if self.handle.dragged:
+            self.handle.rect.topleft = (
+                self.handle.rect.left + mrel[0],
+                self.handle.rect.top
                 )
 
-        return dragged
-    @property
-    def handle(self):
-        """
-        returns a pg.surface that represents a handle to drag with the mouse.
-        """
-        surface = pg.Surface((self.rect.height, self.rect.height), pg.SRCALPHA)
-        surface.fill((0, 0, 0))
-
-        return surface
+        return self.handle.dragged
     @property
     def rail(self):
         """resembles the track of the slider-handle."""
@@ -996,7 +1009,7 @@ class Slider(GuiMaster):
         """overwrites parent's 'update()'-method."""
         if self.dragged:
             self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
-            self.image.blit(self.handle, self.handle_pos)
+            self.image.blit(self.handle.image, self.handle.rect)
 class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
