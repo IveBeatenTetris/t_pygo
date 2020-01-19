@@ -1007,7 +1007,6 @@ class Slider(GuiMaster):
         """returns 'true' if the handle is dragged around."""
         # assignments
         mbut, mpos, mrel = self.mouse_events
-        dragged = False
         # absolute position of the handle
         handle = pg.Rect(
             (
@@ -1017,19 +1016,17 @@ class Slider(GuiMaster):
             self.handle.rect.size
         )
         # checking for drag
-        if handle.collidepoint(mpos):
-            for evt in globals()["app"]._events:
-                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
-                    self.handle.dragged = True
-                elif evt.type is pg.MOUSEBUTTONUP:
-                    self.handle.dragged = False
+        if handle.collidepoint(mpos) and mbut[0]:
+            self.handle.dragged = True
+        elif self.handle.dragged and not mbut[0]:
+            self.handle.dragged = False
         # updating handle-position on drag
         if self.handle.dragged:
             # restricting drag-left and right
             if self.handle.rect.left + mrel[0] < 0:
                 self.handle.rect.left = 0
-            elif self.handle.rect.right + mrel[0] > self.rect.width:
-                self.handle.rect.right = self.rect.width
+            elif self.handle.rect.right + mrel[0] > self.rail.rect.width:
+                self.handle.rect.right = self.rail.rect.width
             # updating handle-position if not to small or to big
             else:
                 self.handle.rect.left += mrel[0]
