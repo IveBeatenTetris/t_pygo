@@ -96,14 +96,15 @@ class Stylesheet:
             "rows": ()
         },
         "slider": {
-            "size": (150, 50),
+            "size": (150, 20),
             "position": (0, 0),
             "background_color": (50, 50, 60),
             "background_hover": None,
-            "border": True,
+            "border": False,
             "border_color": (0, 0, 0),
             "border_size": 1,
         	"dragable": False,
+            "drag_area": None
         },
         "text": {
             "size": (0, 0),
@@ -183,11 +184,11 @@ class App:
                                 'normal',
                                 'text'
             """
+            pg.sprite.Sprite.__init__(self)
             if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
             self.full_image = pg.image.load(image_path)
             self.state = "normal"
             pg.mouse.set_visible(False)
-            pg.sprite.Sprite.__init__(self)
         # dynamic properties
         @property
         def image(self):
@@ -218,11 +219,11 @@ class App:
         'background'        used to draw to fill the surface with. might be
                             'str', 'tuple' or 'pg.surface'. if 'str', use it as
                             an image-path and load a pygame.image-surface.
-        'draw_list'         an extended sprite-group for sprites that have to
-                            always be blitten on top of the visuals.
-        'mouse_cursor'      sprite to use instead of the original one. when
+        'cursor'            sprite to use instead of the original one. when
                             cursor-object gets initialized, it renders the
                             native pygame-cursor invisible.
+        'draw_list'         an extended sprite-group for sprites that have to
+                            always be blitten on top of the visuals.
         'clock'             pygame.clock for tracking 'fps'.
         'preffered_fps'     user-defined maximal frames per second.
         'fps'               the actual FPS. it's gonna be updated by the
@@ -939,6 +940,63 @@ class Slider(GuiMaster):
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
         GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
+        self.handle_pos = (0, 0)
+        self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
+        self.image.blit(self.handle, self.handle_pos)
+    # dynamic attributes
+    @property
+    def dragged(self):
+        """returns 'true' if the handle is dragged around."""
+        # assignments
+        mbut, mpos, mrel = self.mouse_events
+        dragged = False
+        # absolute position of the handle
+        handle = pg.Rect(
+            (
+                self.handle_pos[0] + self.style.position[0],
+                self.handle_pos[1] + self.style.position[1],
+            ),
+            self.handle.get_rect().size
+        )
+        # checking for drag
+        if handle.collidepoint(mpos) and mbut[0]:
+            dragged = True
+        # updating handle-position on drag
+        if dragged:
+            self.handle_pos = (
+                self.handle_pos[0] + mrel[0],
+                self.handle_pos[1]
+                )
+
+        return dragged
+    @property
+    def handle(self):
+        """
+        returns a pg.surface that represents a handle to drag with the mouse.
+        """
+        surface = pg.Surface((self.rect.height, self.rect.height), pg.SRCALPHA)
+        surface.fill((0, 0, 0))
+
+        return surface
+    @property
+    def rail(self):
+        """resembles the track of the slider-handle."""
+        surface = pg.Surface(
+            (
+                self.rect.width,
+                int(self.rect.height / 2)
+            ),
+            pg.SRCALPHA
+        )
+        surface.fill((200, 200, 200))
+
+        return surface
+    # basic methodes
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        if self.dragged:
+            self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
+            self.image.blit(self.handle, self.handle_pos)
 class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
