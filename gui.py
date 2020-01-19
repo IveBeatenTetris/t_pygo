@@ -477,7 +477,7 @@ class GuiMaster(pg.sprite.Sprite):
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
     # dynamic properties
-    @property
+    @property# pg.surface
     def background(self):
         """returns a ready to draw background-surface."""
         background = pg.Surface(self.rect.size, pg.SRCALPHA)
@@ -611,7 +611,7 @@ class GuiMaster(pg.sprite.Sprite):
             leaving = True
 
             return leaving
-    @property
+    @property# tuple
     def mouse_events(self):
         """
         returns a tuple of 3 tuples containing clicked mouse-button, mouse-
@@ -936,33 +936,74 @@ class Panel(GuiMaster):
 class Slider(GuiMaster):
     """."""
     class Handle(pg.sprite.Sprite):
-        """."""
+        """
+        resembling a dragable handle for a slider-element.
+
+        'defaults'      default building-instructions in a 'dict'.
+        """
         defaults = {
             "size": (20, 20),
             "position": (0, 0),
             "background_color": (0, 0, 0)
         }
         def __init__(self, **kwargs):
-            """."""
-            cfg = u.validateDict(kwargs, self.defaults)
+            """
+            'cfg'       validated building-instructions in a 'dict'.
+            'rect'      element's dimensions.
+            'image'     'pg.surface' of this element to draw on.
+            'dragged'   'bool' - 'true' if handle is dragged around.
+            """
             pg.sprite.Sprite.__init__(self)
+            cfg = u.validateDict(kwargs, self.defaults)
             self.rect = pg.Rect(cfg["position"], cfg["size"])
             self.image = pg.Surface(cfg["size"])
             self.image.fill(cfg["background_color"])
             self.dragged = False
+    class Rail(pg.sprite.Sprite):
+        """
+        resembling the moving-tracks of a slider-element.
+
+        'defaults'      default building-instructions in a 'dict'.
+        """
+        defaults = {
+            "size": (20, 20),
+            "position": (0, 0),
+            "background_color": (10, 20, 10)
+        }
+        def __init__(self, **kwargs):
+            """
+            'cfg'       validated building-instructions in a 'dict'.
+            'rect'      element's dimensions.
+            'image'     'pg.surface' of this element to draw on.
+            """
+            pg.sprite.Sprite.__init__(self)
+            cfg = u.validateDict(kwargs, self.defaults)
+            self.rect = pg.Rect(cfg["position"], cfg["size"])
+            self.image = pg.Surface(cfg["size"])
+            self.image.fill(cfg["background_color"])
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'rail'      (sprite) this subelement is the track of the slider to move
+                    the handle along.
+        'handle'    (sprite) dragable handle-subelement of this class.
         """
         GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
+        # creating sub-elements ('rail' and 'handle')
+        self.rail = self.Rail(
+            size = (self.rect.width, int(self.rect.height / 2)),
+            background_color = (200, 200, 200)
+        )
         self.handle = self.Handle(
             size = (self.rect.height, self.rect.height),
             #background_color = (40, 50, 60)
         )
-        self.image.blit(self.rail, (0, int(self.rail.get_rect().height / 2)))
+        # drawing track and handle
+        self.image.blit(self.rail.image, (0, int(self.rail.rect.height / 2)))
         self.image.blit(self.handle.image, self.handle.rect)
     # dynamic attributes
-    @property
+    @property# bool
     def dragged(self):
         """returns 'true' if the handle is dragged around."""
         # assignments
@@ -991,19 +1032,6 @@ class Slider(GuiMaster):
                 )
 
         return self.handle.dragged
-    @property
-    def rail(self):
-        """resembles the track of the slider-handle."""
-        surface = pg.Surface(
-            (
-                self.rect.width,
-                int(self.rect.height / 2)
-            ),
-            pg.SRCALPHA
-        )
-        surface.fill((200, 200, 200))
-
-        return surface
     # basic methodes
     def update(self):
         """overwrites parent's 'update()'-method."""
@@ -1012,7 +1040,7 @@ class Slider(GuiMaster):
             if not self.style.background_color:
                 self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
             # drawing the slider-track (rail)
-            self.image.blit(self.rail,(0,int(self.rail.get_rect().height/2)))
+            self.image.blit(self.rail.image,(0,int(self.rail.rect.height/2)))
             # recreating border if there is one
             if self.style.border:
                 self.redrawBorder()
