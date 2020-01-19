@@ -1123,7 +1123,7 @@ class TextField(GuiMaster):
                 self.cursor.cooldown -= 1
         # resetting cursor by clicking somewhere else
         elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.image.blit(self.background, self.cursor.rect)
+            self.redrawBackground()
             self.redrawBorder()
     def handleInput(self):
         """
