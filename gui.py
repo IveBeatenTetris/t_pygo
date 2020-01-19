@@ -55,8 +55,8 @@ class Stylesheet:
         	"color": u.FONTS["base"]["color"],
             "size": (100, 25),
             "position": (0, 0),
-            "background_color": (40, 45, 35),
-            "background_hover": (50, 55, 45),
+            "background_color": (30, 30, 40),
+            "background_hover": (40, 40, 50),
             "border": True,
             "border_size": 1,
             "border_color": (10, 10, 20),
@@ -88,11 +88,12 @@ class Stylesheet:
             "background_color": (50, 50, 60),
             "background_hover": None,
             "border": True,
-            "border_color": (0, 0, 0),
+            "border_color": (10, 10, 20),
             "border_size": 1,
         	"dragable": False,
         	"drag_area": None,
         	"drag_area_background": (70, 70, 80),
+            "text_size": 12,
             "rows": ()
         },
         "slider": {
@@ -142,8 +143,8 @@ class Stylesheet:
             "color": u.FONTS["base"]["color"],
             "size": (175, 30),
             "position": (0, 0),
-            "background_color": (40, 45, 35),
-            "background_hover": (50, 55, 45),
+            "background_color": (50, 50, 60),
+            "background_hover": (60, 60, 70),
             "border": True,
             "border_size": 1,
             "border_color": (10, 10, 20),
@@ -807,7 +808,13 @@ class Table(GuiMaster):
                 elem = elements[r][c]
                 # drawing depends on element-type
                 if type(elem) is str:
-                    image.blit(Text(text = elem).image, rect_list[i])
+                    image.blit(
+                        Text(
+                            text = elem,
+                            font_size = self.style.text_size
+                        ).image,
+                        rect_list[i]
+                    )
                 else:
                     image.blit(elem.image, rect_list[i])
 
