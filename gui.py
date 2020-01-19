@@ -100,7 +100,7 @@ class Stylesheet:
             "position": (0, 0),
             "background_color": None,
             "background_hover": None,
-            "border": True,
+            "border": False,
             "border_color": (0, 0, 0),
             "border_size": 1,
         	"dragable": False,
@@ -943,7 +943,7 @@ class Slider(GuiMaster):
         defaults = {
             "size": (20, 20),
             "position": (0, 0),
-            "background_color": (0, 0, 0)
+            "background_color": (50, 50, 60)
         }
         def __init__(self, **kwargs):
             """
@@ -967,7 +967,7 @@ class Slider(GuiMaster):
         defaults = {
             "size": (20, 20),
             "position": (0, 0),
-            "background_color": (10, 20, 10)
+            "background_color": (25, 25, 35)
         }
         def __init__(self, **kwargs):
             """
@@ -991,12 +991,10 @@ class Slider(GuiMaster):
         GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
         # creating sub-elements ('rail' and 'handle')
         self.rail = self.Rail(
-            size = (self.rect.width, int(self.rect.height / 2)),
-            background_color = (200, 200, 200)
+            size = (self.rect.width, int(self.rect.height / 2))
         )
         self.handle = self.Handle(
-            size = (self.rect.height, self.rect.height),
-            #background_color = (40, 50, 60)
+            size = (self.rect.height, self.rect.height)
         )
         # drawing track and handle
         self.image.blit(self.rail.image, (0, int(self.rail.rect.height / 2)))
