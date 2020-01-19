@@ -117,6 +117,17 @@ class Stylesheet:
             "position": (0, 0),
             "background_color": (50, 50, 60)
         },
+        "slot": {
+            "size": (60, 30),
+            "position": (0, 0),
+            "background_color": None,
+            "background_hover": None,
+            "border": True,
+            "border_color": (0, 0, 0),
+            "border_size": 1,
+            "dragable": False,
+            "drag_area": None,
+        },
         "text": {
             "size": (0, 0),
             "position": (0, 0),
@@ -1063,6 +1074,11 @@ class Slider(GuiMaster):
                 self.redrawBorder()
             # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
+class Slot(GuiMaster):
+    """this is an advanced textinput with 'up'- and 'down' buttons."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="slot", style=kwargs, **kwargs)
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     class TextCursor(pg.Surface):
