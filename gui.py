@@ -732,6 +732,7 @@ class GuiMaster(pg.sprite.Sprite):
         resizes the surface and updates its dimensions. as well as redrawing
         the background if there is one.
         """
+        self.style.size = size
         self.rect.size = size
         self.image = pg.Surface(size, pg.SRCALPHA)
         # redrawing backgrounds and stuff
