@@ -1084,7 +1084,7 @@ class Slider(GuiMaster):
             self.image.blit(self.handle.image, self.handle.rect)
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
-    class TextCursor(pg.Surface):
+    class TextCursor(pg.sprite.Sprite):
         """blinking text-cursor for text-field."""
         def __init__(self, **kwargs):
             """
@@ -1092,17 +1092,19 @@ class TextField(GuiMaster):
                                 instructions from. evaluation between passed
                                 keyword-args and a dict of predefined
                                 attributes.
-            'rect'          (pg.rect) cursor dimensions.
-            'cooldown'      int to decrease on update for drawing a blinking
-                            cursor to the text-field-element.
+            'rect'              (pg.rect) cursor dimensions.
+            'image'             image-surface of this sprite.
+            'cooldown'          int to decrease on update for drawing a
+                                blinking cursor to the text-field-element.
             """
+            pg.sprite.Sprite.__init__(self)
             self.style = Stylesheet(
                 type = "text_cursor",
                 style = kwargs
             )
-            pg.Surface.__init__(self, self.style.size)
-            self.fill(self.style.color)
-            self.rect = pg.Rect(self.style.position, self.get_rect().size)
+            self.rect = pg.Rect(self.style.position, self.style.size)
+            self.image = pg.Surface(self.rect.size)
+            self.image.fill(self.style.color)
             self.cooldown = 100
     def __init__(self, **kwargs):
         """
@@ -1147,7 +1149,7 @@ class TextField(GuiMaster):
             self.cursor.rect.left = self.text.rect.right
             # drawing cursor if cooldown over 50
             if self.cursor.cooldown >= 50:
-                self.image.blit(self.cursor, self.cursor.rect)
+                self.image.blit(self.cursor.image, self.cursor.rect)
             # redrawing background over cursor if cooldown falls below 50
             elif self.cursor.cooldown < 50:
                 self.image.blit(self.background, self.cursor.rect)
