@@ -128,6 +128,10 @@ class Stylesheet:
             "dragable": False,
             "drag_area": None
         },
+        "slot_arrow": {
+            "background_color": (30, 30, 40),
+            "background_hover": (40, 40, 50),
+        },
         "text": {
             "size": (0, 0),
             "position": (0, 0),
@@ -1223,10 +1227,10 @@ class Slot(TextField):
             pg.SRCALPHA
         )
         triangle_down_rect = triangle_down.get_rect()
-        margin = 3
+        margin = 4
         pg.draw.polygon(
             triangle_up,
-            (20, 20, 30),
+            (70, 70, 80),
             [
                 (margin, triangle_up_rect.height - margin),
                 (triangle_up_rect.width - margin, triangle_up_rect.height - margin),
@@ -1236,7 +1240,7 @@ class Slot(TextField):
         )
         pg.draw.polygon(
             triangle_down,
-            (20, 20, 30),
+            (70, 70, 80),
             [
                 (margin, margin),
                 (triangle_down_rect.width - margin, margin),
@@ -1249,19 +1253,19 @@ class Slot(TextField):
             Button(
                 size = triangle_up.get_rect().size,
                 text = triangle_up,
-                background_color = (50, 70, 30),
+                #background_color = (50, 70, 30),
                 padding = 0
             ),
             Button(
                 size = triangle_down.get_rect().size,
                 text = triangle_down,
-                background_color = (50, 70, 30),
+                #background_color = (50, 70, 30),
                 padding = 0
             )
         )
         self.resize((
             self.style.size[0] + arrows[0].rect.width,
-            self.rect.height
+            self.rect.height - 1
         ))
         self.image.blit(
             arrows[0].image,
@@ -1274,7 +1278,7 @@ class Slot(TextField):
             arrows[1].image,
             (
                 self.rect.width - arrows[1].rect.width,
-                arrows[1].rect.height
+                arrows[1].rect.height - 1
             )
         )
     def update(self):
