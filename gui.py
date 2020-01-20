@@ -1249,7 +1249,8 @@ class Slot(TextField):
         uses 'TextField' as its parent with additional methodes and attributes.
         """
         TextField.__init__(self, type="slot", style=kwargs, **kwargs)
-        arrows = [
+        # creating a list of 2 arrow-buttons
+        self.arrows = [
             self.Arrow(
                 size = (
                     int(self.style.size[1] / 2),
