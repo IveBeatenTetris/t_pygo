@@ -890,14 +890,17 @@ class Text(GuiMaster):
         blitten text to it.
         """
         # creating text-surface
-        text = u.makeText(
-            font = self.style.font,
-            text = self.style.text,
-            size = self.style.font_size,
-            color = self.style.color,
-            antialias = self.style.antialias,
-            wrap = self.style.wrap
-        )
+        if type(self.style.text) is pg.Surface:
+            text = self.style.text
+        else:
+            text = u.makeText(
+                font = self.style.font,
+                text = self.style.text,
+                size = self.style.font_size,
+                color = self.style.color,
+                antialias = self.style.antialias,
+                wrap = self.style.wrap
+            )
         # creating the former rect for the final surface to return
         rect = text.get_rect()
         # looking for padding to apply as size and position
