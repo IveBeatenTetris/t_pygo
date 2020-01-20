@@ -365,7 +365,11 @@ def draw(object, destination, rect=None, blendmode=0):# pg.surface
     elif type(object) is dict:
         for each in object:
             destination.blit(object[each], rect)
-    elif object.__class__.__bases__[0] is pg.Surface or type(object) is pg.Surface or issubclass(type(object), pg.Surface):
+    elif (
+        object.__class__.__bases__[0] is pg.Surface or
+        type(object) is pg.Surface or
+        issubclass(type(object), pg.Surface)
+    ):
         destination.blit(object, rect, special_flags=blendmode)
     elif object.__class__.__bases__[0] is pg.sprite.Sprite:
         destination.blit(object.image, rect, special_flags=blendmode)

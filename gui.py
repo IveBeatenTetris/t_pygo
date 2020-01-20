@@ -120,10 +120,10 @@ class Stylesheet:
         "slot": {
             "size": (60, 30),
             "position": (0, 0),
-            "background_color": None,
-            "background_hover": None,
+            "background_color": (25, 25, 35),
+            "background_hover": (35, 35, 45),
             "border": True,
-            "border_color": (0, 0, 0),
+            "border_color": (85, 85, 95),
             "border_size": 1,
             "dragable": False,
             "drag_area": None,
@@ -377,6 +377,14 @@ class App:
         # overdrawing old moved sprite-trails on backgrounds
         self.draw_list.clear(self.display, self.background)
         changes = self.draw_list.draw(self.display)
+
+        for each in self.draw_list:
+            self.cursor.state = "normal"
+            if (
+                type(each) is TextField or
+                each.__class__.__bases__[0] is TextField
+            ) and each.hover:
+                self.cursor.state = "text"
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
         # updating all drawn sprites
@@ -655,17 +663,6 @@ class GuiMaster(pg.sprite.Sprite):
             pg.mouse.get_pos(),
             mrel
         )
-    # internal methodes
-    def checkCursor(self, default="normal", hover="pointer"):
-        """
-        changes apps mouse-cursor depending on element-hover. putting this in
-        an elements 'update'-method, this results in a change of the mouse-
-        cursor on element-hover.
-        """
-        if self.hover:
-            globals()["app"].cursor.state = hover
-        elif not self.hover and globals()["app"].cursor.state != "normal":
-            globals()["app"].cursor.state = default
     # basic methodes
     def draw(self, object, rect=None, area=None):
         """
@@ -955,7 +952,7 @@ class Button(Text):
     """
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", style=kwargs, **kwargs)
 class Panel(GuiMaster):
@@ -1074,11 +1071,6 @@ class Slider(GuiMaster):
                 self.redrawBorder()
             # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
-class Slot(GuiMaster):
-    """this is an advanced textinput with 'up'- and 'down' buttons."""
-    def __init__(self, **kwargs):
-        """."""
-        GuiMaster.__init__(self, type="slot", style=kwargs, **kwargs)
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     class TextCursor(pg.Surface):
@@ -1109,7 +1101,10 @@ class TextField(GuiMaster):
         'cursor'        (class) 'pg.surface' that comes along with some
                         operations for correctly drawing itself to its parent.
         """
-        GuiMaster.__init__(self, type="text_field", style=kwargs, **kwargs)
+        # initialising text-object
+        if not "type" in kwargs: kwargs["type"] = "text_field"
+        if not "style" in kwargs: kwargs["style"] = kwargs
+        GuiMaster.__init__(self, **kwargs)
         self.text_string = ""
         self.cursor = self.TextCursor(
             size = (2, self.rect.height - 10),
@@ -1183,10 +1178,16 @@ class TextField(GuiMaster):
                 self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.checkCursor(default="normal", hover="text")
         # provoking a 'click'- event
         self.click
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
         # drawing cursor on activation
         self.handleCursor()
+class Slot(TextField):
+    """this is an advanced textinput with 'up'- and 'down' buttons."""
+    def __init__(self, **kwargs):
+        """
+        uses 'TextField' as its parent with additional methodes and attributes.
+        """
+        TextField.__init__(self, type="slot", style=kwargs, **kwargs)
