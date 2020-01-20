@@ -1268,12 +1268,20 @@ class Slot(TextField):
                 direction = "down"
             )
         ]
+        # applying new size + arrow.rect.width
         self.resize((
-            self.style.size[0] + arrows[0].rect.width,
+            self.style.size[0] + self.arrows[0].rect.width,
             self.rect.height
         ))
-        self.image.blit(arrows[0].image, (0, 0))
-        self.image.blit(arrows[1].image, (0, int(self.style.size[1] / 2)))
+        # drawing arrow-buttons to the right
+        self.image.blit(self.arrows[0].image, (
+            self.rect.width - self.arrows[0].rect.width,
+            0
+        ))
+        self.image.blit(self.arrows[1].image, (
+            self.rect.width - self.arrows[0].rect.width,
+            int(self.style.size[1] / 2)
+        ))
     # dynamic attributes
     #@property
     # basic methodes
