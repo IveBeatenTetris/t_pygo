@@ -118,12 +118,12 @@ class Stylesheet:
             "background_color": (50, 50, 60)
         },
         "slot": {
-            "size": (60, 30),
+            "size": (60, 32),
             "position": (0, 0),
-            "background_color": (25, 25, 35),
-            "background_hover": (35, 35, 45),
+            "background_color": (50, 50, 60),
+            "background_hover": (60, 60, 70),
             "border": True,
-            "border_color": (85, 85, 95),
+            "border_color": (10, 10, 20),
             "border_size": 1,
             "dragable": False,
             "drag_area": None
@@ -1217,19 +1217,33 @@ class Slot(TextField):
             (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
             pg.SRCALPHA
         )
+        triangle_up_rect = triangle_up.get_rect()
         triangle_down = pg.Surface(
             (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
             pg.SRCALPHA
         )
-        pg.draw.lines(
+        triangle_down_rect = triangle_down.get_rect()
+        margin = 3
+        pg.draw.polygon(
             triangle_up,
             (20, 20, 30),
-            True,
             [
-                (0, self.rect.bottom),
-                (self.rect.height, self.rect.bottom)
+                (margin, triangle_up_rect.height - margin),
+                (triangle_up_rect.width - margin, triangle_up_rect.height - margin),
+                (triangle_up_rect.center[0], margin)
             ],
-            5
+            0
+        )
+        pg.draw.polygon(
+            triangle_down,
+            (20, 20, 30),
+            [
+                (margin, margin),
+                (triangle_down_rect.width - margin, margin),
+                (triangle_down_rect.center[0], triangle_down_rect.bottom - margin)
+
+            ],
+            0
         )
         arrows = (
             Button(
