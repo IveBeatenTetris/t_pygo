@@ -1171,6 +1171,9 @@ class TextField(GuiMaster):
         translates pressed keys and adds their char to 'text_string'. draws the
         text to textfields-surface afterwards.
         """
+        # mouse-events
+        mrel = self.mouse_events[2]
+        
         if self.state == "active":
             for evt in globals()["app"]._events:
                 if evt.type is pg.KEYDOWN:
@@ -1186,9 +1189,11 @@ class TextField(GuiMaster):
                         char = ""
                     # appending char to string
                     self.text_string += char
-                # recreating background and drawing text to textfield
-                self.redraw()
-                self.image.blit(self.text.image, self.text.rect)
+                # recreating background and drawing text to textfield (only
+                # when mouse is not moving)
+                if not(mrel[0] or mrel[1]):
+                    self.redraw()
+                    self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
         # mouse-events
