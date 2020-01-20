@@ -126,7 +126,7 @@ class Stylesheet:
             "border_color": (85, 85, 95),
             "border_size": 1,
             "dragable": False,
-            "drag_area": None,
+            "drag_area": None
         },
         "text": {
             "size": (0, 0),
@@ -381,12 +381,18 @@ class App:
         # types
         for each in self.draw_list:
             self.cursor.state = "normal"
+            # changing cursor to 'text-selection' if it's over a text-related
+            # element
             if (
+                type(each) is Text or
                 type(each) is TextField or
                 each.__class__.__bases__[0] is TextField
             ):
                 if each.hover:
                     self.cursor.state = "text"
+                    # exiting the loop cause we're only looking for these
+                    # elements
+                    break
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
         # updating all drawn sprites
@@ -656,6 +662,7 @@ class GuiMaster(pg.sprite.Sprite):
         # somehow pg.mouse.get_rel() doesn't work here, so we have to get rels
         # from the app
         mrel = (0, 0)
+
         for evt in globals()["app"]._events:
             if evt.type == pg.MOUSEMOTION:
                 mrel = evt.rel
@@ -733,8 +740,6 @@ class GuiMaster(pg.sprite.Sprite):
         """runs with every game-loop."""
         # mouse-events
         mrel = self.mouse_events[2]
-        # default-redraw is turned off at start
-        redraw = False
         # invoking drag-operation
         self.drag
         # visual redrawing of this element depends on the following conditions:
@@ -1185,10 +1190,11 @@ class TextField(GuiMaster):
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
-        # handling input-chars & letters for displaying them in the textfield
-        self.handleInput()
+            self.image.blit(self.text.image, self.text.rect)
         # drawing cursor on activation
         self.handleCursor()
+        # handling input-chars & letters for displaying them in the textfield
+        self.handleInput()
 class Slot(TextField):
     """this is an advanced textinput with 'up'- and 'down' buttons."""
     def __init__(self, **kwargs):
