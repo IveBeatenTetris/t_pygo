@@ -1212,75 +1212,70 @@ class TextField(GuiMaster):
         self.handleInput()
 class Slot(TextField):
     """this is an advanced textinput with 'up'- and 'down' buttons."""
+    class Arrow(pg.sprite.Sprite):
+        """represents an arrow-button with an arrow drawn on it."""
+        def __init__(self, **kwargs):
+            """."""
+            pg.sprite.Sprite.__init__(self)
+            self.style = Stylesheet(type="slot_arrow", style=kwargs)
+            self.rect = pg.Rect(kwargs["position"], kwargs["size"])
+            self.image = pg.Surface(self.rect.size)
+            self.image.fill(self.style.background_color)
+            margin = 4
+            if kwargs["direction"] == "up":
+                pg.draw.polygon(
+                    self.image,
+                    (70, 70, 80),
+                    [
+                        (margin, self.rect.height - margin),
+                        (self.rect.width - margin, self.rect.height - margin),
+                        (self.rect.center[0], margin)
+                    ],
+                    0
+                )
+            elif kwargs["direction"] == "down":
+                pg.draw.polygon(
+                    self.image,
+                    (70, 70, 80),
+                    [
+                        (margin, margin),
+                        (self.rect.width - margin, margin),
+                        (self.rect.center[0], self.rect.bottom - margin)
+                    ],
+                    0
+                )
     def __init__(self, **kwargs):
         """
         uses 'TextField' as its parent with additional methodes and attributes.
         """
         TextField.__init__(self, type="slot", style=kwargs, **kwargs)
-        triangle_up = pg.Surface(
-            (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
-            pg.SRCALPHA
-        )
-        triangle_up_rect = triangle_up.get_rect()
-        triangle_down = pg.Surface(
-            (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
-            pg.SRCALPHA
-        )
-        triangle_down_rect = triangle_down.get_rect()
-        margin = 4
-        pg.draw.polygon(
-            triangle_up,
-            (70, 70, 80),
-            [
-                (margin, triangle_up_rect.height - margin),
-                (triangle_up_rect.width - margin, triangle_up_rect.height - margin),
-                (triangle_up_rect.center[0], margin)
-            ],
-            0
-        )
-        pg.draw.polygon(
-            triangle_down,
-            (70, 70, 80),
-            [
-                (margin, margin),
-                (triangle_down_rect.width - margin, margin),
-                (triangle_down_rect.center[0], triangle_down_rect.bottom - margin)
-
-            ],
-            0
-        )
-        arrows = (
-            Button(
-                size = triangle_up.get_rect().size,
-                text = triangle_up,
-                #background_color = (50, 70, 30),
-                padding = 0
+        arrows = [
+            self.Arrow(
+                size = (
+                    int(self.style.size[1] / 2),
+                    int(self.style.size[1] / 2)
+                ),
+                position = (0, 0),
+                direction = "up"
             ),
-            Button(
-                size = triangle_down.get_rect().size,
-                text = triangle_down,
-                #background_color = (50, 70, 30),
-                padding = 0
+            self.Arrow(
+                size = (
+                    int(self.style.size[1] / 2),
+                    int(self.style.size[1] / 2)
+                ),
+                position = (0, 0),
+                direction = "down"
             )
-        )
+        ]
         self.resize((
             self.style.size[0] + arrows[0].rect.width,
-            self.rect.height - 1
+            self.rect.height
         ))
-        self.image.blit(
-            arrows[0].image,
-            (
-                self.rect.width - arrows[0].rect.width,
-                0
-            )
-        )
-        self.image.blit(
-            arrows[1].image,
-            (
-                self.rect.width - arrows[1].rect.width,
-                arrows[1].rect.height - 1
-            )
-        )
+        self.image.blit(arrows[0].image, (0, 0))
+        self.image.blit(arrows[1].image, (0, int(self.style.size[1] / 2)))
+    # dynamic attributes
+    #@property
+    # basic methodes
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
