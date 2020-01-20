@@ -377,14 +377,16 @@ class App:
         # overdrawing old moved sprite-trails on backgrounds
         self.draw_list.clear(self.display, self.background)
         changes = self.draw_list.draw(self.display)
-
+        # rendering another mouse-cursor depending on some specific element-
+        # types
         for each in self.draw_list:
             self.cursor.state = "normal"
             if (
                 type(each) is TextField or
                 each.__class__.__bases__[0] is TextField
-            ) and each.hover:
-                self.cursor.state = "text"
+            ):
+                if each.hover:
+                    self.cursor.state = "text"
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
         # updating all drawn sprites
@@ -1178,8 +1180,11 @@ class TextField(GuiMaster):
                 self.image.blit(self.text.image, self.text.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        # provoking a 'click'- event
-        self.click
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # visual redrawing of this element depends on the following conditions:
+        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+            self.redraw()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
         # drawing cursor on activation
