@@ -1173,7 +1173,7 @@ class TextField(GuiMaster):
         """
         # mouse-events
         mrel = self.mouse_events[2]
-        
+
         if self.state == "active":
             for evt in globals()["app"]._events:
                 if evt.type is pg.KEYDOWN:
@@ -1213,3 +1213,56 @@ class Slot(TextField):
         uses 'TextField' as its parent with additional methodes and attributes.
         """
         TextField.__init__(self, type="slot", style=kwargs, **kwargs)
+        triangle_up = pg.Surface(
+            (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
+            pg.SRCALPHA
+        )
+        triangle_down = pg.Surface(
+            (int(self.style.size[1] / 2), int(self.style.size[1] / 2)),
+            pg.SRCALPHA
+        )
+        pg.draw.lines(
+            triangle_up,
+            (20, 20, 30),
+            True,
+            [
+                (0, self.rect.bottom),
+                (self.rect.height, self.rect.bottom)
+            ],
+            5
+        )
+        arrows = (
+            Button(
+                size = triangle_up.get_rect().size,
+                text = triangle_up,
+                background_color = (50, 70, 30),
+                padding = 0
+            ),
+            Button(
+                size = triangle_down.get_rect().size,
+                text = triangle_down,
+                background_color = (50, 70, 30),
+                padding = 0
+            )
+        )
+        self.resize((
+            self.style.size[0] + arrows[0].rect.width,
+            self.rect.height
+        ))
+        self.image.blit(
+            arrows[0].image,
+            (
+                self.rect.width - arrows[0].rect.width,
+                0
+            )
+        )
+        self.image.blit(
+            arrows[1].image,
+            (
+                self.rect.width - arrows[1].rect.width,
+                arrows[1].rect.height
+            )
+        )
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
