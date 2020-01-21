@@ -1052,10 +1052,61 @@ class TextField(GuiMaster):
         self.handleInput()
 class Slot(GuiMaster):
     """."""
+    class Arrow(pg.sprite.Sprite):
+        """."""
+        def __init__(self, style, direction):
+            """."""
+            pg.sprite.Sprite.__init__(self)
+            #self.image = pg.Surface((style.size[1], style.size[1]))
+            self.rect = pg.Rect(
+                (0, 0),
+                (int(style.size[1] / 2), int(style.size[1] / 2))
+            )
+            self.image = self.draw_arrow(direction)
+            self.rect = self.image.get_rect()
+        def draw_arrow(self, direction):# pg.surface
+            """
+            returns a pg.surface. draws triangle-arrows to the button-surface
+            depending on their directions ('up', 'down').
+            """
+            surface = pg.Surface(self.rect.size)
+            # margin for the triangle to start drawing. the higher the margin,
+            # the smaller the triangle will be drawn
+            margin = 4
+
+            if direction == "up":
+                pg.draw.polygon(
+                    surface,
+                    (70, 70, 80),
+                    [
+                        (margin, self.rect.height - margin),
+                        (self.rect.width - margin, self.rect.height - margin),
+                        (self.rect.center[0], margin)
+                    ],
+                    0
+                )
+            elif direction == "down":
+                pg.draw.polygon(
+                    surface,
+                    (70, 70, 80),
+                    [
+                        (margin, margin),
+                        (self.rect.width - margin, margin),
+                        (self.rect.center[0], self.rect.bottom - margin)
+                    ],
+                    0
+                )
+
+            return surface
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="slot", **kwargs)
-
+        self.arrow_up = self.Arrow(self.style, direction="up")
+        self.arrow_down = self.Arrow(self.style, direction="down")
+        self.image.blit(self.arrow_up.image, (0, 0))
+    def update(self):
+        """overwriting parent's 'update()'-method."""
+        pass
 class Slot3(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
