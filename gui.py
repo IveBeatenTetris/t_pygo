@@ -1050,6 +1050,11 @@ class TextField(GuiMaster):
         self.handleCursor()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
+class Slot(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="slot", **kwargs)
 
 class Slot3(GuiMaster):
     """
