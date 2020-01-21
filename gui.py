@@ -239,10 +239,10 @@ class App:
                     break
             # special exceptions for slot since it has elements that don't need
             # a change of the mouse-cursor from default to text-selection
-            elif type(each) is Slot:
+            """elif type(each) is Slot:
                 if each.hover:
                     self.cursor.state = "text"
-                    break
+                    break"""
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
         # updating all drawn sprites
@@ -1056,16 +1056,84 @@ class TextField(GuiMaster):
         self.handleCursor()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
-class Slot(GuiMaster):
+
+class Slot3(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
     raise its content.
     """
+    class Arrow(pg.sprite.Sprite):
+        """represents an arrow-button with an arrow drawn on it."""
+        def __init__(self, **kwargs):
+            """
+
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.rect = pg.Rect((0, 0), kwargs["size"])
+            self.image = pg.Surface(kwargs["size"])
+            self.image.fill(kwargs["background_color"])
+            # margin for the triangle to start drawing. the higher the margin,
+            # the smaller the triangle will be drawn
+            margin = 4
+            # drawing triangle-arrows to the button-surface depending on their
+            # directions ('up', 'down')
+            if kwargs["direction"] == "up":
+                pg.draw.polygon(
+                    self.image,
+                    (70, 70, 80),
+                    [
+                        (margin, self.rect.height - margin),
+                        (self.rect.width - margin, self.rect.height - margin),
+                        (self.rect.center[0], margin)
+                    ],
+                    0
+                )
+            elif kwargs["direction"] == "down":
+                pg.draw.polygon(
+                    self.image,
+                    (70, 70, 80),
+                    [
+                        (margin, margin),
+                        (self.rect.width - margin, margin),
+                        (self.rect.center[0], self.rect.bottom - margin)
+                    ],
+                    0
+                )
     def __init__(self, **kwargs):
         """
         uses 'TextField' as its parent with additional methodes and attributes.
         """
-        GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
+        GuiMaster.__init__(self, type="slot", **kwargs)
+        #self.redrawBackground()
+        self.text_field = TextField(
+            size = (60, 32)
+        )
+        self.arrow_up = self.Arrow(
+            size = (
+                int(self.text_field.rect.height / 2),
+                int(self.text_field.rect.height / 2)
+            ),
+            direction = "up",
+            background_color = self.style.background_color
+        )
+        self.arrow_up.rect.topleft = self.text_field.rect.topright
+        self.arrow_down = self.Arrow(
+            size = (
+                int(self.text_field.rect.height / 2),
+                int(self.text_field.rect.height / 2)
+            ),
+            direction = "down",
+            background_color = self.style.background_color
+        )
+        self.arrow_down.rect.topleft = self.arrow_up.rect.bottomleft
+        self.resize((self.rect.width + self.arrow_up.rect.width, self.rect.height))
+        #self.redrawBackground()
+        #self.image.blit(self.text_field.image, (0, 0))
+        self.image.blit(self.arrow_up.image, self.arrow_up.rect)
+        self.image.blit(self.arrow_down.image, self.arrow_down.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
 class Slot2(TextField):
     """this is an advanced textinput with 'up'- and 'down' buttons."""
     class Arrow(pg.sprite.Sprite):
