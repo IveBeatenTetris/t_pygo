@@ -25,6 +25,7 @@ LIBPATH = {
     "windowicon": PATH["sysimg"] + "\\ente.png",
     "dragging": PATH["sysimg"] + "\\dragging.png"
 }
+# app related
 RESOLUTIONS = {
     "1920x1080": (1920, 1080),
     "800x400": (800, 400)
@@ -44,6 +45,161 @@ FONTS = {
         "name": "console",
         "size": 20,
         "color": (200, 200, 200)
+    }
+}
+STYLE = {
+    "app": {
+        "size": (320, 240),
+        "title": "Unnamed Project",
+        "resizable": False,
+        "fullscreen": False,
+        "background_color": None,
+        "background_image": LIBPATH["windowbg"],
+        "background_repeat": None,
+        "icon": LIBPATH["windowicon"],
+        "fps": 30
+    },
+    "none": {
+        "size": (300, 200),
+        "position": (0, 0),
+        "background_color": None,
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55)
+    },
+    "button": {
+        "text": "New Button",
+        "font": FONTS["base"]["name"],
+        "font_size": FONTS["base"]["size"],
+        "color": FONTS["base"]["color"],
+        "size": (100, 25),
+        "position": (0, 0),
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55),
+        "bold": False,
+        "italic": False,
+        "antialias": True,
+        "shadow": None,
+        "wrap": None,
+        "padding": 10
+    },
+    "panel": {
+        "size": (150, 200),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (70, 70, 80)
+    },
+    "table": {
+        "size": (150, 50),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": None,
+        "border": True,
+        "border_color": (10, 10, 20),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (70, 70, 80),
+        "text_size": 12,
+        "rows": ()
+    },
+    "slider": {
+        "size": (150, 20),
+        "position": (0, 0),
+        "background_color": None,
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None
+    },
+    "slider_rail": {
+        "size": (20, 20),
+        "position": (0, 0),
+        "background_color": (25, 25, 35)
+    },
+    "slider_handle": {
+        "size": (20, 20),
+        "position": (0, 0),
+        "background_color": (50, 50, 60)
+    },
+    "slot": {
+        "size": (60, 32),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": (60, 60, 70),
+        "border": True,
+        "border_color": (10, 10, 20),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None
+    },
+    "slot_arrow": {
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+    },
+    "text": {
+        "size": (0, 0),
+        "position": (0, 0),
+        "font": FONTS["base"]["name"],
+        "font_size": FONTS["base"]["size"],
+        "color": FONTS["base"]["color"],
+        "background_color": None,
+        "background_hover": None,
+        "dragable": False,
+        "drag_area": None,
+        "border": None,
+        "text": "Text",
+        "antialias": True,
+        "bold": False,
+        "italic": False,
+        "shadow": None,
+        "wrap": None,
+        "padding": 0
+    },
+    "text_field": {
+        "text": "New Textfield",
+        "font": FONTS["base"]["name"],
+        "font_size": FONTS["base"]["size"],
+        "color": FONTS["base"]["color"],
+        "size": (175, 30),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": (60, 60, 70),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55),
+        "bold": False,
+        "italic": False,
+        "antialias": True,
+        "shadow": None,
+        "wrap": None,
+        "padding": 10
+    },
+    "text_cursor": {
+        "size": (1, 30),
+        "position": (2, 0),
+        "color": (100, 100, 150)
     }
 }
 
