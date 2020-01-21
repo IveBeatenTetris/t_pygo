@@ -1124,25 +1124,34 @@ class Slot(GuiMaster):
             pg.sprite.Sprite.__init__(self)
             self.image = pg.Surface(kwargs["size"], pg.SRCALPHA)
             self.rect = self.image.get_rect()
+            # creating surface
+            if  kwargs["background_color"]:
+                self.image.fill(kwargs["background_color"])
+            if kwargs["border"]:
+                u.drawBorder(
+                    self.image,
+                    color = kwargs["border_color"],
+                    size = kwargs["border_size"]
+                )
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'text_field'    pg.srpite that acts as content to lower or raise,
+        'frame'         pg.srpite that acts as a text_field to lower or raise.
         'arrow_up'      up-button-sprite.
         'arrow_down'    down-button-sprite.
         """
         GuiMaster.__init__(self, type="slot", **kwargs)
-        self.text_field = self.Frame(
+        self.frame = self.Frame(
             size = self.rect.size,
-            background_color = (200, 50, 10),
+            background_color = self.style.background_color,
             border = self.style.border,
             border_size = self.style.border_size,
             border_color = self.style.border_color
         )
         self.arrow_up = self.Arrow(self, direction="up")
         self.arrow_down = self.Arrow(self, direction="down")
-        self.image.blit(self.text_field.image, (0, 0))
+        self.image.blit(self.frame.image, (0, 0))
         self.image.blit(self.arrow_up.image, self.arrow_up.rect)
         self.image.blit(self.arrow_down.image, self.arrow_down.rect)
     def update(self):
