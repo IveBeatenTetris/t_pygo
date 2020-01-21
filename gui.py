@@ -1210,7 +1210,17 @@ class TextField(GuiMaster):
         self.handleCursor()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
-class Slot(TextField):
+class Slot(GuiMaster):
+    """
+    this is an advanced text-input with 'up'- and 'down' buttons to lower and
+    raise its content.
+    """
+    def __init__(self, **kwargs):
+        """
+        uses 'TextField' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
+class Slot2(TextField):
     """this is an advanced textinput with 'up'- and 'down' buttons."""
     class Arrow(pg.sprite.Sprite):
         """represents an arrow-button with an arrow drawn on it."""
