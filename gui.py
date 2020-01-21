@@ -711,7 +711,6 @@ class Text(GuiMaster):
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text"
-        if not "style" in kwargs: kwargs["style"] = kwargs
         GuiMaster.__init__(self, **kwargs)
         # initialising and styling font-object
         pg.font.init()
@@ -816,7 +815,7 @@ class Panel(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
         """
-        GuiMaster.__init__(self, type="panel", style=kwargs, **kwargs)
+        GuiMaster.__init__(self, type="panel", **kwargs)
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
@@ -870,7 +869,7 @@ class Slider(GuiMaster):
                     the handle along.
         'handle'    (sprite) dragable handle-subelement of this class.
         """
-        GuiMaster.__init__(self, type="slider", style=kwargs, **kwargs)
+        GuiMaster.__init__(self, type="slider", **kwargs)
         # creating sub-elements ('rail' and 'handle')
         self.rail = self.Rail(
             size = (self.rect.width, int(self.rect.height / 2))
@@ -960,7 +959,6 @@ class TextField(GuiMaster):
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text_field"
-        if not "style" in kwargs: kwargs["style"] = kwargs
         GuiMaster.__init__(self, **kwargs)
         self.text_string = ""
         self.cursor = self.TextCursor(
@@ -1057,7 +1055,6 @@ class Slot(GuiMaster):
         def __init__(self, style, direction):
             """."""
             pg.sprite.Sprite.__init__(self)
-            #self.image = pg.Surface((style.size[1], style.size[1]))
             self.rect = pg.Rect(
                 (0, 0),
                 (int(style.size[1] / 2), int(style.size[1] / 2))
