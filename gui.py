@@ -1049,24 +1049,43 @@ class TextField(GuiMaster):
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
 class Slot(GuiMaster):
-    """."""
+    """
+    this is an advanced text-input with 'up'- and 'down' buttons to lower and
+    raise its content.
+    """
     class Arrow(pg.sprite.Sprite):
-        """."""
-        def __init__(self, style, direction):
-            """."""
+        """represents an arrow-button with an arrow drawn on it."""
+        def __init__(self, parent, direction):
+            """
+            'parent'        parental gui-element.
+            'direction'     (str) 'up' or 'down'. this is required to correctly
+                            draw the arrow-triangle to a surface.
+            'rect'          sprite's dimensions.
+            'image'         image-surface to use for drawing.
+            """
             pg.sprite.Sprite.__init__(self)
+            self.parent = parent
+            self.direction = direction
             self.rect = pg.Rect(
                 (0, 0),
-                (int(style.size[1] / 2), int(style.size[1] / 2))
+                (
+                    int(parent.rect.height / 2),
+                    int(parent.rect.height / 2)
+                )
             )
+            # creating arrow-surface
             self.image = self.draw_arrow(direction)
-            self.rect = self.image.get_rect()
+            # updating rect.position after image has been created
+            self.rect.left = parent.rect.width - self.rect.width
+            if self.direction == "down":
+                self.rect.bottom = parent.rect.height
         def draw_arrow(self, direction):# pg.surface
             """
             returns a pg.surface. draws triangle-arrows to the button-surface
             depending on their directions ('up', 'down').
             """
             surface = pg.Surface(self.rect.size)
+            surface.fill(self.parent.style.border_color)
             # margin for the triangle to start drawing. the higher the margin,
             # the smaller the triangle will be drawn
             margin = 4
@@ -1074,36 +1093,61 @@ class Slot(GuiMaster):
             if direction == "up":
                 pg.draw.polygon(
                     surface,
-                    (70, 70, 80),
+                    self.parent.style.background_color,
                     [
                         (margin, self.rect.height - margin),
                         (self.rect.width - margin, self.rect.height - margin),
-                        (self.rect.center[0], margin)
+                        (self.rect.midtop[0], margin)
                     ],
                     0
                 )
             elif direction == "down":
                 pg.draw.polygon(
                     surface,
-                    (70, 70, 80),
+                    self.parent.style.background_color,
                     [
                         (margin, margin),
                         (self.rect.width - margin, margin),
-                        (self.rect.center[0], self.rect.bottom - margin)
+                        (self.rect.midtop[0], self.rect.bottom - margin)
                     ],
                     0
                 )
 
             return surface
+    class Frame(pg.sprite.Sprite):
+        """resembles the txt-area of the slot."""
+        def __init__(self, **kwargs):
+            """
+            'image'         image-surface to use for drawing.
+            'rect'          sprite's dimensions.
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.image = pg.Surface(kwargs["size"], pg.SRCALPHA)
+            self.rect = self.image.get_rect()
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'text_field'    pg.srpite that acts as content to lower or raise,
+        'arrow_up'      up-button-sprite.
+        'arrow_down'    down-button-sprite.
+        """
         GuiMaster.__init__(self, type="slot", **kwargs)
-        self.arrow_up = self.Arrow(self.style, direction="up")
-        self.arrow_down = self.Arrow(self.style, direction="down")
-        self.image.blit(self.arrow_up.image, (0, 0))
+        self.text_field = self.Frame(
+            size = self.rect.size,
+            background_color = (200, 50, 10),
+            border = self.style.border,
+            border_size = self.style.border_size,
+            border_color = self.style.border_color
+        )
+        self.arrow_up = self.Arrow(self, direction="up")
+        self.arrow_down = self.Arrow(self, direction="down")
+        self.image.blit(self.text_field.image, (0, 0))
+        self.image.blit(self.arrow_up.image, self.arrow_up.rect)
+        self.image.blit(self.arrow_down.image, self.arrow_down.rect)
     def update(self):
         """overwriting parent's 'update()'-method."""
-        pass
+        #print(self.text_field.hover)
 class Slot3(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
