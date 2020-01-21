@@ -316,16 +316,10 @@ class GuiMaster(pg.sprite.Sprite):
                             dict of predefined attributes.
         'parent'            object which draws this element. must have
                             'GuiMaster' as master-class.
-        'background'        either 'str' or 'tuple' / 'list'. if 'none', leave
-                            the surface transparent.
-        'background_hover'  might be 'tuple' or 'list'. if it's 'none', don't
-                            apply a hover effect later.
         'rect'              initialising rect dimensions.
         'state'             (str) can be changed to mark the event-related
                             state of this event. values are "waiting" and
                             "active".
-        'dragable'          user-defined bool for checking if a dragging-
-                            operation can come in.
         'drag_area'         user-declared area of dragging an element. if left
                             out, use the whole element-rect for dragging.
         '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
@@ -337,29 +331,29 @@ class GuiMaster(pg.sprite.Sprite):
                             element.
         'image'             image-surface of this sprite class.
         """
-        if "type" in kwargs: type = kwargs["type"]
-        else: type = "none"
+        # initialising sprite
+        pg.sprite.Sprite.__init__(self)
+        # appending a stylesheet for this specific element
+        if "type" in kwargs:
+            type = kwargs["type"]
+        else:
+            type = "none"
         self.style = Stylesheet(
             type = type,
             style = kwargs
         )
-        #self.config = u.validateDict(kwargs, self.defaults)
-        # initialising sprite
-        pg.sprite.Sprite.__init__(self)
         # declaring parent
         if "parent" in kwargs:
             self.parent = kwargs["parent"]
         else:
             self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
-        self.background_hover = self.style.background_hover
         self.rect = pg.Rect(
             self.style.position,
             self.style.size
         )
         # event related stuff
         self.state = "waiting"
-        self.dragable = self.style.dragable
         if self.style.drag_area:
             self.drag_area = pg.Rect(self.style.drag_area)
         else:
@@ -427,7 +421,7 @@ class GuiMaster(pg.sprite.Sprite):
         calling this also drags the surface around when the element is
         dragable.
         """
-        if self.dragable:
+        if self.style.dragable:
             # mouse events
             mbut, mpos, _ = self.mouse_events
             # using 'drag_area' as rect for collisions if available
@@ -606,7 +600,7 @@ class Table(GuiMaster):
         'rows'      'tuple' of tuples that hold gui-elements or native python-
                     types.
         """
-        GuiMaster.__init__(self, type="table", style=kwargs, **kwargs)
+        GuiMaster.__init__(self, type="table", **kwargs)
         self.rows = self.style.rows
         self.image.blit(self.grid["image"], (0, 0))
     # dynamic propeties
@@ -815,7 +809,7 @@ class Button(Text):
         """
         uses 'Text' as its parent with additional methodes and attributes.
         """
-        Text.__init__(self, type="button", style=kwargs, **kwargs)
+        Text.__init__(self, type="button", **kwargs)
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
