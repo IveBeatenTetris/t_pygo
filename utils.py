@@ -143,7 +143,7 @@ STYLE = {
     "slot": {
         "size": (60, 32),
         "position": (0, 0),
-        "background_color": (50, 90, 150),
+        "background_color": (45, 45, 55),
         "background_hover": (60, 60, 70),
         "border": True,
         "border_color": (10, 10, 20),
