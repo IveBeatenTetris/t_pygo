@@ -213,10 +213,10 @@ STYLE = {
         "margin": [7, 35, 7, 10]
     },
     "drop_down": {
-        "size": (50, 75),
+        "size": (50, 30),
         "position": (0, 0),
         "background_color": (55, 55, 65),
-        "background_hover": (35, 35, 45),
+        "background_hover": (25, 25, 35),
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,

@@ -809,6 +809,90 @@ class Button(Text):
         uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
+class ArrowButton(pg.sprite.Sprite):
+    """represents an arrow-button with an arrow drawn on it."""
+    def __init__(self, parent, direction):
+        """
+        'parent'        parental gui-element.
+        'direction'     (str) 'up' or 'down'. this is required to correctly
+                        draw the arrow-triangle to a surface.
+        'rect'          sprite's dimensions.
+        'image'         image-surface to use for drawing.
+        """
+        pg.sprite.Sprite.__init__(self)
+        self.parent = parent
+        self.direction = direction
+        self.rect = pg.Rect(
+            (0, 0),
+            (
+                int(parent.rect.height / 2),
+                int(parent.rect.height / 2)
+            )
+        )
+        # creating arrow-surface
+        self.image = self.draw_arrow(direction)
+        # updating rect.position after image has been created
+        self.rect.left = parent.rect.width - self.rect.width
+        if self.direction == "down":
+            self.rect.bottom = parent.rect.height
+    # dynamic attributes
+    @property
+    def click(self):
+        """returns 'true' if this element has been clicked."""
+        # mouse-events
+        mpos = self.parent.mouse_events[1]
+        events = globals()["app"]._events
+        # absolute-positioned rect
+        rect = pg.Rect(
+            self.parent.rect.left + self.rect.left,
+            self.parent.rect.top + self.rect.top,
+            *self.rect.size
+        )
+        # returning bool
+        click = False
+
+        if rect.collidepoint(mpos):
+            for evt in events:
+                if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
+                    click = True
+
+        return click
+    # basic methodes
+    def draw_arrow(self, direction):# pg.surface
+        """
+        returns a pg.surface. draws triangle-arrows to the button-surface
+        depending on their directions ('up', 'down').
+        """
+        surface = pg.Surface(self.rect.size)
+        surface.fill(self.parent.style.border_color)
+        # margin for the triangle to start drawing. the higher the margin,
+        # the smaller the triangle will be drawn
+        margin = 4
+
+        if direction == "up":
+            pg.draw.polygon(
+                surface,
+                self.parent.style.background_color,
+                [
+                    (margin, self.rect.height - margin),
+                    (self.rect.width - margin, self.rect.height - margin),
+                    (self.rect.midtop[0], margin)
+                ],
+                0
+            )
+        elif direction == "down":
+            pg.draw.polygon(
+                surface,
+                self.parent.style.background_color,
+                [
+                    (margin, margin),
+                    (self.rect.width - margin, margin),
+                    (self.rect.midtop[0], self.rect.bottom - margin)
+                ],
+                0
+            )
+
+        return surface
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
@@ -1084,90 +1168,7 @@ class Slot(GuiMaster):
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
     raise its content.
     """
-    class Arrow(pg.sprite.Sprite):
-        """represents an arrow-button with an arrow drawn on it."""
-        def __init__(self, parent, direction):
-            """
-            'parent'        parental gui-element.
-            'direction'     (str) 'up' or 'down'. this is required to correctly
-                            draw the arrow-triangle to a surface.
-            'rect'          sprite's dimensions.
-            'image'         image-surface to use for drawing.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.parent = parent
-            self.direction = direction
-            self.rect = pg.Rect(
-                (0, 0),
-                (
-                    int(parent.rect.height / 2),
-                    int(parent.rect.height / 2)
-                )
-            )
-            # creating arrow-surface
-            self.image = self.draw_arrow(direction)
-            # updating rect.position after image has been created
-            self.rect.left = parent.rect.width - self.rect.width
-            if self.direction == "down":
-                self.rect.bottom = parent.rect.height
-        # dynamic attributes
-        @property
-        def click(self):
-            """returns 'true' if this element has been clicked."""
-            # mouse-events
-            mpos = self.parent.mouse_events[1]
-            events = globals()["app"]._events
-            # absolute-positioned rect
-            rect = pg.Rect(
-                self.parent.rect.left + self.rect.left,
-                self.parent.rect.top + self.rect.top,
-                *self.rect.size
-            )
-            # returning bool
-            click = False
 
-            if rect.collidepoint(mpos):
-                for evt in events:
-                    if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
-                        click = True
-
-            return click
-        # basic methodes
-        def draw_arrow(self, direction):# pg.surface
-            """
-            returns a pg.surface. draws triangle-arrows to the button-surface
-            depending on their directions ('up', 'down').
-            """
-            surface = pg.Surface(self.rect.size)
-            surface.fill(self.parent.style.border_color)
-            # margin for the triangle to start drawing. the higher the margin,
-            # the smaller the triangle will be drawn
-            margin = 4
-
-            if direction == "up":
-                pg.draw.polygon(
-                    surface,
-                    self.parent.style.background_color,
-                    [
-                        (margin, self.rect.height - margin),
-                        (self.rect.width - margin, self.rect.height - margin),
-                        (self.rect.midtop[0], margin)
-                    ],
-                    0
-                )
-            elif direction == "down":
-                pg.draw.polygon(
-                    surface,
-                    self.parent.style.background_color,
-                    [
-                        (margin, margin),
-                        (self.rect.width - margin, margin),
-                        (self.rect.midtop[0], self.rect.bottom - margin)
-                    ],
-                    0
-                )
-
-            return surface
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
@@ -1190,8 +1191,8 @@ class Slot(GuiMaster):
             self.rect.width + int(self.rect.height / 2),
             self.rect.height
         ))
-        self.arrow_up = self.Arrow(self, direction="up")
-        self.arrow_down = self.Arrow(self, direction="down")
+        self.arrow_up = ArrowButton(self, direction="up")
+        self.arrow_down = ArrowButton(self, direction="down")
         # drawing everything to the image-surface
         self.image.blit(self.text_field.image, (0, 0))
         self.image.blit(self.arrow_up.image, self.arrow_up.rect)
@@ -1354,5 +1355,16 @@ class DropDown(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'menu'      a whole rendered menu-element to draw when the dropdown-
+                    element has been clicked (selection was made).
         """
-        GuiMaster.__init__(self, style="drop_down", **kwargs)
+        GuiMaster.__init__(self, type="drop_down", **kwargs)
+        self.menu = Menu(
+            options = self.style.options
+        )
+        # resizing dropdown-surface based on menu-width
+        self.resize((self.menu.rect.width, self.rect.height))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
