@@ -1227,3 +1227,34 @@ class Menu(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="menu", **kwargs)
+        self.options = self.create_options()
+        self.draw_options()
+    # basic operations
+    def create_options(self):# list
+        """
+        creates a list of renderable options with their callable functions and
+        returns it.
+        """
+        options = []
+        y = 0
+
+        for opt in self.style.options:
+            name = opt[0]
+            func = opt[1]
+            params = opt[2:]
+
+            option = Text(
+                text = name
+            )
+            option.rect.top += y
+            y += option.rect.height
+            options.append(option)
+
+        return options
+    def draw_options(self):# list
+        """draws all options to the menu-element."""
+        for opt in self.options:
+            self.image.blit(opt.image, opt.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
