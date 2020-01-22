@@ -1162,11 +1162,29 @@ class Slot(GuiMaster):
         self.image.blit(self.text_field.image, (0, 0))
         self.image.blit(self.arrow_up.image, self.arrow_up.rect)
         self.image.blit(self.arrow_down.image, self.arrow_down.rect)
+    def raise_value(self):
+        """raises the value of the slot.frame if it represents an integer."""
+        try:
+            self.text_field.text_string = str(
+                int(self.text_field.text_string) + 1
+            )
+        except ValueError:
+            pass
+    def lower_value(self):
+        """lowers the value of the slot.frame if it represents an integer."""
+        try:
+            self.text_field.text_string = str(
+                int(self.text_field.text_string) - 1
+            )
+        except ValueError:
+            pass
     def update(self):
         """overwrites parent's 'update()'-method."""
-        # mouse-events
-        mrel = self.mouse_events[2]
-
-        self.text_field.hover
-        if self.text_field.hover and (mrel[0] or mrel[1]):
-            self.image.blit(self.text_field.image, (0, 0))
+        # changing value of the text-field if it's an integer
+        if self.arrow_up.click:
+            self.raise_value()
+        elif self.arrow_down.click:
+            self.lower_value()
+        # redrawing text-field
+        self.text_field.update()
+        self.image.blit(self.text_field.image, (0, 0))
