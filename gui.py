@@ -1227,6 +1227,7 @@ class Menu(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="menu", **kwargs)
+        # creating a rect with absolute position for mouse-events
         self.options = self.create_options()
         self.draw_options()
     # basic operations
@@ -1260,6 +1261,12 @@ class Menu(GuiMaster):
             # updating maximal-width for menu
             if option.rect.width > biggest_width:
                 biggest_width = option.rect.width
+            # creating a rect with absolute position for mouse-events
+            option.absolute_rect = pg.Rect(
+                option.rect.left + self.rect.left,
+                option.rect.top + self.rect.top,
+                *option.rect.size,
+            )
             # appending option to returning-list
             options.append(option)
         # exception fot biggest_width being 0
@@ -1270,6 +1277,9 @@ class Menu(GuiMaster):
             biggest_width + self.style.margin[1],
             y + self.style.margin[2]
         ))
+        # stretching width of absolute_rect
+        for opt in options:
+            opt.absolute_rect.width = self.rect.width
 
         return options
     def draw_options(self):# list
@@ -1278,4 +1288,9 @@ class Menu(GuiMaster):
             self.image.blit(opt.image, opt.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
+        # mouse-events
+        mpos = self.mouse_events[1]
+
+        for each in self.options:
+            if each.absolute_rect.collidepoint(mpos):
+                print(each.absolute_rect)
