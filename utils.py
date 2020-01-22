@@ -151,10 +151,6 @@ STYLE = {
         "dragable": False,
         "drag_area": None
     },
-    "slot_arrow": {
-        "background_color": (30, 30, 40),
-        "background_hover": (40, 40, 50)
-    },
     "text": {
         "size": (0, 0),
         "position": (0, 0),
