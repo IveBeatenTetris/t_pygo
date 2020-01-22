@@ -809,7 +809,7 @@ class Button(Text):
         uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
-class ArrowButton(GuiMaster):
+class ArrowButton(pg.sprite.Sprite):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
         """
@@ -817,8 +817,11 @@ class ArrowButton(GuiMaster):
         'args'      dict of passed arguments to arrow-class.
         """
         pg.sprite.Sprite.__init__(self)
-        self.rect = pg.Rect((0, 0), kwargs["size"])
-        self.args = kwargs
+        if "parent" in kwargs:
+            self.parent = kwargs["parent"]
+            del kwargs["parent"]
+        self.style = Stylesheet(type="arrow_button", style=kwargs)
+        self.rect = pg.Rect((0, 0), self.style.size)
     # dynamic attributes
     @property
     def hover(self):
@@ -830,8 +833,8 @@ class ArrowButton(GuiMaster):
         mpos = pg.mouse.get_pos()
         # pg.rect with absolute position of the arrow
         rect = pg.Rect(
-            self.rect.left + self.args["parent"].rect.left,
-            self.rect.top + self.args["parent"].rect.top,
+            self.rect.left + self.parent.rect.left,
+            self.rect.top + self.parent.rect.top,
             *self.rect.size
         )
         # returning value
@@ -848,14 +851,14 @@ class ArrowButton(GuiMaster):
 
         # drawing another background on hover if set by user
         if self.hover:
-            if self.args["background_hover"]:
-                image.fill(self.args["background_hover"])
+            if self.style.background_hover:
+                image.fill(self.style.background_hover)
         # drawing default background if given by user
-        elif self.args["background_color"]:
-            image.fill(self.args["background_color"])
+        elif self.style.background_color:
+            image.fill(self.style.background_color)
         # drawing border to surface if passed
-        if self.args["border"]:
-            u.drawBorder(image, size=self.args["border_size"])
+        if self.style.border:
+            u.drawBorder(image, size=self.style.border_size)
 
         return image
 class Panel(GuiMaster):

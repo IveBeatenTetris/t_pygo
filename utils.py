@@ -93,6 +93,18 @@ STYLE = {
         "wrap": None,
         "padding": 10
     },
+    "arrow_button": {
+        "size": (25, 25),
+        "position": (0, 0),
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55),
+    },
     "panel": {
         "size": (150, 200),
         "position": (0, 0),
@@ -216,7 +228,7 @@ STYLE = {
         "size": (50, 30),
         "position": (0, 0),
         "background_color": (55, 55, 65),
-        "background_hover": (25, 25, 35),
+        "background_hover": (45, 45, 55),
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
