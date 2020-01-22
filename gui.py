@@ -1222,3 +1222,8 @@ class Slot(GuiMaster):
         # redrawing text-field
         self.text_field.update()
         self.image.blit(self.text_field.image, (0, 0))
+class Menu(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="menu", **kwargs)

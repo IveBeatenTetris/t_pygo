@@ -197,6 +197,19 @@ STYLE = {
         "size": (1, 30),
         "position": (2, 0),
         "color": (100, 100, 150)
+    },
+    "menu": {
+        "size": (100, 120),
+        "position": (0, 0),
+        "background_color": (55, 55, 65),
+        "background_hover": (65, 65, 75),
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55),
+        "options" : []
     }
 }
 
