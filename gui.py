@@ -1223,9 +1223,23 @@ class Slot(GuiMaster):
         self.text_field.update()
         self.image.blit(self.text_field.image, (0, 0))
 class Menu(GuiMaster):
-    """."""
+    """
+    represents a listable menu. its dimensions depend on its options.
+    example:
+        menu = Menu(
+            ("Option 1", print, "Option1 has been clicked."),
+            ("Option 2", pprint, "Option2 has been clicked.")
+        )
+    while the first argument sets the name for this option, the second one
+    holds the function to call on click. any more arguments behind these two
+    will automatically become pass-args for the function to call.
+    """
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'options'       list of renderable options.
+        """
         GuiMaster.__init__(self, type="menu", **kwargs)
         # creating a rect with absolute position for mouse-events
         self.options = self.create_options()
@@ -1253,6 +1267,8 @@ class Menu(GuiMaster):
                 text = name,
                 font_size = 13
             )
+            # adding function-name and parameter to option
+            option.call = (func, *params)
             # updating next option's vertical drawing-position
             option.rect.top += y
             y += option.rect.height
@@ -1315,4 +1331,21 @@ class Menu(GuiMaster):
             self.image.blit(opt.image, opt.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
+        # mouse-events
+        mpos = self.mouse_events[1]
+        # drawing all options
         self.draw_options()
+
+        for opt in self.options:
+            # on option.hover
+            if opt.absolute_rect.collidepoint(mpos):
+                # on option.click
+                for evt in globals()["app"]._events:
+                    if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
+                        # if option's function is callable
+                        if callable(opt.call[0]):
+                            opt.call[0].__call__(*opt.call[1:])
+                        else:
+                            print("Function '{0}' not callable.".format(
+                                opt.call[0]
+                            ))
