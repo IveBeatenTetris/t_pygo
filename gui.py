@@ -809,6 +809,55 @@ class Button(Text):
         uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
+class ArrowButton(GuiMaster):
+    """represents an arrow-button with an arrow drawn on it."""
+    def __init__(self, **kwargs):
+        """
+        'rect'      subelement-dimensions in a pg.rect.
+        'args'      dict of passed arguments to arrow-class.
+        """
+        pg.sprite.Sprite.__init__(self)
+        self.rect = pg.Rect((0, 0), kwargs["size"])
+        self.args = kwargs
+    # dynamic attributes
+    @property
+    def hover(self):
+        """
+        returns 'true' if the mouse hovers the absloute position of the
+        arrow-object.
+        """
+        # mouse-events
+        mpos = pg.mouse.get_pos()
+        # pg.rect with absolute position of the arrow
+        rect = pg.Rect(
+            self.rect.left + self.args["parent"].rect.left,
+            self.rect.top + self.args["parent"].rect.top,
+            *self.rect.size
+        )
+        # returning value
+        hover = False
+
+        if rect.collidepoint(mpos):
+            hover = True
+
+        return hover
+    @property
+    def image(self):
+        """returns the image-surface of this sub-element."""
+        image = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+        # drawing another background on hover if set by user
+        if self.hover:
+            if self.args["background_hover"]:
+                image.fill(self.args["background_hover"])
+        # drawing default background if given by user
+        elif self.args["background_color"]:
+            image.fill(self.args["background_color"])
+        # drawing border to surface if passed
+        if self.args["border"]:
+            u.drawBorder(image, size=self.args["border_size"])
+
+        return image
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
@@ -1351,55 +1400,6 @@ class Menu(GuiMaster):
                             ))
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
-    class Arrow(pg.sprite.Sprite):
-        """represents an arrow-button with an arrow drawn on it."""
-        def __init__(self, **kwargs):
-            """
-            'rect'      subelement-dimensions in a pg.rect.
-            'args'      dict of passed arguments to arrow-class.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.rect = pg.Rect((0, 0), kwargs["size"])
-            self.args = kwargs
-        # dynamic attributes
-        @property
-        def hover(self):
-            """
-            returns 'true' if the mouse hovers the absloute position of the
-            arrow-object.
-            """
-            # mouse-events
-            mpos = pg.mouse.get_pos()
-            # pg.rect with absolute position of the arrow
-            rect = pg.Rect(
-                self.rect.left + self.args["parent"].rect.left,
-                self.rect.top + self.args["parent"].rect.top,
-                *self.rect.size
-            )
-            # returning value
-            hover = False
-
-            if rect.collidepoint(mpos):
-                hover = True
-
-            return hover
-        @property
-        def image(self):
-            """returns the image-surface of this sub-element."""
-            image = pg.Surface(self.rect.size, pg.SRCALPHA)
-
-            # drawing another background on hover if set by user
-            if self.hover:
-                if self.args["background_hover"]:
-                    image.fill(self.args["background_hover"])
-            # drawing default background if given by user
-            elif self.args["background_color"]:
-                image.fill(self.args["background_color"])
-            # drawing border to surface if passed
-            if self.args["border"]:
-                u.drawBorder(image, size=self.args["border_size"])
-
-            return image
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
@@ -1412,7 +1412,7 @@ class DropDown(GuiMaster):
         self.menu = Menu(
             options = self.style.options
         )
-        self.arrow = self.Arrow(
+        self.arrow = ArrowButton(
             parent = self,
             size = (self.rect.height, self.rect.height),
             background_color = self.style.background_color,
