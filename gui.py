@@ -870,15 +870,31 @@ class Slider(GuiMaster):
         'handle'    (sprite) dragable handle-subelement of this class.
         """
         GuiMaster.__init__(self, type="slider", **kwargs)
+        if self.style.alignment == "vertical":
+            self.resize((self.style.size[1], self.style.size[0]))
+            rail_size = (int(self.rect.width / 2), self.rect.height)
+            handle_size = (self.rect.width, self.rect.width)
+        else:
+            rail_size = (self.rect.width, int(self.rect.height / 2))
+            handle_size = (self.rect.height, self.rect.height)
         # creating sub-elements ('rail' and 'handle')
         self.rail = self.Rail(
-            size = (self.rect.width, int(self.rect.height / 2))
+            size = rail_size
         )
         self.handle = self.Handle(
-            size = (self.rect.height, self.rect.height)
+            size = handle_size
         )
         # drawing track and handle
-        self.image.blit(self.rail.image, (0, int(self.rail.rect.height / 2)))
+        if self.style.alignment == "horizontal":
+            self.image.blit(
+                self.rail.image,
+                (0, int(self.rail.rect.height / 2))
+            )
+        else:
+            self.image.blit(
+                self.rail.image,
+                (int(self.rail.rect.width / 2), 0)
+            )
         self.image.blit(self.handle.image, self.handle.rect)
     # dynamic attributes
     @property# bool
@@ -901,14 +917,24 @@ class Slider(GuiMaster):
             self.handle.dragged = False
         # updating handle-position on drag
         if self.handle.dragged:
-            # restricting drag-left and right
-            if self.handle.rect.left + mrel[0] < 0:
-                self.handle.rect.left = 0
-            elif self.handle.rect.right + mrel[0] > self.rail.rect.width:
-                self.handle.rect.right = self.rail.rect.width
-            # updating handle-position if not to small or to big
-            else:
-                self.handle.rect.left += mrel[0]
+            # restricting drag to left and right
+            if self.style.alignment == "horizontal":
+                if self.handle.rect.left + mrel[0] < 0:
+                    self.handle.rect.left = 0
+                elif self.handle.rect.right + mrel[0] > self.rail.rect.width:
+                    self.handle.rect.right = self.rail.rect.width
+                # updating handle-position if not to small or to big
+                else:
+                    self.handle.rect.left += mrel[0]
+            # restricting drag to up and down
+            elif self.style.alignment == "vertical":
+                if self.handle.rect.top + mrel[1] < 0:
+                    self.handle.rect.top = 0
+                elif self.handle.rect.bottom + mrel[1] > self.rail.rect.height:
+                    self.handle.rect.bottom = self.rail.rect.height
+                # updating handle-position if not to small or to big
+                else:
+                    self.handle.rect.top += mrel[1]
 
         return self.handle.dragged
     # basic methodes
@@ -919,7 +945,16 @@ class Slider(GuiMaster):
             if not self.style.background_color:
                 self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
             # drawing the slider-track (rail)
-            self.image.blit(self.rail.image,(0,int(self.rail.rect.height/2)))
+            if self.style.alignment == "horizontal":
+                self.image.blit(
+                    self.rail.image,
+                    (0, int(self.rail.rect.height / 2))
+                )
+            else:
+                self.image.blit(
+                    self.rail.image,
+                    (int(self.rail.rect.width / 2), 0)
+                )
             # recreating border if there is one
             if self.style.border:
                 self.redrawBorder()
@@ -972,7 +1007,7 @@ class TextField(GuiMaster):
         text = Text(
             text = self.text_string,
             font_size = 16,
-            position = (5, 0)
+            position = (8, 0)
         )
         text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
 

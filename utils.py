@@ -128,7 +128,8 @@ STYLE = {
         "border_color": (0, 0, 0),
         "border_size": 1,
         "dragable": False,
-        "drag_area": None
+        "drag_area": None,
+        "alignment": "horizontal"
     },
     "slider_rail": {
         "size": (20, 20),
