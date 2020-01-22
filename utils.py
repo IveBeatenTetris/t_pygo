@@ -209,7 +209,8 @@ STYLE = {
         "dragable": False,
         "drag_area": None,
         "drag_area_background": (45, 45, 55),
-        "options" : []
+        "options" : [],
+        "margin": [7, 35, 7, 10]
     }
 }
 

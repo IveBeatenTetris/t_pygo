@@ -1241,7 +1241,7 @@ class Menu(GuiMaster):
         # recreate the menu-surface with this width-argument
         biggest_width = 0
         # determines the next option's vertical drawing-position
-        y = 7
+        y = self.style.margin[0]
 
         for opt in self.style.options:
             name = opt[0]
@@ -1256,7 +1256,7 @@ class Menu(GuiMaster):
             option.rect.top += y
             y += option.rect.height
             # putting some margin in front of this option
-            option.rect.left += 7
+            option.rect.left += self.style.margin[3]
             # updating maximal-width for menu
             if option.rect.width > biggest_width:
                 biggest_width = option.rect.width
@@ -1266,7 +1266,10 @@ class Menu(GuiMaster):
         if biggest_width == 0:
             biggest_width = u.STYLE["menu"]["size"][0]
         # resizing menu
-        self.resize((biggest_width + 14, y + 7))
+        self.resize((
+            biggest_width + self.style.margin[1],
+            y + self.style.margin[2]
+        ))
 
         return options
     def draw_options(self):# list
