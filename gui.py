@@ -1363,23 +1363,39 @@ class DropDown(GuiMaster):
             self.args = kwargs
         # dynamic attributes
         @property
-        def absolute_rect(self):
+        def hover(self):
             """
-            returns a rect with the absolute position of the arrow-subelement
-            to use this for mouse-event-checking.
+            returns 'true' if the mouse hovers the absloute position of the
+            arrow-object.
             """
-            return pg.Rect(
-                self.rect.left + kwargs["parent"].rect.left,
-                self.rect.top + kwargs["parent"].rect.top,
+            # mouse-events
+            mpos = pg.mouse.get_pos()
+            # pg.rect with absolute position of the arrow
+            rect = pg.Rect(
+                self.rect.left + self.args["parent"].rect.left,
+                self.rect.top + self.args["parent"].rect.top,
                 *self.rect.size
             )
+            # returning value
+            hover = False
+
+            if rect.collidepoint(mpos):
+                hover = True
+
+            return hover
         @property
         def image(self):
             """returns the image-surface of this sub-element."""
             image = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-            if self.args["background_color"]:
+            # drawing another background on hover if set by user
+            if self.hover:
+                if self.args["background_hover"]:
+                    image.fill(self.args["background_hover"])
+            # drawing default background if given by user
+            elif self.args["background_color"]:
                 image.fill(self.args["background_color"])
+            # drawing border to surface if passed
             if self.args["border"]:
                 u.drawBorder(image, size=self.args["border_size"])
 
@@ -1400,6 +1416,7 @@ class DropDown(GuiMaster):
             parent = self,
             size = (self.rect.height, self.rect.height),
             background_color = self.style.background_color,
+            background_hover = self.style.background_hover,
             border = self.style.border,
             border_size = self.style.border_size,
             border_color = self.style.border_color
@@ -1414,4 +1431,4 @@ class DropDown(GuiMaster):
         self.image.blit(self.arrow.image, self.arrow.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
+        self.image.blit(self.arrow.image, self.arrow.rect)
