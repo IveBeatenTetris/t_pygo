@@ -1120,10 +1120,14 @@ class Slot(GuiMaster):
             """
             'image'         image-surface to use for drawing.
             'rect'          sprite's dimensions.
+            'position'      absolute position of the slot-element is stored in
+                            a tuple of 2 ints.
             """
             pg.sprite.Sprite.__init__(self)
             self.image = pg.Surface(kwargs["size"], pg.SRCALPHA)
             self.rect = self.image.get_rect()
+            # additional attributes
+            self.position = kwargs["position"]
             # creating surface
             if  kwargs["background_color"]:
                 self.image.fill(kwargs["background_color"])
@@ -1165,20 +1169,27 @@ class Slot(GuiMaster):
         """
         GuiMaster.__init__(self, type="slot", **kwargs)
         self.frame = self.Frame(
-            size = self.rect.size,
+            size = (self.rect.width, self.rect.height),
+            position = self.style.position,
             background_color = self.style.background_color,
             border = self.style.border,
             border_size = self.style.border_size,
             border_color = self.style.border_color
         )
+        # resizing surface to make some space for the arrow-buttons to draw
+        self.resize((
+            self.rect.width + int(self.rect.height / 2),
+            self.rect.height
+        ))
         self.arrow_up = self.Arrow(self, direction="up")
         self.arrow_down = self.Arrow(self, direction="down")
+        # drawing everything to the image-surface
         self.image.blit(self.frame.image, (0, 0))
         self.image.blit(self.arrow_up.image, self.arrow_up.rect)
         self.image.blit(self.arrow_down.image, self.arrow_down.rect)
     def update(self):
         """overwriting parent's 'update()'-method."""
-        #print(self.text_field.hover)
+        #print(self.frame.hover)
 class Slot3(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
