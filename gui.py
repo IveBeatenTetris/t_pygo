@@ -870,6 +870,8 @@ class Slider(GuiMaster):
         'handle'    (sprite) dragable handle-subelement of this class.
         """
         GuiMaster.__init__(self, type="slider", **kwargs)
+        # changing self.rect.size and size of subelements relative to
+        # 'style.alignment'
         if self.style.alignment == "vertical":
             self.resize((self.style.size[1], self.style.size[0]))
             rail_size = (int(self.rect.width / 2), self.rect.height)
@@ -885,17 +887,7 @@ class Slider(GuiMaster):
             size = handle_size
         )
         # drawing track and handle
-        if self.style.alignment == "horizontal":
-            self.image.blit(
-                self.rail.image,
-                (0, int(self.rail.rect.height / 2))
-            )
-        else:
-            self.image.blit(
-                self.rail.image,
-                (int(self.rail.rect.width / 2), 0)
-            )
-        self.image.blit(self.handle.image, self.handle.rect)
+        self.draw_elements()
     # dynamic attributes
     @property# bool
     def dragged(self):
@@ -938,28 +930,32 @@ class Slider(GuiMaster):
 
         return self.handle.dragged
     # basic methodes
+    def draw_elements(self):
+        """draws all internal elements to the image-surface."""
+        # drawing rail depending on 'style.alignment'
+        if self.style.alignment == "horizontal":
+            self.image.blit(
+                self.rail.image,
+                (0, int(self.rail.rect.height / 2))
+            )
+        else:
+            self.image.blit(
+                self.rail.image,
+                (int(self.rail.rect.width / 2), 0)
+            )
+        # drawing the handle
+        self.image.blit(self.handle.image, self.handle.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.dragged:
             # recreating transparent background if there is no color for it
             if not self.style.background_color:
                 self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
-            # drawing the slider-track (rail)
-            if self.style.alignment == "horizontal":
-                self.image.blit(
-                    self.rail.image,
-                    (0, int(self.rail.rect.height / 2))
-                )
-            else:
-                self.image.blit(
-                    self.rail.image,
-                    (int(self.rail.rect.width / 2), 0)
-                )
+            # drawing the slider-track (rail) and handle
+            self.draw_elements()
             # recreating border if there is one
             if self.style.border:
                 self.redrawBorder()
-            # redrawing handle
-            self.image.blit(self.handle.image, self.handle.rect)
 class TextCursor(pg.sprite.Sprite):
     """blinking text-cursor for text-field."""
     def __init__(self, **kwargs):
