@@ -1133,6 +1133,28 @@ class Slot(GuiMaster):
                     color = kwargs["border_color"],
                     size = kwargs["border_size"]
                 )
+        # dynamic attributes
+        @property# bool
+        def hover(self):
+            """
+            returns 'true' if the absolute-positioned frame-subelement has been
+            hovered.
+            """
+            # mouse-position
+            mpos = pg.mouse.get_pos()
+            # rect with absolute element-position
+            rect = pg.Rect(
+                self.position[0] + self.rect.left,
+                self.position[1] + self.rect.top,
+                *self.rect.size
+            )
+            # returning-bool
+            hover = False
+
+            if rect.collidepoint(mpos):
+                hover = True
+
+            return hover
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
