@@ -1349,3 +1349,10 @@ class Menu(GuiMaster):
                             print("Function '{0}' not callable.".format(
                                 opt.call[0]
                             ))
+class DropDown(GuiMaster):
+    """represents a drop-down-menu while using a meni-class as a subelement."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, style="drop_down", **kwargs)

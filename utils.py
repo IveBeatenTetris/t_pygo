@@ -211,6 +211,20 @@ STYLE = {
         "drag_area_background": (45, 45, 55),
         "options" : [],
         "margin": [7, 35, 7, 10]
+    },
+    "drop_down": {
+        "size": (50, 75),
+        "position": (0, 0),
+        "background_color": (55, 55, 65),
+        "background_hover": (35, 35, 45),
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (45, 45, 55),
+        "options" : [],
+        "margin": [7, 35, 7, 10]
     }
 }
 
