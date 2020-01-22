@@ -1263,7 +1263,7 @@ class Menu(GuiMaster):
                 biggest_width = option.rect.width
             # creating a rect with absolute position for mouse-events
             option.absolute_rect = pg.Rect(
-                option.rect.left + self.rect.left,
+                option.rect.left + self.rect.left - self.style.margin[3],
                 option.rect.top + self.rect.top,
                 *option.rect.size,
             )
