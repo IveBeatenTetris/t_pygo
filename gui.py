@@ -239,10 +239,10 @@ class App:
                     break
             # special exceptions for slot since it has elements that don't need
             # a change of the mouse-cursor from default to text-selection
-            """elif type(each) is Slot:
-                if each.hover:
+            elif type(each) is Slot:
+                if each.frame.hover:
                     self.cursor.state = "text"
-                    break"""
+                    break
         # drawing the new mouse-cursor
         self.display.blit(self.cursor.image, self.cursor.rect.topleft)
         # updating all drawn sprites
