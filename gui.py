@@ -1235,20 +1235,38 @@ class Menu(GuiMaster):
         creates a list of renderable options with their callable functions and
         returns it.
         """
+        # returning list
         options = []
-        y = 0
+        # will be influenced by the biggest element to draw. this is used to
+        # recreate the menu-surface with this width-argument
+        biggest_width = 0
+        # determines the next option's vertical drawing-position
+        y = 7
 
         for opt in self.style.options:
             name = opt[0]
             func = opt[1]
             params = opt[2:]
-
+            # creating the text-element
             option = Text(
-                text = name
+                text = name,
+                font_size = 13
             )
+            # updating next option's vertical drawing-position
             option.rect.top += y
             y += option.rect.height
+            # putting some margin in front of this option
+            option.rect.left += 7
+            # updating maximal-width for menu
+            if option.rect.width > biggest_width:
+                biggest_width = option.rect.width
+            # appending option to returning-list
             options.append(option)
+        # exception fot biggest_width being 0
+        if biggest_width == 0:
+            biggest_width = u.STYLE["menu"]["size"][0]
+        # resizing menu
+        self.resize((biggest_width + 14, y + 7))
 
         return options
     def draw_options(self):# list

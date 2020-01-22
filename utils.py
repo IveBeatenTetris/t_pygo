@@ -199,7 +199,7 @@ STYLE = {
         "color": (100, 100, 150)
     },
     "menu": {
-        "size": (100, 120),
+        "size": (50, 75),
         "position": (0, 0),
         "background_color": (55, 55, 65),
         "background_hover": (65, 65, 75),
