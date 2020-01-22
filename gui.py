@@ -1284,13 +1284,35 @@ class Menu(GuiMaster):
         return options
     def draw_options(self):# list
         """draws all options to the menu-element."""
-        for opt in self.options:
-            self.image.blit(opt.image, opt.rect)
-    def update(self):
-        """overwrites parent's 'update()'-method."""
         # mouse-events
         mpos = self.mouse_events[1]
 
-        for each in self.options:
-            if each.absolute_rect.collidepoint(mpos):
-                print(each.absolute_rect)
+        for opt in self.options:
+            # drawing background_hover if set by user
+            if opt.absolute_rect.collidepoint(mpos):
+                if self.style.background_hover:
+                    self.image.fill(
+                        self.style.background_hover,
+                        [
+                            opt.rect.left - self.style.margin[3],
+                            opt.rect.top,
+                            self.rect.width,
+                            opt.rect.height
+                        ]
+                    )
+            #drawing default background if set by user
+            elif self.style.background_color:
+                self.image.fill(
+                    self.style.background_color,
+                    [
+                        opt.rect.left - self.style.margin[3],
+                        opt.rect.top,
+                        self.rect.width,
+                        opt.rect.height
+                    ]
+                )
+            # drawing text over background
+            self.image.blit(opt.image, opt.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        self.draw_options()
