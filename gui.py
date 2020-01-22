@@ -590,7 +590,7 @@ class GuiMaster(pg.sprite.Sprite):
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
-# all these following elements draw their inherition from 'GuiMaster'
+# most of these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
@@ -925,129 +925,6 @@ class Slider(GuiMaster):
                 self.redrawBorder()
             # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
-class TextField(GuiMaster):
-    """resembles a text-field-element for typing in some text."""
-    class TextCursor(pg.sprite.Sprite):
-        """blinking text-cursor for text-field."""
-        def __init__(self, **kwargs):
-            """
-            'stylesheet'        the validated 'dict' to draw building-
-                                instructions from. evaluation between passed
-                                keyword-args and a dict of predefined
-                                attributes.
-            'rect'              (pg.rect) cursor dimensions.
-            'image'             image-surface of this sprite.
-            'cooldown'          int to decrease on update for drawing a
-                                blinking cursor to the text-field-element.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.style = Stylesheet(
-                type = "text_cursor",
-                style = kwargs
-            )
-            self.rect = pg.Rect(self.style.position, self.style.size)
-            self.image = pg.Surface(self.rect.size)
-            self.image.fill(self.style.color)
-            self.cooldown = 100
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
-
-        'text_string'   with entered keys combined as a str.
-        'cursor'        (class) 'pg.surface' that comes along with some
-                        operations for correctly drawing itself to its parent.
-        """
-        # initialising text-object
-        if not "type" in kwargs: kwargs["type"] = "text_field"
-        GuiMaster.__init__(self, **kwargs)
-        self.text_string = ""
-        self.cursor = self.TextCursor(
-            size = (2, self.rect.height - 10),
-            position = (5, 5)
-        )
-    # dynamic properties
-    @property# text-object
-    def text(self):
-        """returns a text-object."""
-        text = Text(
-            text = self.text_string,
-            font_size = 16,
-            position = (5, 0)
-        )
-        text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
-
-        return text
-    # basic methodes
-    def handleCursor(self):
-        """
-        checks 'cooldown' and draws either 'cursor' or 'background'. draws the
-        cursor on 'active' and clears it again on 'waiting'.
-        """
-        # mouse-events
-        mbut = self.mouse_events[0]
-
-        if self.state == "active":
-            # updating blinking-cursors drawing-position
-            self.cursor.rect.left = self.text.rect.right
-            # drawing cursor if cooldown over 50
-            if self.cursor.cooldown >= 50:
-                self.image.blit(self.cursor.image, self.cursor.rect)
-            # redrawing background over cursor if cooldown falls below 50
-            elif self.cursor.cooldown < 50:
-                self.image.blit(self.background, self.cursor.rect)
-                self.redrawBorder()
-            # resetting cooldown or further reducing it
-            if self.cursor.cooldown == 0:
-                self.cursor.cooldown = 100
-            else:
-                self.cursor.cooldown -= 1
-        # resetting cursor by clicking somewhere else
-        elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.redrawBackground()
-            self.redrawBorder()
-            # redrawing text if there is one typed in
-            if len(self.text_string) >= 1:
-                self.image.blit(self.text.image, self.text.rect)
-    def handleInput(self):
-        """
-        translates pressed keys and adds their char to 'text_string'. draws the
-        text to textfields-surface afterwards.
-        """
-        # mouse-events
-        mrel = self.mouse_events[2]
-
-        if self.state == "active":
-            for evt in globals()["app"]._events:
-                if evt.type is pg.KEYDOWN:
-                    # translating key to unicode
-                    char = pg.key.name(evt.key)
-                    # special operations if key is longer than a single char or
-                    # letter. adding an empty space to string
-                    if evt.key is pg.K_SPACE:
-                        char = " "
-                    # removing last entered char from string
-                    elif evt.key is pg.K_BACKSPACE:
-                        self.text_string = self.text_string[:-1]
-                        char = ""
-                    # appending char to string
-                    self.text_string += char
-                # recreating background and drawing text to textfield (only
-                # when mouse is not moving)
-                if not(mrel[0] or mrel[1]):
-                    self.redraw()
-                    self.image.blit(self.text.image, self.text.rect)
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        # mouse-events
-        mrel = self.mouse_events[2]
-        # visual redrawing of this element depends on the following conditions:
-        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
-            self.redraw()
-            self.image.blit(self.text.image, self.text.rect)
-        # drawing cursor on activation
-        self.handleCursor()
-        # handling input-chars & letters for displaying them in the textfield
-        self.handleInput()
 class Slot(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
@@ -1190,3 +1067,126 @@ class Slot(GuiMaster):
     def update(self):
         """overwriting parent's 'update()'-method."""
         pass
+class TextCursor(pg.sprite.Sprite):
+    """blinking text-cursor for text-field."""
+    def __init__(self, **kwargs):
+        """
+        'stylesheet'        the validated 'dict' to draw building-
+                            instructions from. evaluation between passed
+                            keyword-args and a dict of predefined
+                            attributes.
+        'rect'              (pg.rect) cursor dimensions.
+        'image'             image-surface of this sprite.
+        'cooldown'          int to decrease on update for drawing a
+                            blinking cursor to the text-field-element.
+        """
+        pg.sprite.Sprite.__init__(self)
+        self.style = Stylesheet(
+            type = "text_cursor",
+            style = kwargs
+        )
+        self.rect = pg.Rect(self.style.position, self.style.size)
+        self.image = pg.Surface(self.rect.size)
+        self.image.fill(self.style.color)
+        self.cooldown = 100
+class TextField(GuiMaster):
+    """resembles a text-field-element for typing in some text."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'text_string'   with entered keys combined as a str.
+        'cursor'        'pg.surface' that comes along with some additional
+                        operations for correctly drawing itself to its parent.
+        """
+        # initialising text-object
+        if not "type" in kwargs: kwargs["type"] = "text_field"
+        GuiMaster.__init__(self, **kwargs)
+        self.text_string = ""
+        self.cursor = TextCursor(
+            size = (2, self.rect.height - 10),
+            position = (5, 5)
+        )
+    # dynamic properties
+    @property# text-object
+    def text(self):
+        """returns a text-object."""
+        text = Text(
+            text = self.text_string,
+            font_size = 16,
+            position = (5, 0)
+        )
+        text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
+
+        return text
+    # basic methodes
+    def handleCursor(self):
+        """
+        checks 'cooldown' and draws either 'cursor' or 'background'. draws the
+        cursor on 'active' and clears it again on 'waiting'.
+        """
+        # mouse-events
+        mbut = self.mouse_events[0]
+
+        if self.state == "active":
+            # updating blinking-cursors drawing-position
+            self.cursor.rect.left = self.text.rect.right
+            # drawing cursor if cooldown over 50
+            if self.cursor.cooldown >= 50:
+                self.image.blit(self.cursor.image, self.cursor.rect)
+            # redrawing background over cursor if cooldown falls below 50
+            elif self.cursor.cooldown < 50:
+                self.image.blit(self.background, self.cursor.rect)
+                self.redrawBorder()
+            # resetting cooldown or further reducing it
+            if self.cursor.cooldown == 0:
+                self.cursor.cooldown = 100
+            else:
+                self.cursor.cooldown -= 1
+        # resetting cursor by clicking somewhere else
+        elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
+            self.redrawBackground()
+            self.redrawBorder()
+            # redrawing text if there is one typed in
+            if len(self.text_string) >= 1:
+                self.image.blit(self.text.image, self.text.rect)
+    def handleInput(self):
+        """
+        translates pressed keys and adds their char to 'text_string'. draws the
+        text to textfields-surface afterwards.
+        """
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        if self.state == "active":
+            for evt in globals()["app"]._events:
+                if evt.type is pg.KEYDOWN:
+                    # translating key to unicode
+                    char = pg.key.name(evt.key)
+                    # special operations if key is longer than a single char or
+                    # letter. adding an empty space to string
+                    if evt.key is pg.K_SPACE:
+                        char = " "
+                    # removing last entered char from string
+                    elif evt.key is pg.K_BACKSPACE:
+                        self.text_string = self.text_string[:-1]
+                        char = ""
+                    # appending char to string
+                    self.text_string += char
+                # recreating background and drawing text to textfield (only
+                # when mouse is not moving)
+                if not(mrel[0] or mrel[1]):
+                    self.redraw()
+                    self.image.blit(self.text.image, self.text.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # visual redrawing of this element depends on the following conditions:
+        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+            self.redraw()
+            self.image.blit(self.text.image, self.text.rect)
+        # drawing cursor on activation
+        self.handleCursor()
+        # handling input-chars & letters for displaying them in the textfield
+        self.handleInput()
