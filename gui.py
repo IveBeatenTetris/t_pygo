@@ -1084,7 +1084,8 @@ class Slot(GuiMaster):
         def click(self):
             """returns 'true' if this element has been clicked."""
             # mouse-events
-            mbut, mpos = self.parent.mouse_events[:2]
+            mpos = self.parent.mouse_events[1]
+            events = globals()["app"]._events
             # absolute-positioned rect
             rect = pg.Rect(
                 self.parent.rect.left + self.rect.left,
@@ -1094,8 +1095,10 @@ class Slot(GuiMaster):
             # returning bool
             click = False
 
-            if rect.collidepoint(mpos) and mbut[0]:
-                click = True
+            if rect.collidepoint(mpos):
+                for evt in events:
+                    if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
+                        click = True
 
             return click
         # basic methodes
