@@ -1354,14 +1354,25 @@ class DropDown(GuiMaster):
     class Arrow(pg.sprite.Sprite):
         """represents an arrow-button with an arrow drawn on it."""
         def __init__(self, **kwargs):
-            """."""
+            """
+            'rect'      subelement-dimensions in a pg.rect.
+            'args'      dict of passed arguments to arrow-class.
+            """
             pg.sprite.Sprite.__init__(self)
             self.rect = pg.Rect((0, 0), kwargs["size"])
-            self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
-            if kwargs["background_color"]:
-                self.image.fill(kwargs["background_color"])
-            if kwargs["border"]:
-                self.image.fill(kwargs["border_color"])
+            self.args = kwargs
+        # dynamic attributes
+        @property
+        def image(self):
+            """returns the image-surface of this sub-element."""
+            image = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+            if self.args["background_color"]:
+                image.fill(self.args["background_color"])
+            if self.args["border"]:
+                u.drawBorder(image, size=self.args["border_size"])
+
+            return image
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
@@ -1381,12 +1392,12 @@ class DropDown(GuiMaster):
             border_size = self.style.border_size,
             border_color = self.style.border_color
         )
-
         # resizing dropdown-surface based on menu-width
         self.resize((
             self.menu.rect.width + self.arrow.rect.width,
             self.rect.height
         ))
+        # repositioning arrow-button and drawing it to menu.image
         self.arrow.rect.right = self.rect.width
         self.image.blit(self.arrow.image, self.arrow.rect)
     def update(self):
