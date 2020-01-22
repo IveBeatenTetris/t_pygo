@@ -240,7 +240,7 @@ class App:
             # special exceptions for slot since it has elements that don't need
             # a change of the mouse-cursor from default to text-selection
             elif type(each) is Slot:
-                if each.frame.hover:
+                if each.text_field.hover:
                     self.cursor.state = "text"
                     break
         # drawing the new mouse-cursor
@@ -925,153 +925,11 @@ class Slider(GuiMaster):
                 self.redrawBorder()
             # redrawing handle
             self.image.blit(self.handle.image, self.handle.rect)
-class Slot(GuiMaster):
-    """
-    this is an advanced text-input with 'up'- and 'down' buttons to lower and
-    raise its content.
-    """
-    class Arrow(pg.sprite.Sprite):
-        """represents an arrow-button with an arrow drawn on it."""
-        def __init__(self, parent, direction):
-            """
-            'parent'        parental gui-element.
-            'direction'     (str) 'up' or 'down'. this is required to correctly
-                            draw the arrow-triangle to a surface.
-            'rect'          sprite's dimensions.
-            'image'         image-surface to use for drawing.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.parent = parent
-            self.direction = direction
-            self.rect = pg.Rect(
-                (0, 0),
-                (
-                    int(parent.rect.height / 2),
-                    int(parent.rect.height / 2)
-                )
-            )
-            # creating arrow-surface
-            self.image = self.draw_arrow(direction)
-            # updating rect.position after image has been created
-            self.rect.left = parent.rect.width - self.rect.width
-            if self.direction == "down":
-                self.rect.bottom = parent.rect.height
-        def draw_arrow(self, direction):# pg.surface
-            """
-            returns a pg.surface. draws triangle-arrows to the button-surface
-            depending on their directions ('up', 'down').
-            """
-            surface = pg.Surface(self.rect.size)
-            surface.fill(self.parent.style.border_color)
-            # margin for the triangle to start drawing. the higher the margin,
-            # the smaller the triangle will be drawn
-            margin = 4
-
-            if direction == "up":
-                pg.draw.polygon(
-                    surface,
-                    self.parent.style.background_color,
-                    [
-                        (margin, self.rect.height - margin),
-                        (self.rect.width - margin, self.rect.height - margin),
-                        (self.rect.midtop[0], margin)
-                    ],
-                    0
-                )
-            elif direction == "down":
-                pg.draw.polygon(
-                    surface,
-                    self.parent.style.background_color,
-                    [
-                        (margin, margin),
-                        (self.rect.width - margin, margin),
-                        (self.rect.midtop[0], self.rect.bottom - margin)
-                    ],
-                    0
-                )
-
-            return surface
-    class Frame(pg.sprite.Sprite):
-        """resembles the txt-area of the slot."""
-        def __init__(self, **kwargs):
-            """
-            'image'         image-surface to use for drawing.
-            'rect'          sprite's dimensions.
-            'position'      absolute position of the slot-element is stored in
-                            a tuple of 2 ints.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.image = pg.Surface(kwargs["size"], pg.SRCALPHA)
-            self.rect = self.image.get_rect()
-            # additional attributes
-            self.position = kwargs["position"]
-            # creating surface
-            if  kwargs["background_color"]:
-                self.image.fill(kwargs["background_color"])
-            if kwargs["border"]:
-                u.drawBorder(
-                    self.image,
-                    color = kwargs["border_color"],
-                    size = kwargs["border_size"]
-                )
-        # dynamic attributes
-        @property# bool
-        def hover(self):
-            """
-            returns 'true' if the absolute-positioned frame-subelement has been
-            hovered.
-            """
-            # mouse-position
-            mpos = pg.mouse.get_pos()
-            # rect with absolute element-position
-            rect = pg.Rect(
-                self.position[0] + self.rect.left,
-                self.position[1] + self.rect.top,
-                *self.rect.size
-            )
-            # returning-bool
-            hover = False
-
-            if rect.collidepoint(mpos):
-                hover = True
-
-            return hover
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
-
-        'frame'         pg.srpite that acts as a text_field to lower or raise.
-        'arrow_up'      up-button-sprite.
-        'arrow_down'    down-button-sprite.
-        """
-        GuiMaster.__init__(self, type="slot", **kwargs)
-        self.frame = self.Frame(
-            size = (self.rect.width, self.rect.height),
-            position = self.style.position,
-            background_color = self.style.background_color,
-            border = self.style.border,
-            border_size = self.style.border_size,
-            border_color = self.style.border_color
-        )
-        # resizing surface to make some space for the arrow-buttons to draw
-        self.resize((
-            self.rect.width + int(self.rect.height / 2),
-            self.rect.height
-        ))
-        self.arrow_up = self.Arrow(self, direction="up")
-        self.arrow_down = self.Arrow(self, direction="down")
-        # drawing everything to the image-surface
-        self.image.blit(self.frame.image, (0, 0))
-        self.image.blit(self.arrow_up.image, self.arrow_up.rect)
-        self.image.blit(self.arrow_down.image, self.arrow_down.rect)
-    def update(self):
-        """overwriting parent's 'update()'-method."""
-        pass
 class TextCursor(pg.sprite.Sprite):
     """blinking text-cursor for text-field."""
     def __init__(self, **kwargs):
         """
-        'stylesheet'        the validated 'dict' to draw building-
+        'style'             the validated 'dict' to draw building-
                             instructions from. evaluation between passed
                             keyword-args and a dict of predefined
                             attributes.
@@ -1190,3 +1048,125 @@ class TextField(GuiMaster):
         self.handleCursor()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
+class Slot(GuiMaster):
+    """
+    this is an advanced text-input with 'up'- and 'down' buttons to lower and
+    raise its content.
+    """
+    class Arrow(pg.sprite.Sprite):
+        """represents an arrow-button with an arrow drawn on it."""
+        def __init__(self, parent, direction):
+            """
+            'parent'        parental gui-element.
+            'direction'     (str) 'up' or 'down'. this is required to correctly
+                            draw the arrow-triangle to a surface.
+            'rect'          sprite's dimensions.
+            'image'         image-surface to use for drawing.
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.parent = parent
+            self.direction = direction
+            self.rect = pg.Rect(
+                (0, 0),
+                (
+                    int(parent.rect.height / 2),
+                    int(parent.rect.height / 2)
+                )
+            )
+            # creating arrow-surface
+            self.image = self.draw_arrow(direction)
+            # updating rect.position after image has been created
+            self.rect.left = parent.rect.width - self.rect.width
+            if self.direction == "down":
+                self.rect.bottom = parent.rect.height
+        # dynamic attributes
+        @property
+        def click(self):
+            """returns 'true' if this element has been clicked."""
+            # mouse-events
+            mbut, mpos = self.parent.mouse_events[:2]
+            # absolute-positioned rect
+            rect = pg.Rect(
+                self.parent.rect.left + self.rect.left,
+                self.parent.rect.top + self.rect.top,
+                *self.rect.size
+            )
+            # returning bool
+            click = False
+
+            if rect.collidepoint(mpos) and mbut[0]:
+                click = True
+
+            return click
+        # basic methodes
+        def draw_arrow(self, direction):# pg.surface
+            """
+            returns a pg.surface. draws triangle-arrows to the button-surface
+            depending on their directions ('up', 'down').
+            """
+            surface = pg.Surface(self.rect.size)
+            surface.fill(self.parent.style.border_color)
+            # margin for the triangle to start drawing. the higher the margin,
+            # the smaller the triangle will be drawn
+            margin = 4
+
+            if direction == "up":
+                pg.draw.polygon(
+                    surface,
+                    self.parent.style.background_color,
+                    [
+                        (margin, self.rect.height - margin),
+                        (self.rect.width - margin, self.rect.height - margin),
+                        (self.rect.midtop[0], margin)
+                    ],
+                    0
+                )
+            elif direction == "down":
+                pg.draw.polygon(
+                    surface,
+                    self.parent.style.background_color,
+                    [
+                        (margin, margin),
+                        (self.rect.width - margin, margin),
+                        (self.rect.midtop[0], self.rect.bottom - margin)
+                    ],
+                    0
+                )
+
+            return surface
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'text_field'    pg.srpite that acts as a text_field to lower or raise.
+        'arrow_up'      up-button-sprite.
+        'arrow_down'    down-button-sprite.
+        """
+        GuiMaster.__init__(self, type="slot", **kwargs)
+        self.text_field = TextField(
+            size = (self.rect.width, self.rect.height),
+            position = self.style.position,
+            background_color = self.style.background_color,
+            border = self.style.border,
+            border_size = self.style.border_size,
+            border_color = self.style.border_color
+        )
+        # resizing surface to make some space for the arrow-buttons to draw
+        self.resize((
+            self.rect.width + int(self.rect.height / 2),
+            self.rect.height
+        ))
+        self.arrow_up = self.Arrow(self, direction="up")
+        self.arrow_down = self.Arrow(self, direction="down")
+        # drawing everything to the image-surface
+        self.image.blit(self.text_field.image, (0, 0))
+        self.image.blit(self.arrow_up.image, self.arrow_up.rect)
+        self.image.blit(self.arrow_down.image, self.arrow_down.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        self.text_field.hover
+        if self.text_field.hover and (mrel[0] or mrel[1]):
+            self.image.blit(self.text_field.image, (0, 0))
