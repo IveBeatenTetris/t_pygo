@@ -1363,6 +1363,17 @@ class DropDown(GuiMaster):
             self.args = kwargs
         # dynamic attributes
         @property
+        def absolute_rect(self):
+            """
+            returns a rect with the absolute position of the arrow-subelement
+            to use this for mouse-event-checking.
+            """
+            return pg.Rect(
+                self.rect.left + kwargs["parent"].rect.left,
+                self.rect.top + kwargs["parent"].rect.top,
+                *self.rect.size
+            )
+        @property
         def image(self):
             """returns the image-surface of this sub-element."""
             image = pg.Surface(self.rect.size, pg.SRCALPHA)
@@ -1386,6 +1397,7 @@ class DropDown(GuiMaster):
             options = self.style.options
         )
         self.arrow = self.Arrow(
+            parent = self,
             size = (self.rect.height, self.rect.height),
             background_color = self.style.background_color,
             border = self.style.border,
