@@ -422,7 +422,7 @@ class GuiMaster(pg.sprite.Sprite):
         precise_click = None
         # adding more precise mouse-events
         for evt in globals()["app"]._events:
-            if evt.type is pg.MOUSEBUTTONDOWN:
+            if evt.type is pg.MOUSEBUTTONDOWN and self.hover:
                 if evt.button == 1:
                     precise_click = "left"
 
@@ -1433,9 +1433,9 @@ class Slot(GuiMaster):
             self.arrow_down.update()
             self.image.blit(self.arrow_down.image, self.arrow_down.rect)
         # changing value of the text-field if it's an integer
-        if self.arrow_up.click:
+        if self.arrow_up.precise_click:
             self.raise_value()
-        elif self.arrow_down.click:
+        elif self.arrow_down.precise_click:
             self.lower_value()
         # redrawing text-field
         self.text_field.update()
