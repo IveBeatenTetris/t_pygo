@@ -1515,6 +1515,10 @@ class DropDown(GuiMaster):
             app.draw_list.add(self.menu)
         elif self.menu in app.draw_list and not self.hover and mbut[0]:
             app.draw_list.remove(self.menu)
+    def draw_arrow(self):
+        """draws the arrow button to the dropdown-surface."""
+        self.arrow.update()
+        self.image.blit(self.arrow.image, self.arrow.rect)
     def draw_selection(self):
         """draws the selected option as a text on the text-output."""
         pos = (
@@ -1525,7 +1529,6 @@ class DropDown(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         # drawing updated arrow-image
-        self.arrow.update()
-        self.image.blit(self.arrow.image, self.arrow.rect)
+        self.draw_arrow()
         # drawing menu if dropdown or its arrow has been clicked
         self.call_menu()
