@@ -1475,7 +1475,8 @@ class DropDown(GuiMaster):
         """
         GuiMaster.__init__(self, type="drop_down", **kwargs)
         self.menu = Menu(
-            options = self.style.options
+            options = self.style.options,
+            position = self.absloute_rect.topleft
         )
         self.selection = self.menu.options[0]
         self.arrow = ArrowButton(
@@ -1522,8 +1523,6 @@ class DropDown(GuiMaster):
         # adding and removing menu from app's 'draw_list' to render it as long
         # as it's not de-clicked
         if self.arrow.click:
-            if not self.menu in app.draw_list:
-                self.menu.rect.topleft = self.absloute_rect.topleft
-                app.draw_list.add(self.menu)
+            app.draw_list.add(self.menu)
         elif self.menu in app.draw_list and not self.hover and mbut[0]:
             app.draw_list.remove(self.menu)
