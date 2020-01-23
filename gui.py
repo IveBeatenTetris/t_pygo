@@ -301,12 +301,7 @@ class App:
 
         return bg
 class GuiMaster(pg.sprite.Sprite):
-    """
-    resembles a 'pygame.surface' but with advanced operations.
-
-    'defaults' serves as a setup-dict to evaluate building instructions for the
-        master-element.
-    """
+    """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
         """
         first creates a internal setup-config to decleare some properties.
@@ -364,7 +359,7 @@ class GuiMaster(pg.sprite.Sprite):
         # first time creating surface and recreating inner element's visuals
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
-    # dynamic properties
+    # dynamic attributes
     @property# pg.surface
     def background(self):
         """returns a ready to draw background-surface."""
@@ -893,8 +888,35 @@ class ArrowButton(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'arrow'     pg.surface with the arrow alreay blitten on.
+        'image'     pg.surface to draw on.
         """
         GuiMaster.__init__(self, type="arrow_button", **kwargs)
+        # drawing an arrow to the image
+        self.arrow = self.createArrow()
+        self.image.blit(self.arrow, (0, 0))
+    def createArrow(self):
+        """returns a pg.Surface with an arrow drawn on."""
+        surface = pg.Surface(self.style.size, pg.SRCALPHA)
+
+        surface = u.drawArrow(
+            surface,
+            direction = self.style.direction,
+            color = self.style.border_color,
+            margin = self.style.margin
+        )
+
+        return surface
+    # basic mathodes
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # recreating visuals on hover
+        if self.hover or self.leave and (mrel[0] or mrel[1]):
+            self.redraw()
+            self.image.blit(self.arrow, (0, 0))
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
