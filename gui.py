@@ -1391,7 +1391,7 @@ class Menu(GuiMaster):
             # creating the text-element
             option = Text(
                 text = name,
-                font_size = 13
+                font_size = self.style.font_size
             )
             # adding function-name and parameter to option
             option.call = (func, *params)
@@ -1488,7 +1488,8 @@ class DropDown(GuiMaster):
         GuiMaster.__init__(self, type="drop_down", **kwargs)
         self.menu = Menu(
             options = self.style.options,
-            position = self.absloute_rect.topleft
+            position = self.absloute_rect.topleft,
+            #margin = [0, 0, 0, 0]
         )
         self.selection = self.menu.options[0]
         self.arrow = ArrowButton(

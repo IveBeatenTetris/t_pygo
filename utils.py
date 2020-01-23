@@ -225,7 +225,8 @@ STYLE = {
         "drag_area": None,
         "drag_area_background": (45, 45, 55),
         "options" : [],
-        "margin": [7, 35, 7, 10]
+        "margin": [7, 35, 7, 10],
+        "font_size": 13
     },
     "drop_down": {
         "size": (50, 30),
