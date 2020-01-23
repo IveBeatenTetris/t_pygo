@@ -403,7 +403,6 @@ class GuiMaster(pg.sprite.Sprite):
         """
         mbut = self.mouse_events[0]
         buttons = []
-
         # adding marking for used button on hover
         if self.hover:
             if mbut[0]: buttons.append("left")
@@ -414,6 +413,20 @@ class GuiMaster(pg.sprite.Sprite):
             self.state = "active"
 
         return buttons
+    @property# none / str
+    def precise_click(self):
+        """
+        returns 'none' if nothing has clicked and a str related to used mouse-
+        button.
+        """
+        precise_click = None
+        # adding more precise mouse-events
+        for evt in globals()["app"]._events:
+            if evt.type is pg.MOUSEBUTTONDOWN:
+                if evt.button == 1:
+                    precise_click = "left"
+
+        return precise_click
     @property# bool
     def drag(self):
         """
@@ -1511,9 +1524,15 @@ class DropDown(GuiMaster):
         mbut = self.mouse_events[0]
         app = globals()["app"]
 
+        # adding menu to draw_list on click
         if self.arrow.click:
             app.draw_list.add(self.menu)
-        elif self.menu in app.draw_list and not self.hover and mbut[0]:
+        # removing menu from 'draw_list' if clicked or aborted
+        elif (
+            self.menu in app.draw_list and
+            (not self.hover and mbut[0]) or
+            self.menu.precise_click
+        ):
             app.draw_list.remove(self.menu)
     def draw_arrow(self):
         """draws the arrow button to the dropdown-surface."""
