@@ -1508,5 +1508,17 @@ class DropDown(GuiMaster):
         self.image.blit(self.selection.image, pos)
     def update(self):
         """overwrites parent's 'update()'-method."""
+        # update-dependencies
+        app = globals()["app"]
+        mbut = self.mouse_events[0]
+        # drawing updated arrow-image
         self.arrow.update()
         self.image.blit(self.arrow.image, self.arrow.rect)
+        # adding and removing menu from app's 'draw_list' to render it as long
+        # as it's not de-clicked
+        if self.arrow.click:
+            if not self.menu in app.draw_list:
+                self.menu.rect.topleft = self.absloute_rect.topleft
+                app.draw_list.add(self.menu)
+        elif self.menu in app.draw_list and not self.hover and mbut[0]:
+            app.draw_list.remove(self.menu)
