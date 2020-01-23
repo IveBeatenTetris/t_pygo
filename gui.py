@@ -903,7 +903,7 @@ class ArrowButton(GuiMaster):
         surface = u.drawArrow(
             surface,
             direction = self.style.direction,
-            color = self.style.border_color,
+            color = self.style.arrow_color,
             margin = self.style.margin
         )
 
@@ -1463,9 +1463,10 @@ class DropDown(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'menu'      a whole rendered menu-element to draw when the dropdown-
-                    element has been clicked (selection was made).
-        'arrow'     'pg.sprite' of a hoverable and clickable arrow-button.
+        'menu'          a whole rendered menu-element to draw when the dropdown
+                        element has been clicked (selection was made).
+        'selection'     the selected menu.option as a 'text'-element.
+        'arrow'         'pg.sprite' of a hoverable and clickable arrow-button.
         """
         GuiMaster.__init__(self, type="drop_down", **kwargs)
         self.menu = Menu(
@@ -1474,28 +1475,30 @@ class DropDown(GuiMaster):
         self.selection = self.menu.options[0]
         self.arrow = ArrowButton(
             parent = self,
-            #text =
             size = (self.rect.height, self.rect.height),
-            background_color = self.style.background_color,
+            background_color = self.style.border_color,
             background_hover = self.style.background_hover,
             border = self.style.border,
             border_size = self.style.border_size,
             border_color = self.style.border_color,
             direction = "down",
-            margin = 7
+            margin = 7,
+            arrow_color = self.style.background_color
         )
         # resizing dropdown-surface based on menu-width
         self.resize((
             self.menu.rect.width + self.arrow.rect.width,
             self.rect.height
         ))
-
+        # drawing selected option (at first time it's gonna be menu.options[0])
         self.draw_selection()
         # repositioning arrow-button and drawing it to menu.image
         self.arrow.rect.right = self.rect.width
         self.image.blit(self.arrow.image, self.arrow.rect)
-    # dynamic attributes
     # basic methodes
+    def call_menu(self):
+        """calls and draws the menu right under the dropdown-element."""
+        pass
     def draw_selection(self):
         """draws the selected option as a text on the text-output."""
         pos = (

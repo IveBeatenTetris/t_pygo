@@ -105,7 +105,8 @@ STYLE = {
         "drag_area": None,
         "drag_area_background": (45, 45, 55),
         "direction": "up",
-        "margin": 2
+        "margin": 2,
+        "arrow_color": (10, 10, 20)
     },
     "panel": {
         "size": (150, 200),
