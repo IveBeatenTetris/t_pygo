@@ -1465,16 +1465,15 @@ class Menu(GuiMaster):
         for opt in self.options:
             # on option.hover
             if opt.absolute_rect.collidepoint(mpos):
-                # on option.click
-                for evt in globals()["app"]._events:
-                    if evt.type is pg.MOUSEBUTTONDOWN and evt.button == 1:
-                        # if option's function is callable
-                        if callable(opt.call[0]):
-                            opt.call[0].__call__(*opt.call[1:])
-                        else:
-                            print("Function '{0}' not callable.".format(
-                                opt.call[0]
-                            ))
+                # on option.precise_click
+                if opt.precise_click:
+                    # if option's function is callable
+                    if callable(opt.call[0]):
+                        opt.call[0].__call__(*opt.call[1:])
+                    else:
+                        print("Function '{0}' not callable.".format(
+                            opt.call[0]
+                        ))
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
     def __init__(self, **kwargs):
