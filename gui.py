@@ -1348,6 +1348,11 @@ class Slot(GuiMaster):
         # redrawing text-field
         self.text_field.update()
         self.image.blit(self.text_field.image, (0, 0))
+class Slot2(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="slot", **kwargs)
 class Menu(GuiMaster):
     """
     represents a listable menu. its dimensions depend on its options.
