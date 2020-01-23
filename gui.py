@@ -1503,8 +1503,18 @@ class DropDown(GuiMaster):
         self.image.blit(self.arrow.image, self.arrow.rect)
     # basic methodes
     def call_menu(self):
-        """calls and draws the menu right under the dropdown-element."""
-        pass
+        """
+        calls and draws the menu right under the dropdown-element. uses app's
+        'draw_list' to render the menu as long as it's not de-clicked.
+        """
+        # mouse-events
+        mbut = self.mouse_events[0]
+        app = globals()["app"]
+
+        if self.arrow.click:
+            app.draw_list.add(self.menu)
+        elif self.menu in app.draw_list and not self.hover and mbut[0]:
+            app.draw_list.remove(self.menu)
     def draw_selection(self):
         """draws the selected option as a text on the text-output."""
         pos = (
@@ -1514,15 +1524,8 @@ class DropDown(GuiMaster):
         self.image.blit(self.selection.image, pos)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        # update-dependencies
-        app = globals()["app"]
-        mbut = self.mouse_events[0]
         # drawing updated arrow-image
         self.arrow.update()
         self.image.blit(self.arrow.image, self.arrow.rect)
-        # adding and removing menu from app's 'draw_list' to render it as long
-        # as it's not de-clicked
-        if self.arrow.click:
-            app.draw_list.add(self.menu)
-        elif self.menu in app.draw_list and not self.hover and mbut[0]:
-            app.draw_list.remove(self.menu)
+        # drawing menu if dropdown or its arrow has been clicked
+        self.call_menu()
