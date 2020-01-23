@@ -312,6 +312,7 @@ class GuiMaster(pg.sprite.Sprite):
         'parent'            object which draws this element. must have
                             'GuiMaster' as master-class.
         'rect'              initialising rect dimensions.
+        'absolute_rect'     pg.rect with absolute position for event-checking.
         'state'             (str) can be changed to mark the event-related
                             state of this event. values are "waiting" and
                             "active".
@@ -344,6 +345,10 @@ class GuiMaster(pg.sprite.Sprite):
             self.parent = pg.display.get_surface()
         # visuals and rect-dimensions
         self.rect = pg.Rect(
+            self.style.position,
+            self.style.size
+        )
+        self.absloute_rect = pg.Rect(
             self.style.position,
             self.style.size
         )
@@ -476,19 +481,19 @@ class GuiMaster(pg.sprite.Sprite):
         hover = False
         # this rect is used to check mouse-events. parent's position is going
         # to be added to its internal position.
-        rect = pg.Rect(
+        self.absloute_rect = pg.Rect(
             self.rect.left,
             self.rect.top,
             self.rect.width,
             self.rect.height,
         )
         if hasattr(self.parent, "rect"):
-            rect.topleft = (
-                rect.left + self.parent.rect.left,
-                rect.top + self.parent.rect.top,
+            self.absloute_rect.topleft = (
+                self.absloute_rect.left + self.parent.rect.left,
+                self.absloute_rect.top + self.parent.rect.top,
             )
         # mark as hovered
-        if rect.collidepoint(mpos):
+        if self.absloute_rect.collidepoint(mpos):
             hover = True
             self.__hovering = True
         # if not hovered and clicked somwhere else, reset 'self.state'
