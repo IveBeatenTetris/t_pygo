@@ -814,7 +814,7 @@ class ArrowButton(pg.sprite.Sprite):
     def __init__(self, **kwargs):
         """
         'rect'      subelement-dimensions in a pg.rect.
-        'args'      dict of passed arguments to arrow-class.
+        'style'     default stylesheet-properties for this element.
         """
         pg.sprite.Sprite.__init__(self)
         if "parent" in kwargs:
@@ -858,7 +858,18 @@ class ArrowButton(pg.sprite.Sprite):
             image.fill(self.style.background_color)
         # drawing border to surface if passed
         if self.style.border:
-            u.drawBorder(image, size=self.style.border_size)
+            u.drawBorder(
+                image,
+                size = self.style.border_size,
+                color = self.style.border_color
+            )
+        # drawing an arrow to the image
+        u.drawArrow(
+            image,
+            direction = self.style.direction,
+            color = self.style.border_color,
+            margin = self.style.margin
+        )
 
         return image
 class Panel(GuiMaster):
@@ -1422,7 +1433,9 @@ class DropDown(GuiMaster):
             background_hover = self.style.background_hover,
             border = self.style.border,
             border_size = self.style.border_size,
-            border_color = self.style.border_color
+            border_color = self.style.border_color,
+            direction = "down",
+            margin = 7
         )
         # resizing dropdown-surface based on menu-width
         self.resize((

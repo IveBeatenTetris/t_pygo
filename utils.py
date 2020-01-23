@@ -104,6 +104,8 @@ STYLE = {
         "dragable": False,
         "drag_area": None,
         "drag_area_background": (45, 45, 55),
+        "direction": "up",
+        "margin": 2
     },
     "panel": {
         "size": (150, 200),
@@ -578,6 +580,42 @@ def draw(object, destination, rect=None, blendmode=0):# pg.surface
         destination.blit(object.image, rect)
 
     return destination
+def drawArrow(# pg.surface
+    surface,
+    direction = "up",
+    color = (0, 0, 0),
+    margin = 0
+):
+    """
+    returns a pg.surface. draws triangle-arrows to the button-surface
+    depending on their directions ('up', 'down').
+    """
+    rect = surface.get_rect()
+
+    if direction == "up":
+        pg.draw.polygon(
+            surface,
+            color,
+            [
+                (margin, rect.height - margin),
+                (rect.width - margin, rect.height - margin),
+                (rect.midtop[0], margin)
+            ],
+            0
+        )
+    elif direction == "down":
+        pg.draw.polygon(
+            surface,
+            color,
+            [
+                (margin, margin),
+                (rect.width - margin, margin),
+                (rect.midtop[0], rect.bottom - margin)
+            ],
+            0
+        )
+
+    return surface
 def drawBorder(surface, **kwargs):
     """
     draws a border on the given surface-object and returns it.
