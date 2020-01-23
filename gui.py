@@ -825,7 +825,7 @@ class Button(Text):
         uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
-class ArrowButton(GuiMaster):
+class ArrowButton2(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
         """
@@ -888,7 +888,7 @@ class ArrowButton(GuiMaster):
         )
 
         return image
-class ArrowButton2(GuiMaster):
+class ArrowButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
         """
@@ -1449,7 +1449,7 @@ class DropDown(GuiMaster):
         self.menu = Menu(
             options = self.style.options
         )
-        self.arrow = ArrowButton2(
+        self.arrow = ArrowButton(
             parent = self,
             size = (self.rect.height, self.rect.height),
             background_color = self.style.background_color,
