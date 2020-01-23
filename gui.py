@@ -1543,10 +1543,28 @@ class DropDown(GuiMaster):
             self.menu.style.margin[3],
             int(self.rect.height / 2) - int(self.selection.rect.height / 2)
         )
+
         self.image.blit(self.selection.image, pos)
+    def make_selection(self):
+        """changes the momentary selection and redraws it on the surface."""
+        # changing 'self.selection' on menu.option.click and redrawing visuals.
+        # the way this segment works is a little buggy but in a funny way:
+        # while click- and hold the textarea, u can change the inner-value as
+        # well.
+        # mouse-events
+        mbut, mpos = self.mouse_events[:2]
+
+        for opt in self.menu.options:
+            if opt.absolute_rect.collidepoint(mpos) and mbut[0]:
+                self.selection = opt
+                self.redraw()
+                self.draw_arrow()
+                self.draw_selection()
     def update(self):
         """overwrites parent's 'update()'-method."""
         # drawing updated arrow-image
         self.draw_arrow()
         # drawing menu if dropdown or its arrow has been clicked
         self.call_menu()
+        # change selection related to menu.option.click
+        self.make_selection()
