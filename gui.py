@@ -1205,7 +1205,7 @@ class TextField(GuiMaster):
         self.handleCursor()
         # handling input-chars & letters for displaying them in the textfield
         self.handleInput()
-class Slot(GuiMaster):
+class Slot2(GuiMaster):
     """
     this is an advanced text-input with 'up'- and 'down' buttons to lower and
     raise its content.
@@ -1348,11 +1348,98 @@ class Slot(GuiMaster):
         # redrawing text-field
         self.text_field.update()
         self.image.blit(self.text_field.image, (0, 0))
-class Slot2(GuiMaster):
-    """."""
+
+class Slot(GuiMaster):
+    """
+    this is an advanced text-input with 'up'- and 'down' buttons to lower and
+    raise its content.
+    """
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'text_field'    pg.srpite that acts as a text_field to lower or raise.
+        'arrow_up'      up-button-sprite.
+        'arrow_down'    down-button-sprite.
+        """
         GuiMaster.__init__(self, type="slot", **kwargs)
+        self.text_field = TextField(
+            size = (self.rect.width, self.rect.height),
+            position = self.style.position,
+            background_color = self.style.background_color,
+            border = self.style.border,
+            border_size = self.style.border_size,
+            border_color = self.style.border_color
+        )
+        self.arrow_up = ArrowButton(
+            parent = self,
+            size = (int(self.rect.height / 2), int(self.rect.height / 2)),
+            position = (self.rect.width, 0),
+            background_color = self.style.border_color,
+            background_hover = self.style.background_hover,
+            border = self.style.border,
+            border_size = self.style.border_size,
+            border_color = self.style.border_color,
+            direction = "up",
+            margin = 4,
+            arrow_color = self.style.background_color
+        )
+        self.arrow_down = ArrowButton(
+            parent = self,
+            size = (int(self.rect.height / 2), int(self.rect.height / 2)),
+            position = (self.rect.width, self.arrow_up.rect.height),
+            background_color = self.style.border_color,
+            background_hover = self.style.background_hover,
+            border = self.style.border,
+            border_size = self.style.border_size,
+            border_color = self.style.border_color,
+            direction = "down",
+            margin = 4,
+            arrow_color = self.style.background_color
+        )
+        # resizing surface to make some space for the arrow-buttons to draw
+        self.resize((
+            self.rect.width + self.arrow_up.rect.width,
+            self.rect.height
+        ))
+        # drawing everything to the image-surface
+        self.image.blit(self.text_field.image, (0, 0))
+        self.image.blit(self.arrow_up.image, self.arrow_up.rect)
+        self.image.blit(self.arrow_down.image, self.arrow_down.rect)
+    # basic methodes
+    def raise_value(self):
+        """raises the value of the slot.frame if it represents an integer."""
+        try:
+            self.text_field.text_string = str(
+                int(self.text_field.text_string) + 1
+            )
+        except ValueError:
+            pass
+    def lower_value(self):
+        """lowers the value of the slot.frame if it represents an integer."""
+        try:
+            self.text_field.text_string = str(
+                int(self.text_field.text_string) - 1
+            )
+        except ValueError:
+            pass
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        # redrawing arrow-buttons on hover or out
+        if self.arrow_up.hover or self.arrow_up.leave:
+            self.arrow_up.update()
+            self.image.blit(self.arrow_up.image, self.arrow_up.rect)
+        if self.arrow_down.hover or self.arrow_down.leave:
+            self.arrow_down.update()
+            self.image.blit(self.arrow_down.image, self.arrow_down.rect)
+        # changing value of the text-field if it's an integer
+        if self.arrow_up.click:
+            self.raise_value()
+        elif self.arrow_down.click:
+            self.lower_value()
+        # redrawing text-field
+        self.text_field.update()
+        self.image.blit(self.text_field.image, (0, 0))
 class Menu(GuiMaster):
     """
     represents a listable menu. its dimensions depend on its options.
@@ -1375,7 +1462,7 @@ class Menu(GuiMaster):
         # creating a rect with absolute position for mouse-events
         self.options = self.create_options()
         self.draw_options()
-    # basic operations
+    # basic methodes
     def create_options(self):# list
         """
         creates a list of renderable options with their callable functions and
