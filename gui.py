@@ -1471,8 +1471,10 @@ class DropDown(GuiMaster):
         self.menu = Menu(
             options = self.style.options
         )
+        self.selection = self.menu.options[0]
         self.arrow = ArrowButton(
             parent = self,
+            #text =
             size = (self.rect.height, self.rect.height),
             background_color = self.style.background_color,
             background_hover = self.style.background_hover,
@@ -1487,9 +1489,20 @@ class DropDown(GuiMaster):
             self.menu.rect.width + self.arrow.rect.width,
             self.rect.height
         ))
+
+        self.draw_selection()
         # repositioning arrow-button and drawing it to menu.image
         self.arrow.rect.right = self.rect.width
         self.image.blit(self.arrow.image, self.arrow.rect)
+    # dynamic attributes
+    # basic methodes
+    def draw_selection(self):
+        """draws the selected option as a text on the text-output."""
+        pos = (
+            self.menu.style.margin[3],
+            int(self.rect.height / 2) - int(self.selection.rect.height / 2)
+        )
+        self.image.blit(self.selection.image, pos)
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.arrow.update()
