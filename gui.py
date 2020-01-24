@@ -838,69 +838,6 @@ class Button(Text):
         uses 'Text' as its parent with additional methodes and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
-class ArrowButton2(GuiMaster):
-    """represents an arrow-button with an arrow drawn on it."""
-    def __init__(self, **kwargs):
-        """
-        'rect'      subelement-dimensions in a pg.rect.
-        'style'     default stylesheet-properties for this element.
-        """
-        pg.sprite.Sprite.__init__(self)
-        if "parent" in kwargs:
-            self.parent = kwargs["parent"]
-            del kwargs["parent"]
-        self.style = Stylesheet(type="arrow_button", style=kwargs)
-        self.rect = pg.Rect((0, 0), self.style.size)
-    # dynamic attributes
-    @property
-    def hover(self):
-        """
-        returns 'true' if the mouse hovers the absloute position of the
-        arrow-object.
-        """
-        # mouse-events
-        mpos = pg.mouse.get_pos()
-        # pg.rect with absolute position of the arrow
-        rect = pg.Rect(
-            self.rect.left + self.parent.rect.left,
-            self.rect.top + self.parent.rect.top,
-            *self.rect.size
-        )
-        # returning value
-        hover = False
-
-        if rect.collidepoint(mpos):
-            hover = True
-
-        return hover
-    @property
-    def image(self):
-        """returns the image-surface of this sub-element."""
-        image = pg.Surface(self.rect.size, pg.SRCALPHA)
-
-        # drawing another background on hover if set by user
-        if self.hover:
-            if self.style.background_hover:
-                image.fill(self.style.background_hover)
-        # drawing default background if given by user
-        elif self.style.background_color:
-            image.fill(self.style.background_color)
-        # drawing border to surface if passed
-        if self.style.border:
-            u.drawBorder(
-                image,
-                size = self.style.border_size,
-                color = self.style.border_color
-            )
-        # drawing an arrow to the image
-        u.drawArrow(
-            image,
-            direction = self.style.direction,
-            color = self.style.border_color,
-            margin = self.style.margin
-        )
-
-        return image
 class ArrowButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
