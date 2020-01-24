@@ -1478,3 +1478,22 @@ class InfoBar(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="info_bar", **kwargs)
+        self.resize((globals()["app"].rect.width, self.style.size[1]))
+        self.redraw()
+        # invoking creation of new position for this element
+        self.position
+    # dynamic attributes
+    @property# tuple
+    def position(self):
+        """returns the recalculated position of this element in a tuple."""
+        position = ((0, globals()["app"].rect.height - self.rect.height))
+        self.style.position = position
+        self.rect.topleft = position
+
+        return position
+    # basic methodes
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        app = globals()["app"]
+        # invoking creation of new position for this element
+        if app.resized: self.position
