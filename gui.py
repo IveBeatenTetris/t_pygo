@@ -316,11 +316,6 @@ class GuiMaster(pg.sprite.Sprite):
         'state'             (str) can be changed to mark the event-related
                             state of this event. values are "waiting" and
                             "active".
-        'drag_area'         user-declared area of dragging an element. if left
-                            out, use the whole element-rect for dragging.
-        '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
-                            this can be used to calculate the position of an
-                            element when the mouse tries to drag it.
         '__clicked'         internal bool to check, if the element has been
                             clicked.
         '__hovering'        used to determine if the mouse floats over the
@@ -354,11 +349,6 @@ class GuiMaster(pg.sprite.Sprite):
         )
         # event related stuff
         self.state = "waiting"
-        if self.style.drag_area:
-            self.drag_area = pg.Rect(self.style.drag_area)
-        else:
-            self.drag_area = self.style.drag_area
-        self.__dragged_at = None
         self.__clicked = False
         self.__hovering = False
         # first time creating surface and recreating inner element's visuals
@@ -427,60 +417,6 @@ class GuiMaster(pg.sprite.Sprite):
                     precise_click = "left"
 
         return precise_click
-    @property# bool
-    def drag(self):
-        """
-        returns 'true' if element is dragable and been dragged by the mouse.
-        calling this also drags the surface around when the element is
-        dragable.
-        """
-        if self.style.dragable:
-            # mouse events
-            mbut, mpos, _ = self.mouse_events
-            # using 'drag_area' as rect for collisions if available
-            if self.drag_area:
-                rect = pg.Rect(
-                    self.drag_area.left + self.rect.left,
-                    self.drag_area.top + self.rect.top,
-                    self.drag_area.width,
-                    self.drag_area.height
-                )
-            # else using the element's rect instead
-            else: rect = self.rect
-            # on hover and left-click
-            if rect.collidepoint(mpos) and mbut[0]:
-                    # marking the element as clicked ('true). if element is not
-                    # clicked yet, set its '__clicked'-state 'true' and
-                    # calculate the clicked position on the element's rect
-                    if not self.__clicked:
-                        # adding left and top of 'drag_area' so the element
-                        # doesn't jump on click
-                        if self.drag_area:
-                            self.__dragged_at = (
-                                mpos[0] - rect.x + self.drag_area.left,
-                                mpos[1] - rect.y + self.drag_area.top
-                            )
-                        else:
-                            self.__dragged_at = (
-                                mpos[0] - rect.x,
-                                mpos[1] - rect.y
-                            )
-                        self.__clicked = True
-            # if left mouse-button is released or just not pressed, mark
-            # element as clicked ('true')
-            if not mbut[0]:
-                self.__dragged_at = None
-                self.__clicked = False
-            # if element is marked as clicked, redraw parent's background on a
-            # specific place and update its topleft-position. this removes the
-            # previously drawn element's trails from the surface again
-            if self.__clicked:
-                self.rect.topleft = (
-                    mpos[0] - self.__dragged_at[0],
-                    mpos[1] - self.__dragged_at[1]
-                )
-
-        return self.__clicked
     @property# bool
     def hover(self):
         """
@@ -582,8 +518,6 @@ class GuiMaster(pg.sprite.Sprite):
         """
         # drawing background
         self.redrawBackground()
-        # drawing drag-area if set by user
-        self.redrawDragArea()
         # drawing background if set by user
         self.redrawBorder()
     def redrawBackground(self):
@@ -595,11 +529,6 @@ class GuiMaster(pg.sprite.Sprite):
         """only recreates border for the sprite.image."""
         if self.border:
             self.image.blit(self.border, (0, 0))
-    def redrawDragArea(self):
-        """only recreates a drag-area if set by user."""
-        if self.style.drag_area:
-            rect = pg.Rect(self.style.drag_area)
-            self.image.fill(self.style.drag_area_background, rect)
     def resize(self, size):
         """
         resizes the surface and updates its dimensions. as well as redrawing
@@ -614,8 +543,6 @@ class GuiMaster(pg.sprite.Sprite):
         """runs with every game-loop."""
         # mouse-events
         mrel = self.mouse_events[2]
-        # invoking drag-operation
-        self.drag
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
@@ -877,8 +804,100 @@ class Panel(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'drag_area'         user-declared area of dragging an element. if left
+                            out, use the whole element-rect for dragging.
+        '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
+                            this can be used to calculate the position of an
+                            element when the mouse tries to drag it.
         """
         GuiMaster.__init__(self, type="panel", **kwargs)
+        if self.style.drag_area:
+            self.drag_area = pg.Rect(self.style.drag_area)
+        else:
+            self.drag_area = self.style.drag_area
+        self.__dragged_at = None
+    # dynamic attributes
+    @property# bool
+    def drag(self):
+        """
+        returns 'true' if element is dragable and been dragged by the mouse.
+        calling this also drags the surface around when the element is
+        dragable.
+        """
+        if self.style.dragable:
+            # mouse events
+            mbut, mpos, _ = self.mouse_events
+            # using 'drag_area' as rect for collisions if available
+            if self.drag_area:
+                rect = pg.Rect(
+                    self.drag_area.left + self.rect.left,
+                    self.drag_area.top + self.rect.top,
+                    self.drag_area.width,
+                    self.drag_area.height
+                )
+            # else using the element's rect instead
+            else: rect = self.rect
+            # on hover and left-click
+            if rect.collidepoint(mpos) and mbut[0]:
+                    # marking the element as clicked ('true). if element is not
+                    # clicked yet, set its '__clicked'-state 'true' and
+                    # calculate the clicked position on the element's rect
+                    if not self.__clicked:
+                        # adding left and top of 'drag_area' so the element
+                        # doesn't jump on click
+                        if self.drag_area:
+                            self.__dragged_at = (
+                                mpos[0] - rect.x + self.drag_area.left,
+                                mpos[1] - rect.y + self.drag_area.top
+                            )
+                        else:
+                            self.__dragged_at = (
+                                mpos[0] - rect.x,
+                                mpos[1] - rect.y
+                            )
+                        self.__clicked = True
+            # if left mouse-button is released or just not pressed, mark
+            # element as clicked ('true')
+            if not mbut[0]:
+                self.__dragged_at = None
+                self.__clicked = False
+            # if element is marked as clicked, redraw parent's background on a
+            # specific place and update its topleft-position. this removes the
+            # previously drawn element's trails from the surface again
+            if self.__clicked:
+                self.rect.topleft = (
+                    mpos[0] - self.__dragged_at[0],
+                    mpos[1] - self.__dragged_at[1]
+                )
+
+        return self.__clicked
+    # basic methodes
+    def redraw(self):
+        """
+        rebuilds the surface with all inner elements updated. one can pass a
+        'GuiMaster'-element and blit this to the surface as well.
+        """
+        # drawing background
+        self.redrawBackground()
+        # drawing drag-area if set by user
+        self.redrawDragArea()
+        # drawing background if set by user
+        self.redrawBorder()
+    def redrawDragArea(self):
+        """only recreates a drag-area if set by user."""
+        if self.style.drag_area:
+            rect = pg.Rect(self.style.drag_area)
+            self.image.fill(self.style.drag_area_background, rect)
+    def update(self):
+        """runs with every game-loop."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # invoking drag-operation
+        self.drag
+        # visual redrawing of this element depends on the following conditions:
+        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+            self.redraw()
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
