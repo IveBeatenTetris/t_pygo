@@ -68,6 +68,15 @@ STYLE = {
         "border_color": (0, 0, 0),
         "border_size": 1
     },
+    "info_bar": {
+        "size": (300, 30),
+        "position": (0, 0),
+        "background_color": (25, 25, 35),
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1
+    },
     "button": {
         "text": "New Button",
         "font": FONTS["base"]["name"],

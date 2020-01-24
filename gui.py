@@ -1,7 +1,7 @@
 """
 this file contains all elements used to fuse a visual graphical user interface.
-it starts of with 'GuiMaster' which serves as a master class for all / most of
-the gui-elements.
+it starts of with 'GuiMaster' which serves as a master-class for most of the
+gui-elements.
 """
 # dependencies
 import pygame as pg
@@ -1473,3 +1473,8 @@ class DropDown(GuiMaster):
         self.call_menu()
         # change selection related to menu.option.click
         self.make_selection()
+class InfoBar(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="info_bar", **kwargs)
