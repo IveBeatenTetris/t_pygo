@@ -66,10 +66,7 @@ STYLE = {
         "background_hover": None,
         "border": False,
         "border_color": (0, 0, 0),
-        "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55)
+        "border_size": 1
     },
     "button": {
         "text": "New Button",
@@ -83,9 +80,6 @@ STYLE = {
         "border": True,
         "border_size": 1,
         "border_color": (10, 10, 20),
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55),
         "bold": False,
         "italic": False,
         "antialias": True,
@@ -101,9 +95,6 @@ STYLE = {
         "border": True,
         "border_size": 1,
         "border_color": (10, 10, 20),
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55),
         "direction": "up",
         "margin": 2,
         "arrow_color": (10, 10, 20)
@@ -128,9 +119,6 @@ STYLE = {
         "border": True,
         "border_color": (10, 10, 20),
         "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (70, 70, 80),
         "text_size": 12,
         "rows": ()
     },
@@ -142,8 +130,6 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
         "alignment": "horizontal"
     },
     "slider_rail": {
@@ -163,9 +149,7 @@ STYLE = {
         "background_hover": (60, 60, 70),
         "border": True,
         "border_color": (10, 10, 20),
-        "border_size": 1,
-        "dragable": False,
-        "drag_area": None
+        "border_size": 1
     },
     "text": {
         "size": (0, 0),
@@ -175,8 +159,6 @@ STYLE = {
         "color": FONTS["base"]["color"],
         "background_color": None,
         "background_hover": None,
-        "dragable": False,
-        "drag_area": None,
         "border": None,
         "text": "Text",
         "antialias": True,
@@ -198,9 +180,6 @@ STYLE = {
         "border": True,
         "border_size": 1,
         "border_color": (10, 10, 20),
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55),
         "bold": False,
         "italic": False,
         "antialias": True,
@@ -221,9 +200,6 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55),
         "options" : [],
         "margin": [7, 35, 7, 10],
         "font_size": 13
@@ -236,9 +212,6 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (45, 45, 55),
         "options" : [],
         "margin": [7, 35, 7, 10]
     }
