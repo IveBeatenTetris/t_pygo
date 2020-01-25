@@ -1474,14 +1474,29 @@ class DropDown(GuiMaster):
         # change selection related to menu.option.click
         self.make_selection()
 class InfoBar(GuiMaster):
-    """."""
+    """
+    this bar is used for displaying usefull information about the app and its
+    contents.
+    """
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'position'      dynamic attribute. on calling this, the infobar-element
+                        updates its rect-position and style.position as well.
+        """
         GuiMaster.__init__(self, type="info_bar", **kwargs)
         self.resize((globals()["app"].rect.width, self.style.size[1]))
         self.redraw()
         # invoking creation of new position for this element
         self.position
+        # creating and drawing the given information as table-content
+        self.info_table = Table(
+            size = self.rect.size,
+            rows = self.style.info,
+            background_color = None
+        )
+        self.image.blit(self.info_table.image, (0, 0))
     # dynamic attributes
     @property# tuple
     def position(self):
@@ -1495,5 +1510,8 @@ class InfoBar(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         app = globals()["app"]
-        # invoking creation of new position for this element
-        if app.resized: self.position
+        # invoking creation of new position for this element and redrawing
+        # information
+        if app.resized:
+            self.position
+            self.image.blit(self.info_table.image, (0, 0))

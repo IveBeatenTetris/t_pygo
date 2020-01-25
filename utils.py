@@ -75,7 +75,8 @@ STYLE = {
         "background_hover": None,
         "border": False,
         "border_color": (0, 0, 0),
-        "border_size": 1
+        "border_size": 1,
+        "info": (("mouse_loc", "app_size", "app_fps"),)
     },
     "button": {
         "text": "New Button",
