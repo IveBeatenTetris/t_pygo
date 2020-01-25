@@ -1490,15 +1490,21 @@ class InfoBar(GuiMaster):
         self.redraw()
         # invoking creation of new position for this element
         self.position
-        # creating and drawing the given information as table-content
-        self.info_table = Table(
+        # first time drawing the given information as table-content
+        self.image.blit(self.info_table.image, (0, 0))
+    # dynamic attributes
+    @property
+    def info_table(self):
+        """
+        returns a table-object with updates dimensions and informartion already
+        drawn to it.
+        """
+        return Table(
             size = self.rect.size,
             rows = self.style.info,
             background_color = None,
             text_size = self.style.text_size
         )
-        self.image.blit(self.info_table.image, (0, 0))
-    # dynamic attributes
     @property# tuple
     def position(self):
         """returns the recalculated position of this element in a tuple."""
@@ -1516,5 +1522,4 @@ class InfoBar(GuiMaster):
         if app.resized:
             self.position
             self.resize((app.rect.width, self.rect.height))
-            self.info_table.resize(self.rect.size)
             self.image.blit(self.info_table.image, (0, 0))
