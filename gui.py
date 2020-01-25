@@ -1494,7 +1494,8 @@ class InfoBar(GuiMaster):
         self.info_table = Table(
             size = self.rect.size,
             rows = self.style.info,
-            background_color = None
+            background_color = None,
+            text_size = self.style.text_size
         )
         self.image.blit(self.info_table.image, (0, 0))
     # dynamic attributes

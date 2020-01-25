@@ -76,7 +76,8 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
-        "info": (("mouse_loc", "app_size", "app_fps"),)
+        "info": (("mouse_loc", "app_size", "app_fps"),),
+        "text_size": 13,
     },
     "button": {
         "text": "New Button",
