@@ -1514,4 +1514,6 @@ class InfoBar(GuiMaster):
         # information
         if app.resized:
             self.position
+            self.resize((app.rect.width, self.rect.height))
+            self.info_table.resize(self.rect.size)
             self.image.blit(self.info_table.image, (0, 0))
