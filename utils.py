@@ -78,7 +78,8 @@ STYLE = {
         "border_size": 1,
         "info": (("mouse_loc", "app_size", "app_fps"),),
         "text_size": 13,
-        "text_position": "midleft"
+        "text_position": "midleft",
+        "text_margin": [0, 0, 0, 10],
     },
     "button": {
         "text": "New Button",
@@ -132,6 +133,7 @@ STYLE = {
         "border_color": (10, 10, 20),
         "border_size": 1,
         "text_size": 12,
+        "text_margin": [0, 0, 0, 0],
         "text_position": "topleft",
         "rows": ()
     },

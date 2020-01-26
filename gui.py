@@ -618,10 +618,11 @@ class Table(GuiMaster):
         """
         this methode replaces the internal 'rows'-value with the given one.
         snytax looks like this:
-            my_row = (
+            my_rows = (
                 ("column1", "object1"),
                 ("column2", "object2")
             )
+            self.replace_rows(my_rows)
         each single str-value can also be replaced with drawable objects. but
         if it comes as a string, the table automatically creates a text-object
         to draw it on itself.
@@ -646,6 +647,11 @@ class Table(GuiMaster):
         for r in range(len(elements)):
             for c in range(len(elements[r])):
                 elem = elements[r][c]
+                # resolving new position in two separate coordinates
+                x, y = getattr(
+                    rect_list[i],
+                    self.style.text_position
+                )
                 # drawing depends on element-type
                 if type(elem) is str:
                     # creating new text-element and shift its position by user
@@ -654,16 +660,11 @@ class Table(GuiMaster):
                         text = elem,
                         font_size = self.style.text_size
                     )
-                    text.shift(
-                        getattr(rect_list[i], self.style.text_position),
-                        self.style.text_position
-                    )
+                    x += self.style.text_margin[3]
+                    text.shift((x, y), self.style.text_position)
                     surface.blit(text.image, text.rect)
                 else:
-                    surface.blit(
-                        elem.image,
-                        getattr(rect_list[i], self.style.text_position)
-                    )
+                    surface.blit(elem.image, (x, y))
 
                 i += 1
 
@@ -1525,12 +1526,25 @@ class InfoBar(GuiMaster):
         returns a table-object with updates dimensions and informartion already
         drawn to it.
         """
+        #(("mouse_loc", "app_size", "app_fps"),)
+        info = [[]]
+
+        for row in self.style.info:
+            for cell in row:
+                if type(cell) is str:
+                    if cell == "app_fps":
+                        info[0].append(
+                            "FPS: {}".format(globals()["app"].fps)
+                        )
+
         return Table(
             size = self.rect.size,
-            rows = self.style.info,
-            background_color = None,
+            rows = info,
+            background_color = self.style.background_color,
+            border = None,
             text_size = self.style.text_size,
-            text_position = self.style.text_position
+            text_position = self.style.text_position,
+            text_margin = self.style.text_margin
         )
     @property# tuple
     def position(self):
@@ -1549,4 +1563,5 @@ class InfoBar(GuiMaster):
         if app.resized:
             self.position
             self.resize((app.rect.width, self.rect.height))
+            # exceptional element that always redraws its contents
             self.image.blit(self.info_table.image, (0, 0))
