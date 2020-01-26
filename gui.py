@@ -34,52 +34,50 @@ class Stylesheet:
         # dynamically creating stylesheet-attributes
         for name, attr in self.config.items():
             setattr(self, name, attr)
+class Cursor(pg.sprite.Sprite):
+    """replacement for the native pygame-mouse-cursor."""
+    def __init__(self, image_path=None):
+        """
+        renders the native cursor invisible, loads either an image from a
+        given path or a library-default value.
+
+        'full_image'    the once loaed full-image as a pg.surface.
+        'state'         the actual state of the mouse in a str. by changing
+                        this, the app will draw another mouse-curor based on
+                        following names:
+                            'normal',
+                            'text'
+        """
+        pg.sprite.Sprite.__init__(self)
+        if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
+        self.full_image = pg.image.load(image_path)
+        self.state = "normal"
+        pg.mouse.set_visible(False)
+    # dynamic properties
+    @property
+    def image(self):
+        """returns a cropped pg.surface-image."""
+        image = pg.Surface((16, 16), pg.SRCALPHA)
+        # calculate image-position to draw (each 16x16-steps there is
+        # another cursor on the image)
+        if self.state == "normal": pos = (0, 0)
+        elif self.state == "text": pos = (-16, 0)
+        # drawing picked cursor to returning image-surface
+        image.blit(self.full_image, pos)
+
+        return image
+    @property
+    def rect(self):
+        """returns a valid pygame-rect."""
+        rect = pg.Rect(0, 0, 16, 16)
+        rect.topleft = pg.mouse.get_pos()
+
+        return rect
 class App:
     """
     pygames-window-module with extended features. can be accessed by calling
     'globals()["app"]'.
-
-    'Cursor'    (class) a cursor-image for replacing the real one.
     """
-    class Cursor(pg.sprite.Sprite):
-        """replacement for the native pygame-mouse-cursor."""
-        def __init__(self, image_path=None):
-            """
-            renders the native cursor invisible, loads either an image from a
-            given path or a library-default value.
-
-            'full_image'    the once loaed full-image as a pg.surface.
-            'state'         the actual state of the mouse in a str. by changing
-                            this, the app will draw another mouse-curor based on
-                            following names:
-                                'normal',
-                                'text'
-            """
-            pg.sprite.Sprite.__init__(self)
-            if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
-            self.full_image = pg.image.load(image_path)
-            self.state = "normal"
-            pg.mouse.set_visible(False)
-        # dynamic properties
-        @property
-        def image(self):
-            """returns a cropped pg.surface-image."""
-            image = pg.Surface((16, 16), pg.SRCALPHA)
-            # calculate image-position to draw (each 16x16-steps there is
-            # another cursor on the image)
-            if self.state == "normal": pos = (0, 0)
-            elif self.state == "text": pos = (-16, 0)
-            # drawing picked cursor to returning image-surface
-            image.blit(self.full_image, pos)
-
-            return image
-        @property
-        def rect(self):
-            """returns a valid pygame-rect."""
-            rect = pg.Rect(0, 0, 16, 16)
-            rect.topleft = pg.mouse.get_pos()
-
-            return rect
     def __init__(self, **kwargs):
         """
         inits pygame to act as an app-window.
@@ -123,7 +121,7 @@ class App:
         # changing window- and mouse-cursor apprarance
         self.changeTitle(self.style.title)
         self.changeIcon(self.style.icon)
-        self.cursor = self.Cursor()
+        self.cursor = Cursor()
         # everything in this list will be drawn to the app-screen on their
         # event-updates.
         self.draw_list = pg.sprite.RenderUpdates()
@@ -170,6 +168,53 @@ class App:
     def rect(self):
         """returns a valid pygame-rect with app's dimensions."""
         return self.display.get_rect()
+    # window appearance
+    def changeIcon(self, path):
+        """creates an icon for the window from an image."""
+        if type(path) is pg.Surface:
+            icon = path
+        elif type(path) is str:
+            icon = pg.image.load(path)
+
+        icon = pg.transform.scale(icon, (32, 32))
+        pg.display.set_icon(icon)
+    def changeTitle(self, title):
+        """changes the window title. 'title' should be a string."""
+        if type(title) is not str:
+            title = str(title)
+        pg.display.set_caption(title)
+    def createBackground(self):# pg surface
+        """returns a pygame.surface based on background-properties."""
+        # prioritizing backgorund-statement
+        if self.style.background_color:
+            bg = self.style.background_color
+        else:
+            bg = self.style.background_image
+        # looking for default-background-statement
+        if type(bg) is str:
+            # overwriting app's local 'background_repeat'-property if 'bg'
+            # is the library's standard background-image.
+            if bg == str(u.LIBPATH["windowbg"]):
+                self.style.background_repeat = "xy"
+            bg = pg.image.load(bg)
+        # filling a newly created surface
+        elif type(bg) is tuple:
+            color = bg
+            bg = pg.Surface(self.rect.size)
+            bg.fill(color)
+        # checking for background-repeat
+        if type(bg) is pg.Surface:
+            if self.style.background_repeat:
+                # creating surfact with repeated background
+                # 'self.config["background_repeat"]' is the indicator:
+                # ('x', 'y', 'xy')
+                bg = u.repeatBG(
+                    bg,
+                    self.display.get_rect().size,
+                    self.style.background_repeat
+                )
+
+        return bg
     # basic methodes
     def draw(self, object, rect=None, area=None):
         """
@@ -253,53 +298,6 @@ class App:
         # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
-    # window appearance
-    def changeIcon(self, path):
-        """creates an icon for the window from an image."""
-        if type(path) is pg.Surface:
-            icon = path
-        elif type(path) is str:
-            icon = pg.image.load(path)
-
-        icon = pg.transform.scale(icon, (32, 32))
-        pg.display.set_icon(icon)
-    def changeTitle(self, title):
-        """changes the window title. 'title' should be a string."""
-        if type(title) is not str:
-            title = str(title)
-        pg.display.set_caption(title)
-    def createBackground(self):# pg surface
-        """returns a pygame.surface based on background-properties."""
-        # prioritizing backgorund-statement
-        if self.style.background_color:
-            bg = self.style.background_color
-        else:
-            bg = self.style.background_image
-        # looking for default-background-statement
-        if type(bg) is str:
-            # overwriting app's local 'background_repeat'-property if 'bg'
-            # is the library's standard background-image.
-            if bg == str(u.LIBPATH["windowbg"]):
-                self.style.background_repeat = "xy"
-            bg = pg.image.load(bg)
-        # filling a newly created surface
-        elif type(bg) is tuple:
-            color = bg
-            bg = pg.Surface(self.rect.size)
-            bg.fill(color)
-        # checking for background-repeat
-        if type(bg) is pg.Surface:
-            if self.style.background_repeat:
-                # creating surfact with repeated background
-                # 'self.config["background_repeat"]' is the indicator:
-                # ('x', 'y', 'xy')
-                bg = u.repeatBG(
-                    bg,
-                    self.display.get_rect().size,
-                    self.style.background_repeat
-                )
-
-        return bg
 class GuiMaster(pg.sprite.Sprite):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
