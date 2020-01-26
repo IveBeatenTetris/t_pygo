@@ -574,7 +574,7 @@ class Table(GuiMaster):
     @property# dict
     def grid(self):
         """
-        returns a dict acting as a grid-element. use 'self.grid["image"]' to
+        returns a dict, acting as a grid-element. usees 'self.grid["image"]' to
         draw the grid to the sprite-image-surface.
         """
         surface = pg.Surface(self.rect.size, pg.SRCALPHA)
@@ -631,28 +631,43 @@ class Table(GuiMaster):
         self.redrawVisuals()
     # basic methodes
     def drawElements(self, elements, surface, rect_list):# pg.surface
-        """returns a pg.surface with already drawn elements on it."""
-        image = surface
+        """
+        returns a pg.surface with already drawn elements on it.
+
+        'elements'      must be tuple or list of multiple content. example:
+                        rows = (
+                			("Key1", "Value1", "Another Key"),
+                        )
+        'surface'       the pg.surface to draw on.
+        'rect_list'     a list of pg.rects to use for positional drawing.
+        """
         i = 0
-        # cycling trough elements
+        # cycling trough elements to draw
         for r in range(len(elements)):
             for c in range(len(elements[r])):
                 elem = elements[r][c]
                 # drawing depends on element-type
                 if type(elem) is str:
-                    image.blit(
-                        Text(
-                            text = elem,
-                            font_size = self.style.text_size
-                        ).image,
-                        rect_list[i]
+                    # creating new text-element and shift its position by user
+                    # defined args before drawing it to the returning-surface
+                    text = Text(
+                        text = elem,
+                        font_size = self.style.text_size
                     )
+                    text.shift(
+                        getattr(rect_list[i], self.style.text_position),
+                        self.style.text_position
+                    )
+                    surface.blit(text.image, text.rect)
                 else:
-                    image.blit(elem.image, rect_list[i])
+                    surface.blit(
+                        elem.image,
+                        getattr(rect_list[i], self.style.text_position)
+                    )
 
                 i += 1
 
-        return image
+        return surface
     def redrawVisuals(self):
         """redrawing everything to display the table with its contents."""
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
@@ -1514,7 +1529,8 @@ class InfoBar(GuiMaster):
             size = self.rect.size,
             rows = self.style.info,
             background_color = None,
-            text_size = self.style.text_size
+            text_size = self.style.text_size,
+            text_position = self.style.text_position
         )
     @property# tuple
     def position(self):
