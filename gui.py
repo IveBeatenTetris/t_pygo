@@ -73,231 +73,6 @@ class Cursor(pg.sprite.Sprite):
         rect.topleft = pg.mouse.get_pos()
 
         return rect
-class App:
-    """
-    pygames-window-module with extended features. can be accessed by calling
-    'globals()["app"]'.
-    """
-    def __init__(self, **kwargs):
-        """
-        inits pygame to act as an app-window.
-
-        'stylesheet'        validated 'dict' of comparing a user-set dict of
-                            properties with this object's default values.
-        'display'           holds the actual 'pygame.display.surface' object.
-        'background'        used to draw to fill the surface with. might be
-                            'str', 'tuple' or 'pg.surface'. if 'str', use it as
-                            an image-path and load a pygame.image-surface.
-        'cursor'            sprite to use instead of the original one. when
-                            cursor-object gets initialized, it renders the
-                            native pygame-cursor invisible.
-        'draw_list'         an extended sprite-group for sprites that have to
-                            always be blitten on top of the visuals.
-        'clock'             pygame.clock for tracking 'fps'.
-        'preffered_fps'     user-defined maximal frames per second.
-        'fps'               the actual FPS. it's gonna be updated by the
-                            window's 'update()'-method.
-        '_events'           a 'list' of momentary pygame.events. it's gonna be
-                            filled by calling 'self.events' anywhere. use this
-                            list for checking ongoing events.
-        'keys'              an empty list. gets automatically filled with
-                            pygame-events by going through the
-                            'events'-property over and over.
-        'resized'           bool to check if the window has been resized.
-        """
-        self.style = Stylesheet(
-            type = "app",
-            style = kwargs
-        )
-        # pygame init
-        pg.init()
-        # creating display surface and drawing background
-        self.display = u.getDisplay(
-            self.style.size,
-            resizable = self.style.resizable
-        )
-        self.background = self.createBackground()
-        self.draw(self.background)
-        # changing window- and mouse-cursor apprarance
-        self.changeTitle(self.style.title)
-        self.changeIcon(self.style.icon)
-        self.cursor = Cursor()
-        # everything in this list will be drawn to the app-screen on their
-        # event-updates.
-        self.draw_list = pg.sprite.RenderUpdates()
-        self.draw_list.add(self.cursor)
-        # fps settings
-        self.clock = pg.time.Clock()
-        self.preffered_fps = self.style.fps
-        self.fps = 0
-        # event related
-        self._events = []
-        self.keys = []
-        self.resized = False
-        # adding this instance to 'globals'
-        globals()["app"] = self
-    # dynamic attributes
-    @property# list
-    def events(self):
-        """
-        checks for the most basic events and returns the pg-event-list.
-        updates internal property 'keys' with a fresh list of pressed keys.
-        """
-        events = pg.event.get()
-        # resetting previous event-list and app's internal events
-        self.keys = []
-
-        for evt in events:
-            # exiting the app
-            if evt.type is pg.QUIT:
-                self.quit()
-            # appending a string to list 'self.keys' resembling the pressed key
-            if evt.type is pg.KEYDOWN:
-                if evt.key is pg.K_ESCAPE:
-                    self.keys.append("esc")
-            # calling 'self.resize()' when window has been resized. also
-            # marking the app as 'resized' (self.resized = True)
-            if evt.type is pg.VIDEORESIZE:
-                self.resized = True
-                self.resize(evt.size)
-            elif evt.type is pg.ACTIVEEVENT and self.resized:
-                self.resized = False
-
-        return events
-    @property# pg.rect
-    def rect(self):
-        """returns a valid pygame-rect with app's dimensions."""
-        return self.display.get_rect()
-    # window appearance
-    def changeIcon(self, path):
-        """creates an icon for the window from an image."""
-        if type(path) is pg.Surface:
-            icon = path
-        elif type(path) is str:
-            icon = pg.image.load(path)
-
-        icon = pg.transform.scale(icon, (32, 32))
-        pg.display.set_icon(icon)
-    def changeTitle(self, title):
-        """changes the window title. 'title' should be a string."""
-        if type(title) is not str:
-            title = str(title)
-        pg.display.set_caption(title)
-    def createBackground(self):# pg surface
-        """returns a pygame.surface based on background-properties."""
-        # prioritizing backgorund-statement
-        if self.style.background_color:
-            bg = self.style.background_color
-        else:
-            bg = self.style.background_image
-        # looking for default-background-statement
-        if type(bg) is str:
-            # overwriting app's local 'background_repeat'-property if 'bg'
-            # is the library's standard background-image.
-            if bg == str(u.LIBPATH["windowbg"]):
-                self.style.background_repeat = "xy"
-            bg = pg.image.load(bg)
-        # filling a newly created surface
-        elif type(bg) is tuple:
-            color = bg
-            bg = pg.Surface(self.rect.size)
-            bg.fill(color)
-        # checking for background-repeat
-        if type(bg) is pg.Surface:
-            if self.style.background_repeat:
-                # creating surfact with repeated background
-                # 'self.config["background_repeat"]' is the indicator:
-                # ('x', 'y', 'xy')
-                bg = u.repeatBG(
-                    bg,
-                    self.display.get_rect().size,
-                    self.style.background_repeat
-                )
-
-        return bg
-    # basic methodes
-    def draw(self, object, rect=None, area=None):
-        """
-        blits a surface-object / gui-element to the app's surface.
-        if 'object' is a list or tuple, fill the surface with this statement
-        instead. 'area' takes a pygame.rect-statement for declaring a specific
-        area to redraw for keep fps up.
-        """
-        if not rect: rect = (0, 0)
-
-        if type(object) is list or type(object) is tuple:
-            self.display.fill(object)
-        else:
-            if not area:
-                # drawing sprites
-                if object.__class__.__bases__[0] is pg.sprite.Sprite:
-                    self.display.blit(object.image, rect)
-                # drawing surfaces
-                elif (
-                        object.__class__.__bases__[0] is pg.Surface or
-                        type(object) is pg.Surface or
-                        issubclass(type(object), pg.Surface)
-                    ):
-                    self.display.blit(object, rect)
-            else:
-                self.display.blit(object, rect, area)
-    def resize(self, size):# none / tuple
-        """resizes the app's surface. 'size' needs to be a tuple."""
-        # make new display surface
-        self.display = u.getDisplay(
-            size,
-            resizable = self.style.resizable
-        )
-        # drawing new created background
-        self.background = self.createBackground()
-        self.draw(self.background)
-    def quit(self):
-        """exits the app."""
-        pg.quit()
-        sys.exit()
-    def update(self):
-        """
-        updates dimensions, visuals and physics of the pygame.display with each
-        game-loop-tick.
-        it also cycles trough 'self.draw_list' to draw everything that is given
-        to this list.
-        """
-        self._events = self.events
-        # overdrawing old moved sprite-trails on backgrounds
-        self.draw_list.clear(self.display, self.background)
-        changes = self.draw_list.draw(self.display)
-        # rendering another mouse-cursor depending on some specific element-
-        # types
-        for each in self.draw_list:
-            self.cursor.state = "normal"
-            # changing cursor to 'text-selection' if it's over a text-related
-            # element
-            if (
-                type(each) is Text or
-                type(each) is TextField or
-                each.__class__.__bases__[0] is TextField
-            ):
-                if each.hover:
-                    self.cursor.state = "text"
-                    # exiting the loop cause we're only looking for these
-                    # elements
-                    break
-            # special exceptions for slot since it has elements that don't need
-            # a change of the mouse-cursor from default to text-selection
-            elif type(each) is Slot:
-                if each.text_field.hover:
-                    self.cursor.state = "text"
-                    break
-        # drawing the new mouse-cursor
-        self.display.blit(self.cursor.image, self.cursor.rect.topleft)
-        # updating all drawn sprites
-        for each in self.draw_list: each.update()
-        pg.display.update(changes)
-        # refreshing display visuals
-        pg.display.update()
-        # updating fps
-        self.clock.tick(self.preffered_fps)
-        self.fps = int(self.clock.get_fps())
 class GuiMaster(pg.sprite.Sprite):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
@@ -555,6 +330,240 @@ class GuiMaster(pg.sprite.Sprite):
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
+class App:
+    """
+    pygames-window-module with extended features. can be accessed by calling
+    'globals()["app"]'.
+    """
+    def __init__(self, **kwargs):
+        """
+        inits pygame to act as an app-window.
+
+        'stylesheet'        validated 'dict' of comparing a user-set dict of
+                            properties with this object's default values.
+        'display'           holds the actual 'pygame.display.surface' object.
+        'background'        used to draw to fill the surface with. might be
+                            'str', 'tuple' or 'pg.surface'. if 'str', use it as
+                            an image-path and load a pygame.image-surface.
+        'cursor'            sprite to use instead of the original one. when
+                            cursor-object gets initialized, it renders the
+                            native pygame-cursor invisible.
+        'draw_list'         an extended sprite-group for sprites that have to
+                            always be blitten on top of the visuals.
+        'clock'             pygame.clock for tracking 'fps'.
+        'preffered_fps'     user-defined maximal frames per second.
+        'fps'               the actual FPS. it's gonna be updated by the
+                            window's 'update()'-method.
+        '_events'           a 'list' of momentary pygame.events. it's gonna be
+                            filled by calling 'self.events' anywhere. use this
+                            list for checking ongoing events.
+        'keys'              an empty list. gets automatically filled with
+                            pygame-events by going through the
+                            'events'-property over and over.
+        'resized'           bool to check if the window has been resized.
+        """
+        self.style = Stylesheet(
+            type = "app",
+            style = kwargs
+        )
+        # pygame init
+        pg.init()
+        # creating display surface and drawing background
+        self.display = u.getDisplay(
+            self.style.size,
+            resizable = self.style.resizable
+        )
+        self.background = self.createBackground()
+        self.draw(self.background)
+        # changing window- and mouse-cursor apprarance
+        self.changeTitle(self.style.title)
+        self.changeIcon(self.style.icon)
+        self.cursor = Cursor()
+        # everything in this list will be drawn to the app-screen on their
+        # event-updates.
+        self.draw_list = pg.sprite.RenderUpdates()
+        self.draw_list.add(self.cursor)
+        # fps settings
+        self.clock = pg.time.Clock()
+        self.preffered_fps = self.style.fps
+        self.fps = 0
+        # event related
+        self._events = []
+        self.keys = []
+        self.resized = False
+        # adding this instance to 'globals'
+        globals()["app"] = self
+    # dynamic attributes
+    @property# list
+    def events(self):
+        """
+        checks for the most basic events and returns the pg-event-list.
+        updates internal property 'keys' with a fresh list of pressed keys.
+        """
+        events = pg.event.get()
+        # resetting previous event-list and app's internal events
+        self.keys = []
+
+        for evt in events:
+            # exiting the app
+            if evt.type is pg.QUIT:
+                self.quit()
+            # appending a string to list 'self.keys' resembling the pressed key
+            if evt.type is pg.KEYDOWN:
+                if evt.key is pg.K_ESCAPE:
+                    self.keys.append("esc")
+            # calling 'self.resize()' when window has been resized. also
+            # marking the app as 'resized' (self.resized = True)
+            if evt.type is pg.VIDEORESIZE:
+                self.resized = True
+                self.resize(evt.size)
+            elif evt.type is pg.ACTIVEEVENT and self.resized:
+                self.resized = False
+
+        return events
+    @property
+    def fps_image(self):
+        """returns a pg.surface with the fps as a text drawn to it."""
+        image = Text(
+            text = str(self.fps),
+            text_size = 13
+        )
+
+        return image
+    @property# pg.rect
+    def rect(self):
+        """returns a valid pygame-rect with app's dimensions."""
+        return self.display.get_rect()
+    # window appearance
+    def changeIcon(self, path):
+        """creates an icon for the window from an image."""
+        if type(path) is pg.Surface:
+            icon = path
+        elif type(path) is str:
+            icon = pg.image.load(path)
+
+        icon = pg.transform.scale(icon, (32, 32))
+        pg.display.set_icon(icon)
+    def changeTitle(self, title):
+        """changes the window title. 'title' should be a string."""
+        if type(title) is not str:
+            title = str(title)
+        pg.display.set_caption(title)
+    def createBackground(self):# pg surface
+        """returns a pygame.surface based on background-properties."""
+        # prioritizing backgorund-statement
+        if self.style.background_color:
+            bg = self.style.background_color
+        else:
+            bg = self.style.background_image
+        # looking for default-background-statement
+        if type(bg) is str:
+            # overwriting app's local 'background_repeat'-property if 'bg'
+            # is the library's standard background-image.
+            if bg == str(u.LIBPATH["windowbg"]):
+                self.style.background_repeat = "xy"
+            bg = pg.image.load(bg)
+        # filling a newly created surface
+        elif type(bg) is tuple:
+            color = bg
+            bg = pg.Surface(self.rect.size)
+            bg.fill(color)
+        # checking for background-repeat
+        if type(bg) is pg.Surface:
+            if self.style.background_repeat:
+                # creating surfact with repeated background
+                # 'self.config["background_repeat"]' is the indicator:
+                # ('x', 'y', 'xy')
+                bg = u.repeatBG(
+                    bg,
+                    self.display.get_rect().size,
+                    self.style.background_repeat
+                )
+
+        return bg
+    # basic methodes
+    def draw(self, object, rect=None, area=None):
+        """
+        blits a surface-object / gui-element to the app's surface.
+        if 'object' is a list or tuple, fill the surface with this statement
+        instead. 'area' takes a pygame.rect-statement for declaring a specific
+        area to redraw for keep fps up.
+        """
+        if not rect: rect = (0, 0)
+
+        if type(object) is list or type(object) is tuple:
+            self.display.fill(object)
+        else:
+            if not area:
+                # drawing sprites
+                if object.__class__.__bases__[0] is pg.sprite.Sprite:
+                    self.display.blit(object.image, rect)
+                # drawing surfaces
+                elif (
+                        object.__class__.__bases__[0] is pg.Surface or
+                        type(object) is pg.Surface or
+                        issubclass(type(object), pg.Surface)
+                    ):
+                    self.display.blit(object, rect)
+            else:
+                self.display.blit(object, rect, area)
+    def resize(self, size):# none / tuple
+        """resizes the app's surface. 'size' needs to be a tuple."""
+        # make new display surface
+        self.display = u.getDisplay(
+            size,
+            resizable = self.style.resizable
+        )
+        # drawing new created background
+        self.background = self.createBackground()
+        self.draw(self.background)
+    def quit(self):
+        """exits the app."""
+        pg.quit()
+        sys.exit()
+    def update(self):
+        """
+        updates dimensions, visuals and physics of the pygame.display with each
+        game-loop-tick.
+        it also cycles trough 'self.draw_list' to draw everything that is given
+        to this list.
+        """
+        self._events = self.events
+        # overdrawing old moved sprite-trails on backgrounds
+        self.draw_list.clear(self.display, self.background)
+        changes = self.draw_list.draw(self.display)
+        # rendering another mouse-cursor depending on some specific element-
+        # types
+        for each in self.draw_list:
+            self.cursor.state = "normal"
+            # changing cursor to 'text-selection' if it's over a text-related
+            # element
+            if (
+                type(each) is Text or
+                type(each) is TextField or
+                each.__class__.__bases__[0] is TextField
+            ):
+                if each.hover:
+                    self.cursor.state = "text"
+                    # exiting the loop cause we're only looking for these
+                    # elements
+                    break
+            # special exceptions for slot since it has elements that don't need
+            # a change of the mouse-cursor from default to text-selection
+            elif type(each) is Slot:
+                if each.text_field.hover:
+                    self.cursor.state = "text"
+                    break
+        # drawing the new mouse-cursor
+        self.display.blit(self.cursor.image, self.cursor.rect.topleft)
+        # updating all drawn sprites
+        for each in self.draw_list: each.update()
+        pg.display.update(changes)
+        # refreshing display visuals
+        pg.display.update()
+        # updating fps
+        self.clock.tick(self.preffered_fps)
+        self.fps = int(self.clock.get_fps())
 # most of these following elements draw their inherition from 'GuiMaster'
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
