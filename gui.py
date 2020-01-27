@@ -690,6 +690,11 @@ class Table(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
+class Table2(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="table", **kwargs)
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
