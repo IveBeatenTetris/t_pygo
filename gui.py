@@ -1524,24 +1524,38 @@ class InfoBar(GuiMaster):
         self.redraw()
         # invoking creation of new position for this element
         self.position
+
+        self.info_table = self.create_infotable()
         # first time drawing the given information as table-content
         self.image.blit(self.info_table.image, (0, 0))
     # dynamic attributes
-    @property
-    def info_table(self):
+    @property# tuple
+    def position(self):
+        """returns the recalculated position of this element in a tuple."""
+        position = ((0, globals()["app"].rect.height - self.rect.height))
+        self.style.position = position
+        self.rect.topleft = position
+
+        return position
+    # basic methodes
+    def create_infotable(self):
         """
         returns a table-object with updates dimensions and informartion already
         drawn to it.
         """
-        #(("mouse_loc", "app_size", "app_fps"),)
+        app = globals()["app"]
         info = [[]]
 
         for row in self.style.info:
             for cell in row:
                 if type(cell) is str:
-                    if cell == "app_fps":
+                    if cell == "app_size":
                         info[0].append(
-                            "FPS: {}".format(globals()["app"].fps)
+                            "App Size: {}".format(app.rect.size)
+                        )
+                    elif cell == "mouse_loc":
+                        info[0].append(
+                            "Mouse Location: {}".format(self.mouse_events[1])
                         )
 
         return Table(
@@ -1553,22 +1567,14 @@ class InfoBar(GuiMaster):
             text_position = self.style.text_position,
             text_margin = self.style.text_margin
         )
-    @property# tuple
-    def position(self):
-        """returns the recalculated position of this element in a tuple."""
-        position = ((0, globals()["app"].rect.height - self.rect.height))
-        self.style.position = position
-        self.rect.topleft = position
-
-        return position
-    # basic methodes
     def update(self):
         """overwrites parent's 'update()'-method."""
         app = globals()["app"]
+        old_fps_image = app.fps_image.image
         # invoking creation of new position for this element and redrawing
         # information
         if app.resized:
             self.position
             self.resize((app.rect.width, self.rect.height))
-            # exceptional element that always redraws its contents
             self.image.blit(self.info_table.image, (0, 0))
+        # exceptional element that always redraws its contents
