@@ -954,7 +954,8 @@ class Panel(GuiMaster):
         self.drag
         # visual redrawing of this element depends on the following conditions:
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
-            self.redraw()
+            if self.style.background_hover:
+                self.redraw()
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
