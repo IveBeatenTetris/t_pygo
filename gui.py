@@ -571,11 +571,11 @@ class Grid(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
 
-        'grid'          the grid-object with no contents, only a surface with a
-                        drawn border if set by user.
-        'cells'         'list' of rects created in 'self.create_grid'. each
-                        rect is a positional drawing-arg for the values of a
-                        cell.
+        'grid'              the grid-object with no contents, only a surface
+                            with a drawn border if set by user.
+        'cells'             'list' of rects created in 'self.create_grid'. each
+                            rect is a positional drawing-arg for the values of
+                            a cell.
         """
         GuiMaster.__init__(self, type="grid", **kwargs)
         self.grid = self.create_grid()
@@ -667,8 +667,9 @@ class Table(GuiMaster):
                 )
                 # drawing depends on element-type
                 if type(elem) is str:
-                    # creating new text-element and shift its position by user
-                    # defined args before drawing it to the returning-surface
+                    # creating new text-element and shift its position by
+                    # user defined args before drawing it to the returning-
+                    # surface
                     text = Text(
                         text = elem,
                         font_size = self.style.text_size
@@ -710,7 +711,6 @@ class Table(GuiMaster):
         self.draw_visuals()
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
@@ -736,7 +736,7 @@ class Text(GuiMaster):
         self.style.size = self.text.get_rect().size
         self.resize(self.style.size)
         # drawing text to text-surface
-        self.image.blit(self.text, (0, 0))
+        self.image.blit(self.text, self.style.line_balance)
     # dynamic properties
     @property# pg.surface
     def text(self):
@@ -794,7 +794,7 @@ class Text(GuiMaster):
         self.image = pg.Surface(size, pg.SRCALPHA)
         # drawing text to text-surface
         self.redraw()
-        self.image.blit(self.text, (0, 0))
+        self.image.blit(self.text, self.style.line_balance)
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.hover or self.leave or self.click:
@@ -804,9 +804,9 @@ class Text(GuiMaster):
                 if self.style.background_hover:
                     self.redrawBackground()
                     self.redrawBorder()
-                    self.image.blit(self.text, (0, 0))
+                    self.image.blit(self.text, self.style.line_balance)
     def update_text(self, text):
-        """."""
+        """updates 'text_string' and redraws text-visuals."""
         self.style.text = text
         self.text_string = text
         self.resize(self.text.get_rect().size)

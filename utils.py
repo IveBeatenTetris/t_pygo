@@ -111,7 +111,8 @@ STYLE = {
         "antialias": True,
         "shadow": None,
         "wrap": None,
-        "padding": 10
+        "padding": 10,
+        "line_balance": (0, -2)
     },
     "arrow_button": {
         "size": (25, 25),
@@ -194,7 +195,8 @@ STYLE = {
         "italic": False,
         "shadow": None,
         "wrap": None,
-        "padding": 0
+        "padding": 0,
+        "line_balance": (0, -2)
     },
     "text_field": {
         "text": "New Textfield",
