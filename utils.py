@@ -68,6 +68,15 @@ STYLE = {
         "border_color": (0, 0, 0),
         "border_size": 1
     },
+    "grid" : {
+        "size": (0, 0),
+        "position": (0, 0),
+        "background_color": (25, 25, 35),
+        "border": True,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "rows": ()
+    },
     "info_bar": {
         "size": (300, 30),
         "position": (0, 0),

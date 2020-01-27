@@ -565,6 +565,51 @@ class App:
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
 # most of these following elements draw their inherition from 'GuiMaster'
+class Grid(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="grid", **kwargs)
+        self.image.blit(self.create_grid()["image"], (0, 0))
+    def create_grid(self):
+        """
+        returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
+        draw the grid to the sprite-image-surface.
+        """
+        surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+        rects = []
+
+        # storing every cell-rect in columns-list
+        for r in range(len(self.style.rows)):
+            for c in range(len(self.style.rows[0])):
+                # creating a pg.rect for the momentary column
+                rect = pg.Rect(
+                    c * int(self.rect.width / len(self.style.rows[0])),
+                    r * int(self.rect.height / len(self.style.rows)),
+                    int(self.rect.width / len(self.style.rows[0])),
+                    int(self.rect.height / len(self.style.rows)),
+                )
+                # drawing a border only if one is given by user
+                if self.border: pg.draw.lines(
+                    surface,
+                    self.style.border_color,
+                    False,
+                    [
+                        rect.bottomleft,
+                        rect.topleft,
+                        rect.topright
+                    ],
+                    self.style.border_size
+                )
+                # appending rect to returning-dict
+                rects.append(rect)
+
+        grid = {
+            "image": surface,
+            "rects": rects
+        }
+
+        return grid
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
@@ -581,7 +626,7 @@ class Table(GuiMaster):
     @property# dict
     def grid(self):
         """
-        returns a dict, acting as a grid-element. usees 'self.grid["image"]' to
+        returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
         draw the grid to the sprite-image-surface.
         """
         surface = pg.Surface(self.rect.size, pg.SRCALPHA)
@@ -695,6 +740,12 @@ class Table2(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="table", **kwargs)
+        self.rows = self.style.rows
+        self.grid = Grid(**kwargs)
+        self.image.blit(self.grid.image, (0, 0))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
