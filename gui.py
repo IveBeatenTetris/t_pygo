@@ -574,7 +574,7 @@ class Grid(GuiMaster):
         self.cells = self.grid["rects"]
         # first time drawing grid to image-surface
         self.image.blit(self.grid["image"], (0, 0))
-        self.draw_elements()
+        #self.draw_elements()
     def create_grid(self):
         """
         returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
@@ -774,6 +774,35 @@ class Table2(GuiMaster):
         self.rows = self.style.rows
         self.grid = Grid(**kwargs)
         self.image.blit(self.grid.image, (0, 0))
+        self.draw_elements()
+    def draw_elements(self):
+        """draws all elemenets in 'self.rows' to the grid-surface."""
+        # 'i' is used to index the momentary rects-positon: grid.cells[i]
+        i = 0
+        # cycling trough elements to draw
+        for r in range(len(self.rows)):
+            for c in range(len(self.rows[r])):
+                elem = self.rows[r][c]
+                # resolving new position in two separate coordinates
+                x, y = getattr(
+                    self.grid.cells[i],
+                    self.style.text_position
+                )
+                # drawing depends on element-type
+                if type(elem) is str:
+                    # creating new text-element and shift its position by user
+                    # defined args before drawing it to the returning-surface
+                    text = Text(
+                        text = elem,
+                        font_size = self.style.text_size
+                    )
+                    x += self.style.text_margin[3]
+                    text.shift((x, y), self.style.text_position)
+                    self.image.blit(text.image, text.rect)
+                else:
+                    self.image.blit(elem.image, (x, y))
+                # changing next rects-index
+                i += 1
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
