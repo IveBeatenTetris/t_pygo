@@ -566,15 +566,23 @@ class App:
         self.fps = int(self.clock.get_fps())
 # most of these following elements draw their inherition from 'GuiMaster'
 class Grid(GuiMaster):
-    """."""
+    """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'grid'          the grid-object with no contents, only a surface with a
+                        drawn border if set by user.
+        'cells'         'list' of rects created in 'self.create_grid'. each
+                        rect is a positional drawing-arg for the values of a
+                        cell.
+        """
         GuiMaster.__init__(self, type="grid", **kwargs)
         self.grid = self.create_grid()
         self.cells = self.grid["rects"]
         # first time drawing grid to image-surface
         self.image.blit(self.grid["image"], (0, 0))
-        #self.draw_elements()
+    # basic methodes
     def create_grid(self):
         """
         returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
@@ -618,12 +626,15 @@ class Grid(GuiMaster):
         """overwrites parent's 'resize()'-method."""
         self.style.size = size
         self.rect.size = size
-
+        # updating grid and cells
         self.grid = self.create_grid()
         self.cells = self.grid["rects"]
-
+        # redrawing visuals
         self.redraw()
         self.image.blit(self.grid["image"], (0, 0))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
@@ -750,13 +761,22 @@ class Table(GuiMaster):
         """overwrites parent's 'update()'-method."""
         pass
 class Table2(GuiMaster):
-    """."""
+    """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'rows'      'tuple' of tuples that hold gui-elements or native python-
+                    types.
+        'grid'      'grid'-object that holds positional argument for drawing
+                    the elements.
+        """
         GuiMaster.__init__(self, type="table", **kwargs)
         self.rows = self.style.rows
         self.grid = Grid(**kwargs)
+        # first time drawing visuals
         self.draw_visuals()
+    # basic methodes
     def draw_elements(self):
         """draws all elemenets in 'self.rows' to the grid-surface."""
         # 'i' is used to index the momentary rects-positon: grid.cells[i]
@@ -786,12 +806,12 @@ class Table2(GuiMaster):
                 # changing next rects-index
                 i += 1
     def draw_visuals(self):
-        """."""
+        """redrawing all visuals."""
         self.image.blit(self.grid.image, (0, 0))
         self.draw_elements()
     def replace_rows(self, rows):
         """
-        this methode replaces the internal 'rows'-value with the given one.
+        this method replaces the internal 'rows'-value with the given one.
         snytax looks like this:
             my_rows = (
                 ("column1", "object1"),
@@ -804,14 +824,14 @@ class Table2(GuiMaster):
         """
         self.style.rows = rows
         self.rows = rows
-
+        # redrawing visuals
         self.draw_visuals()
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.style.size = size
         self.rect.size = size
         self.grid.resize(size)
-
+        # redrawing visuals
         self.draw_visuals()
     def update(self):
         """overwrites parent's 'update()'-method."""
@@ -1644,13 +1664,15 @@ class InfoBar(GuiMaster):
 
         'position'      dynamic attribute. on calling this, the infobar-element
                         updates its rect-position and style.position as well.
+        'info_table'    table-object with grid and contents already drawn to
+                        its surface.
         """
         GuiMaster.__init__(self, type="info_bar", **kwargs)
         self.resize((globals()["app"].rect.width, self.style.size[1]))
         self.redraw()
         # invoking creation of new position for this element
         self.position
-
+        # creating table for displaying formated information
         self.info_table = Table2(
             size = self.rect.size,
             rows = self.style.info,
