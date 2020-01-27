@@ -1525,7 +1525,15 @@ class InfoBar(GuiMaster):
         # invoking creation of new position for this element
         self.position
 
-        self.info_table = self.create_infotable()
+        self.info_table = Table(
+            size = self.rect.size,
+            rows = self.style.info,
+            background_color = self.style.background_color,
+            border = None,
+            text_size = self.style.text_size,
+            text_position = self.style.text_position,
+            text_margin = self.style.text_margin
+        )
         # first time drawing the given information as table-content
         self.image.blit(self.info_table.image, (0, 0))
     # dynamic attributes
@@ -1538,35 +1546,6 @@ class InfoBar(GuiMaster):
 
         return position
     # basic methodes
-    def create_infotable(self):
-        """
-        returns a table-object with updates dimensions and informartion already
-        drawn to it.
-        """
-        app = globals()["app"]
-        info = [[]]
-
-        for row in self.style.info:
-            for cell in row:
-                if type(cell) is str:
-                    if cell == "app_size":
-                        info[0].append(
-                            "App Size: {}".format(app.rect.size)
-                        )
-                    elif cell == "mouse_loc":
-                        info[0].append(
-                            "Mouse Location: {}".format(self.mouse_events[1])
-                        )
-
-        return Table(
-            size = self.rect.size,
-            rows = info,
-            background_color = self.style.background_color,
-            border = None,
-            text_size = self.style.text_size,
-            text_position = self.style.text_position,
-            text_margin = self.style.text_margin
-        )
     def update(self):
         """overwrites parent's 'update()'-method."""
         app = globals()["app"]
@@ -1577,4 +1556,3 @@ class InfoBar(GuiMaster):
             self.position
             self.resize((app.rect.width, self.rect.height))
             self.image.blit(self.info_table.image, (0, 0))
-        # exceptional element that always redraws its contents
