@@ -72,6 +72,7 @@ STYLE = {
         "size": (0, 0),
         "position": (0, 0),
         "background_color": (25, 25, 35),
+        "background_hover": None,
         "border": True,
         "border_color": (0, 0, 0),
         "border_size": 1,

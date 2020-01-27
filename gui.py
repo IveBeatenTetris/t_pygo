@@ -614,33 +614,16 @@ class Grid(GuiMaster):
         }
 
         return grid
-    def draw_elements(self):
-        """draws all elemenets in self.style.rows to the grid-surface."""
-        i = 0
-        # cycling trough elements to draw
-        for r in range(len(self.style.rows)):
-            for c in range(len(self.style.rows[r])):
-                elem = self.style.rows[r][c]
-                # resolving new position in two separate coordinates
-                x, y = getattr(
-                    self.cells[i],
-                    self.style.text_position
-                )
-                # drawing depends on element-type
-                if type(elem) is str:
-                    # creating new text-element and shift its position by user
-                    # defined args before drawing it to the returning-surface
-                    text = Text(
-                        text = elem,
-                        font_size = self.style.text_size
-                    )
-                    x += self.style.text_margin[3]
-                    text.shift((x, y), self.style.text_position)
-                    self.image.blit(text.image, text.rect)
-                else:
-                    self.image.blit(elem.image, (x, y))
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.style.size = size
+        self.rect.size = size
 
-                i += 1
+        self.grid = self.create_grid()
+        self.cells = self.grid["rects"]
+
+        self.redraw()
+        self.image.blit(self.grid["image"], (0, 0))
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
@@ -773,8 +756,7 @@ class Table2(GuiMaster):
         GuiMaster.__init__(self, type="table", **kwargs)
         self.rows = self.style.rows
         self.grid = Grid(**kwargs)
-        self.image.blit(self.grid.image, (0, 0))
-        self.draw_elements()
+        self.draw_visuals()
     def draw_elements(self):
         """draws all elemenets in 'self.rows' to the grid-surface."""
         # 'i' is used to index the momentary rects-positon: grid.cells[i]
@@ -803,6 +785,34 @@ class Table2(GuiMaster):
                     self.image.blit(elem.image, (x, y))
                 # changing next rects-index
                 i += 1
+    def draw_visuals(self):
+        """."""
+        self.image.blit(self.grid.image, (0, 0))
+        self.draw_elements()
+    def replace_rows(self, rows):
+        """
+        this methode replaces the internal 'rows'-value with the given one.
+        snytax looks like this:
+            my_rows = (
+                ("column1", "object1"),
+                ("column2", "object2")
+            )
+            self.replace_rows(my_rows)
+        each single str-value can also be replaced with drawable objects. but
+        if it comes as a string, the table automatically creates a text-object
+        to draw it on itself.
+        """
+        self.style.rows = rows
+        self.rows = rows
+
+        self.draw_visuals()
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.style.size = size
+        self.rect.size = size
+        self.grid.resize(size)
+
+        self.draw_visuals()
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
@@ -1641,11 +1651,13 @@ class InfoBar(GuiMaster):
         # invoking creation of new position for this element
         self.position
 
-        self.info_table = Table(
+        self.info_table = Table2(
             size = self.rect.size,
             rows = self.style.info,
             background_color = self.style.background_color,
-            border = None,
+            border = self.style.border,
+            border_color = self.style.border_color,
+            border_size = self.style.border_size,
             text_size = self.style.text_size,
             text_position = self.style.text_position,
             text_margin = self.style.text_margin
@@ -1665,10 +1677,10 @@ class InfoBar(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         app = globals()["app"]
-        old_fps_image = app.fps_image.image
         # invoking creation of new position for this element and redrawing
         # information
         if app.resized:
             self.position
             self.resize((app.rect.width, self.rect.height))
+            self.info_table.resize(self.rect.size)
             self.image.blit(self.info_table.image, (0, 0))
