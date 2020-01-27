@@ -570,7 +570,11 @@ class Grid(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="grid", **kwargs)
-        self.image.blit(self.create_grid()["image"], (0, 0))
+        self.grid = self.create_grid()
+        self.cells = self.grid["rects"]
+        # first time drawing grid to image-surface
+        self.image.blit(self.grid["image"], (0, 0))
+        self.draw_elements()
     def create_grid(self):
         """
         returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
@@ -610,6 +614,33 @@ class Grid(GuiMaster):
         }
 
         return grid
+    def draw_elements(self):
+        """draws all elemenets in self.style.rows to the grid-surface."""
+        i = 0
+        # cycling trough elements to draw
+        for r in range(len(self.style.rows)):
+            for c in range(len(self.style.rows[r])):
+                elem = self.style.rows[r][c]
+                # resolving new position in two separate coordinates
+                x, y = getattr(
+                    self.cells[i],
+                    self.style.text_position
+                )
+                # drawing depends on element-type
+                if type(elem) is str:
+                    # creating new text-element and shift its position by user
+                    # defined args before drawing it to the returning-surface
+                    text = Text(
+                        text = elem,
+                        font_size = self.style.text_size
+                    )
+                    x += self.style.text_margin[3]
+                    text.shift((x, y), self.style.text_position)
+                    self.image.blit(text.image, text.rect)
+                else:
+                    self.image.blit(elem.image, (x, y))
+
+                i += 1
 class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):

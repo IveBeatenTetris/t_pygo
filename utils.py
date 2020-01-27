@@ -75,6 +75,9 @@ STYLE = {
         "border": True,
         "border_color": (0, 0, 0),
         "border_size": 1,
+        "text_size": 13,
+        "text_position": "topleft",
+        "text_margin": [0, 0, 0, 0],
         "rows": ()
     },
     "info_bar": {
