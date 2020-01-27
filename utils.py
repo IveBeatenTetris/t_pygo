@@ -244,6 +244,18 @@ STYLE = {
         "border_size": 1,
         "options" : [],
         "margin": [7, 35, 7, 10]
+    },
+    "window": {
+        "size": (300, 200),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
+        "dragable": True,
+        "drag_area": [5, 5, 290, 25],
+        "drag_area_background": (70, 70, 80)
     }
 }
 

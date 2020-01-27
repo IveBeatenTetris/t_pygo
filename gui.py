@@ -866,7 +866,9 @@ class Panel(GuiMaster):
                             this can be used to calculate the position of an
                             element when the mouse tries to drag it.
         """
-        GuiMaster.__init__(self, type="panel", **kwargs)
+        # initialising panel-object
+        if not "type" in kwargs: kwargs["type"] = "panel"
+        GuiMaster.__init__(self, **kwargs)
         if self.style.drag_area:
             self.drag_area = pg.Rect(self.style.drag_area)
         else:
@@ -1581,3 +1583,7 @@ class InfoBar(GuiMaster):
             self.resize((app.rect.width, self.rect.height))
             self.info_table.resize(self.rect.size)
             self.image.blit(self.info_table.image, (0, 0))
+class Window(Panel):
+    """a callable window-popup-surface."""
+    def __init__(self, **kwargs):
+        Panel.__init__(self, type="window", **kwargs)
