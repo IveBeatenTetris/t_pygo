@@ -643,131 +643,6 @@ class Table(GuiMaster):
 
         'rows'      'tuple' of tuples that hold gui-elements or native python-
                     types.
-        """
-        GuiMaster.__init__(self, type="table", **kwargs)
-        self.rows = self.style.rows
-        self.image.blit(self.grid["image"], (0, 0))
-    # dynamic propeties
-    @property# dict
-    def grid(self):
-        """
-        returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
-        draw the grid to the sprite-image-surface.
-        """
-        surface = pg.Surface(self.rect.size, pg.SRCALPHA)
-        rects = []
-
-        # storing every cell-rect in columns-list
-        for r in range(len(self.rows)):
-            for c in range(len(self.rows[0])):
-                # creating a pg.rect for the momentary column
-                rect = pg.Rect(
-                    c * int(self.rect.width / len(self.rows[0])),
-                    r * int(self.rect.height / len(self.rows)),
-                    int(self.rect.width / len(self.rows[0])),
-                    int(self.rect.height / len(self.rows)),
-                )
-                # drawing a border only if one is given by user
-                if self.border: pg.draw.lines(
-                    surface,
-                    self.style.border_color,
-                    False,
-                    [
-                        rect.bottomleft,
-                        rect.topleft,
-                        rect.topright
-                    ],
-                    self.style.border_size
-                )
-                # appending rect to returning-dict
-                rects.append(rect)
-        # drawing passed elements to surface
-        surface = self.drawElements(self.rows, surface, rects)
-
-        grid = {
-            "image": surface,
-            "rects": rects
-        }
-
-        return grid
-    # element mutation
-    def replace_rows(self, rows):
-        """
-        this methode replaces the internal 'rows'-value with the given one.
-        snytax looks like this:
-            my_rows = (
-                ("column1", "object1"),
-                ("column2", "object2")
-            )
-            self.replace_rows(my_rows)
-        each single str-value can also be replaced with drawable objects. but
-        if it comes as a string, the table automatically creates a text-object
-        to draw it on itself.
-        """
-        self.style.rows = rows
-        self.rows = rows
-        self.redrawVisuals()
-    # basic methodes
-    def drawElements(self, elements, surface, rect_list):# pg.surface
-        """
-        returns a pg.surface with already drawn elements on it.
-
-        'elements'      must be tuple or list of multiple content. example:
-                        rows = (
-                			("Key1", "Value1", "Another Key"),
-                        )
-        'surface'       the pg.surface to draw on.
-        'rect_list'     a list of pg.rects to use for positional drawing.
-        """
-        i = 0
-        # cycling trough elements to draw
-        for r in range(len(elements)):
-            for c in range(len(elements[r])):
-                elem = elements[r][c]
-                # resolving new position in two separate coordinates
-                x, y = getattr(
-                    rect_list[i],
-                    self.style.text_position
-                )
-                # drawing depends on element-type
-                if type(elem) is str:
-                    # creating new text-element and shift its position by user
-                    # defined args before drawing it to the returning-surface
-                    text = Text(
-                        text = elem,
-                        font_size = self.style.text_size
-                    )
-                    x += self.style.text_margin[3]
-                    text.shift((x, y), self.style.text_position)
-                    surface.blit(text.image, text.rect)
-                else:
-                    surface.blit(elem.image, (x, y))
-
-                i += 1
-
-        return surface
-    def redrawVisuals(self):
-        """redrawing everything to display the table with its contents."""
-        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
-        self.redrawBackground()
-        self.redrawBorder()
-        self.image.blit(self.grid["image"], (0, 0))
-    def resize(self, size):
-        """overwrites parent's 'resize()'-method."""
-        self.rect.size = size
-        # recreating table-visuals
-        self.redrawVisuals()
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        pass
-class Table2(GuiMaster):
-    """table-object to pass gui-elements to its 'rows'-attribute."""
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
-
-        'rows'      'tuple' of tuples that hold gui-elements or native python-
-                    types.
         'grid'      'grid'-object that holds positional argument for drawing
                     the elements.
         """
@@ -1673,7 +1548,7 @@ class InfoBar(GuiMaster):
         # invoking creation of new position for this element
         self.position
         # creating table for displaying formated information
-        self.info_table = Table2(
+        self.info_table = Table(
             size = self.rect.size,
             rows = self.style.info,
             background_color = self.style.background_color,
