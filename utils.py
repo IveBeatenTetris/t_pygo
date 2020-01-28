@@ -144,10 +144,12 @@ STYLE = {
         "size": (20, 20),
         "position": (0, 0),
         "background_color": (40, 40, 50),
-        "background_hover": (30, 30, 40),
+        "background_hover": (50, 50, 60),
         "border": True,
         "border_size": 1,
         "border_color": (10, 10, 20),
+        "symbol": "close",
+        "symbol_color": (10, 10, 20)
     },
     "table": {
         "size": (150, 50),
@@ -267,7 +269,7 @@ STYLE = {
         "dragable": True,
         "drag_area": [0, 0, 300, 30],
         "drag_area_background": (70, 70, 80),
-        "buttons": ("minimize", "maximize", "close"),
+        "buttons": ("close", "maximize", "minimize"),
         "button_margin": [5, 5, 0, 0]
     }
 }
@@ -610,12 +612,7 @@ def draw(object, destination, rect=None, blendmode=0):# pg.surface
         destination.blit(object.image, rect)
 
     return destination
-def drawArrow(# pg.surface
-    surface,
-    direction = "up",
-    color = (0, 0, 0),
-    margin = 0
-):
+def drawArrow(surface, direction="up", color=(0, 0, 0), margin=0):# pg.surface
     """
     returns a pg.surface. draws triangle-arrows to the button-surface
     depending on their directions ('up', 'down').
@@ -643,6 +640,40 @@ def drawArrow(# pg.surface
                 (rect.midtop[0], rect.bottom - margin)
             ],
             0
+        )
+
+    return surface
+def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
+    """returns a pg.surface with an 'x' drawn to it."""
+    rect = surface.get_rect()
+
+    # drawing an 'x'-symbol to given surface
+    if type == "x":
+        pg.draw.line(
+            surface,
+            color,
+            (
+                margin,
+                margin
+            ),
+            (
+                rect.right - margin,
+                rect.bottom - margin
+            ),
+            size
+        ),
+        pg.draw.line(
+            surface,
+            color,
+            (
+                rect.right - margin,
+                rect.top + margin
+            ),
+            (
+                rect.left + margin,
+                rect.bottom - margin
+            ),
+            size
         )
 
     return surface
