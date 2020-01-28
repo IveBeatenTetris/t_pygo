@@ -859,9 +859,48 @@ class PanelButton(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methodes and attributes.
+
+        'symbol'        pg-surface with a butt-symbol ready to be drawn.
         """
         GuiMaster.__init__(self, type="panel_button", **kwargs)
+        self.symbol = self.create_symbol()
+        # first time drawing symbol to button
+        self.image.blit(self.symbol, (0, 0))
     # basic mathodes
+    def create_symbol(self):
+        """returns a pg.surface with a symbol drawn to it."""
+        symbol =  pg.Surface(self.rect.size, pg.SRCALPHA)
+        color = self.style.symbol_color
+
+        # drawing an 'x'-symbol
+        if self.style.symbol == "close":
+            symbol = u.drawSymbol(
+                symbol,
+                type = "x",
+                color = color,
+                margin = 5,
+                size = 4
+            )
+        # drawing a rect-symbol
+        if self.style.symbol == "maximize":
+            symbol = u.drawSymbol(
+                symbol,
+                type = "rect",
+                color = color,
+                margin = 5,
+                size = 3
+            )
+        # drawing an underline-symbol
+        if self.style.symbol == "minimize":
+            symbol = u.drawSymbol(
+                symbol,
+                type = "_",
+                color = color,
+                margin = 5,
+                size = 3
+            )
+
+        return symbol
     def update(self):
         """overwrites parent's 'update()'-method."""
         # mouse-events
@@ -869,7 +908,7 @@ class PanelButton(GuiMaster):
         # recreating visuals on hover
         if self.hover or self.leave and (mrel[0] or mrel[1]):
             self.redraw()
-            #self.image.blit(self.arrow, (0, 0))
+            self.image.blit(self.symbol, (0, 0))
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
@@ -960,7 +999,10 @@ class Panel(GuiMaster):
         x = self.style.button_margin[1]
 
         for but in self.style.buttons:
-            button = PanelButton(parent=self)
+            button = PanelButton(
+                parent = self,
+                symbol = but
+            )
             # declaring position of buttons to draw
             if self.style.drag_area:
                 pos = (

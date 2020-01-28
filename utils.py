@@ -643,7 +643,13 @@ def drawArrow(surface, direction="up", color=(0, 0, 0), margin=0):# pg.surface
         )
 
     return surface
-def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
+def drawSymbol(# pg.surface
+        surface,
+        type = "x",
+        color= (0, 0, 0),
+        margin = 0,
+        size = 1
+    ):
     """returns a pg.surface with an 'x' drawn to it."""
     rect = surface.get_rect()
 
@@ -676,7 +682,7 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
             size
         )
     # drawing a rectangular shape
-    elif type == "rect":
+    if type == "rect":
         pg.draw.lines(
             surface,
             color,
@@ -706,7 +712,7 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
             size
         )
     # drawing an underline
-    elif type == "_":
+    if type == "_":
         pg.draw.line(
             surface,
             color,
