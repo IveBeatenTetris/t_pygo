@@ -938,6 +938,8 @@ class Panel(GuiMaster):
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
                 )
+        else:
+            self.__clicked = False
 
         return self.__clicked
     # basic methodes
@@ -982,10 +984,6 @@ class Panel(GuiMaster):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             if self.style.background_hover:
                 self.redraw()
-
-        for button in self.buttons:
-            if button.hover:
-                pass
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
