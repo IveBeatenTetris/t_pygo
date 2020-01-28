@@ -421,7 +421,7 @@ class App:
                 self.resized = False
 
         return events
-    @property
+    @property# pg.surface
     def fps_image(self):
         """returns a pg.surface with the fps as a text drawn to it."""
         image = Text(
@@ -449,7 +449,7 @@ class App:
         if type(title) is not str:
             title = str(title)
         pg.display.set_caption(title)
-    def createBackground(self):# pg surface
+    def createBackground(self):# pg.surface
         """returns a pygame.surface based on background-properties."""
         # prioritizing backgorund-statement
         if self.style.background_color:
@@ -583,7 +583,7 @@ class Grid(GuiMaster):
         # first time drawing grid to image-surface
         self.image.blit(self.grid["image"], (0, 0))
     # basic methodes
-    def create_grid(self):
+    def create_grid(self):# dict
         """
         returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
         draw the grid to the sprite-image-surface.
@@ -833,8 +833,8 @@ class ArrowButton(GuiMaster):
         # drawing an arrow to the image
         self.arrow = self.createArrow()
         self.image.blit(self.arrow, (0, 0))
-    def createArrow(self):
-        """returns a pg.Surface with an arrow drawn on."""
+    def createArrow(self):# pg.surface
+        """returns a pg.surface with an arrow drawn on."""
         surface = pg.Surface(self.style.size, pg.SRCALPHA)
 
         surface = u.drawArrow(
@@ -854,6 +854,16 @@ class ArrowButton(GuiMaster):
         if self.hover or self.leave and (mrel[0] or mrel[1]):
             self.redraw()
             self.image.blit(self.arrow, (0, 0))
+class PanelButton(GuiMaster):
+    """represents an arrow-button with an arrow drawn on it."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        """
+        GuiMaster.__init__(self, type="panel_button", **kwargs)
+    # basic mathodes
+    def update(self):
+        """overwrites parent's 'update()'-method."""
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
@@ -869,6 +879,7 @@ class Panel(GuiMaster):
         # initialising panel-object
         if not "type" in kwargs: kwargs["type"] = "panel"
         GuiMaster.__init__(self, **kwargs)
+        self.buttons = self.create_buttons()
         if self.style.drag_area:
             self.drag_area = pg.Rect(self.style.drag_area)
         else:
@@ -930,6 +941,21 @@ class Panel(GuiMaster):
 
         return self.__clicked
     # basic methodes
+    def create_buttons(self):
+        """."""
+        buttons = []
+
+        for but in self.style.buttons:
+            button = PanelButton(
+                size = (22, 22),
+                border = True
+            )
+            buttons.append(button)
+
+        return buttons
+    def draw_buttons(self):
+        """."""
+        pass
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
@@ -956,6 +982,10 @@ class Panel(GuiMaster):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             if self.style.background_hover:
                 self.redraw()
+
+        for button in self.buttons:
+            if button.hover:
+                pass
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle

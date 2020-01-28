@@ -136,7 +136,17 @@ STYLE = {
         "border_size": 1,
         "dragable": False,
         "drag_area": None,
-        "drag_area_background": (70, 70, 80)
+        "drag_area_background": (70, 70, 80),
+        "buttons": ("minimize", "maximize", "close")
+    },
+    "panel_button": {
+        "size": (25, 25),
+        "position": (0, 0),
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
     },
     "table": {
         "size": (150, 50),
@@ -255,7 +265,8 @@ STYLE = {
         "border_size": 1,
         "dragable": True,
         "drag_area": [5, 5, 290, 25],
-        "drag_area_background": (70, 70, 80)
+        "drag_area_background": (70, 70, 80),
+        "buttons": ("minimize", "maximize", "close")
     }
 }
 
