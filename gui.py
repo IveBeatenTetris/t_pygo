@@ -992,7 +992,7 @@ class Panel(GuiMaster):
 
         return self.__clicked
     # basic methodes
-    def create_buttons(self):
+    def create_buttons(self):# list
         """returns a list of panel-buttons to blit on the panel."""
         buttons = []
         # declaring drawing-position for next button
@@ -1022,6 +1022,22 @@ class Panel(GuiMaster):
             buttons.append(button)
 
         return buttons
+    def handle_buttons(self):
+        """button-event-handler."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        
+        for button in self.buttons:
+            # disabling drag-functionality on button-click
+            if button.click:
+                self.__clicked = False
+            # redrawing buttons on hover or out
+            if (
+                (button.hover or button.leave) and
+                (mrel[0] or mrel[1])
+            ):
+                button.update()
+                self.image.blit(button.image, button.rect)
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
@@ -1049,17 +1065,7 @@ class Panel(GuiMaster):
             if self.style.background_hover:
                 self.redraw()
         # handling button-events
-        for button in self.buttons:
-            # disabling drag-functionality on button-click
-            if button.click:
-                self.__clicked = False
-            # redrawing buttons on hover or out
-            if (
-                (button.hover or button.leave) and
-                (mrel[0] or mrel[1])
-            ):
-                button.update()
-                self.image.blit(button.image, button.rect)
+        self.handle_buttons()
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
