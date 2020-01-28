@@ -1026,7 +1026,7 @@ class Panel(GuiMaster):
         """button-event-handler."""
         # mouse-events
         mrel = self.mouse_events[2]
-        
+
         for button in self.buttons:
             # disabling drag-functionality on button-click
             if button.click:
@@ -1546,6 +1546,11 @@ class Menu(GuiMaster):
                         print("Function '{0}' not callable.".format(
                             opt.call[0]
                         ))
+class MenuBar(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="menu_bar", **kwargs)
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
     def __init__(self, **kwargs):
