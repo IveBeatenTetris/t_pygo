@@ -254,7 +254,7 @@ class GuiMaster(pg.sprite.Sprite):
             pg.mouse.get_pos(),
             mrel
         )
-    # basic methodes
+    # basic methods
     def draw(self, object, rect=None, area=None):
         """
         blits a surface-object / gui-element to the elements's surface.
@@ -481,7 +481,7 @@ class App:
                 )
 
         return bg
-    # basic methodes
+    # basic methods
     def draw(self, object, rect=None, area=None):
         """
         blits a surface-object / gui-element to the app's surface.
@@ -569,7 +569,7 @@ class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'grid'              the grid-object with no contents, only a surface
                             with a drawn border if set by user.
@@ -582,7 +582,7 @@ class Grid(GuiMaster):
         self.cells = self.grid["rects"]
         # first time drawing grid to image-surface
         self.image.blit(self.grid["image"], (0, 0))
-    # basic methodes
+    # basic methods
     def create_grid(self):# dict
         """
         returns a dict, acting as a grid-element. uses 'self.grid["image"]' to
@@ -639,7 +639,7 @@ class Table(GuiMaster):
     """table-object to pass gui-elements to its 'rows'-attribute."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'rows'      'tuple' of tuples that hold gui-elements or native python-
                     types.
@@ -651,7 +651,7 @@ class Table(GuiMaster):
         self.grid = Grid(**kwargs)
         # first time drawing visuals
         self.draw_visuals()
-    # basic methodes
+    # basic methods
     def draw_elements(self):
         """draws all elemenets in 'self.rows' to the grid-surface."""
         # 'i' is used to index the momentary rects-positon: grid.cells[i]
@@ -715,7 +715,7 @@ class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'text_string'   actual text-string (str).
         'font'          'pygame.font'-object to render a text with.
@@ -787,7 +787,7 @@ class Text(GuiMaster):
         final_surface.blit(text, rect.topleft)
 
         return final_surface
-    # basic methodes
+    # basic methods
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
@@ -817,14 +817,14 @@ class Button(Text):
     """
     def __init__(self, **kwargs):
         """
-        uses 'Text' as its parent with additional methodes and attributes.
+        uses 'Text' as its parent with additional methods and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
 class ArrowButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'arrow'     pg.surface with the arrow alreay blitten on.
         'image'     pg.surface to draw on.
@@ -858,7 +858,7 @@ class PanelButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'symbol'        pg-surface with a butt-symbol ready to be drawn.
         """
@@ -913,7 +913,7 @@ class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'drag_area'         user-declared area of dragging an element. if left
                             out, use the whole element-rect for dragging.
@@ -991,7 +991,7 @@ class Panel(GuiMaster):
             self.__clicked = False
 
         return self.__clicked
-    # basic methodes
+    # basic methods
     def create_buttons(self):# list
         """returns a list of panel-buttons to blit on the panel."""
         buttons = []
@@ -1055,7 +1055,7 @@ class Panel(GuiMaster):
             rect = pg.Rect(self.style.drag_area)
             self.image.fill(self.style.drag_area_background, rect)
     def update(self):
-        """runs with every game-loop."""
+        """overwrites parent's 'update()'-method."""
         # mouse-events
         mrel = self.mouse_events[2]
         # invoking drag-operation
@@ -1113,7 +1113,7 @@ class Slider(GuiMaster):
             self.dragged = False
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'rail'      (sprite) this subelement is the track of the slider to move
                     the handle along.
@@ -1179,7 +1179,7 @@ class Slider(GuiMaster):
                     self.handle.rect.top += mrel[1]
 
         return self.handle.dragged
-    # basic methodes
+    # basic methods
     def draw_elements(self):
         """draws all internal elements to the image-surface."""
         # drawing rail depending on 'style.alignment'
@@ -1232,7 +1232,7 @@ class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'text_string'   with entered keys combined as a str.
         'cursor'        'pg.surface' that comes along with some additional
@@ -1258,7 +1258,7 @@ class TextField(GuiMaster):
         text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
 
         return text
-    # basic methodes
+    # basic methods
     def handleCursor(self):
         """
         checks 'cooldown' and draws either 'cursor' or 'background'. draws the
@@ -1336,7 +1336,7 @@ class Slot(GuiMaster):
     """
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'text_field'    pg.srpite that acts as a text_field to lower or raise.
         'arrow_up'      up-button-sprite.
@@ -1386,7 +1386,7 @@ class Slot(GuiMaster):
         self.image.blit(self.text_field.image, (0, 0))
         self.image.blit(self.arrow_up.image, self.arrow_up.rect)
         self.image.blit(self.arrow_down.image, self.arrow_down.rect)
-    # basic methodes
+    # basic methods
     def raise_value(self):
         """raises the value of the slot.frame if it represents an integer."""
         try:
@@ -1434,7 +1434,7 @@ class Menu(GuiMaster):
     """
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'options'       list of renderable options.
         """
@@ -1442,7 +1442,7 @@ class Menu(GuiMaster):
         # creating a rect with absolute position for mouse-events
         self.options = self.create_options()
         self.draw_options()
-    # basic methodes
+    # basic methods
     def create_options(self):# list
         """
         creates a list of renderable options with their callable functions and
@@ -1551,11 +1551,21 @@ class MenuBar(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
+    # basic methods
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.rect.size = size
+        self.style.size = size
+        # redrawing visuals
+        self.redraw()
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'menu'          a whole rendered menu-element to draw when the dropdown
                         element has been clicked (selection was made).
@@ -1591,7 +1601,7 @@ class DropDown(GuiMaster):
         # repositioning arrow-button and drawing it to menu.image
         self.arrow.rect.right = self.rect.width
         self.image.blit(self.arrow.image, self.arrow.rect)
-    # basic methodes
+    # basic methods
     def call_menu(self):
         """
         calls and draws the menu right under the dropdown-element. uses app's
@@ -1653,7 +1663,7 @@ class InfoBar(GuiMaster):
     """
     def __init__(self, **kwargs):
         """
-        uses 'GuiMaster' as its parent with additional methodes and attributes.
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'position'      dynamic attribute. on calling this, the infobar-element
                         updates its rect-position and style.position as well.
@@ -1688,7 +1698,7 @@ class InfoBar(GuiMaster):
         self.rect.topleft = position
 
         return position
-    # basic methodes
+    # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
         app = globals()["app"]
