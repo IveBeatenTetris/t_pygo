@@ -115,7 +115,7 @@ STYLE = {
         "line_balance": (0, -2)
     },
     "arrow_button": {
-        "size": (25, 25),
+        "size": (20, 20),
         "position": (0, 0),
         "background_color": (30, 30, 40),
         "background_hover": (40, 40, 50),

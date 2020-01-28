@@ -1048,10 +1048,14 @@ class Panel(GuiMaster):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             if self.style.background_hover:
                 self.redraw()
-        # redrawing buttons on specific events
+        # handling button-events
         for button in self.buttons:
+            # disabling drag-functionality on button-click
+            if button.click:
+                self.__clicked = False
+            # redrawing buttons on hover or out
             if (
-                (button.click or button.hover or button.leave) and
+                (button.hover or button.leave) and
                 (mrel[0] or mrel[1])
             ):
                 button.update()
