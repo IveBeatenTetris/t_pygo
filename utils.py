@@ -647,7 +647,7 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
     """returns a pg.surface with an 'x' drawn to it."""
     rect = surface.get_rect()
 
-    # drawing an 'x'-symbol to given surface
+    # drawing an 'x'-symbol
     if type == "x":
         pg.draw.line(
             surface,
@@ -661,7 +661,7 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
                 rect.bottom - margin
             ),
             size
-        ),
+        )
         pg.draw.line(
             surface,
             color,
@@ -673,6 +673,36 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
                 rect.left + margin,
                 rect.bottom - margin
             ),
+            size
+        )
+    # drawing a rectangular shape
+    elif type == "rect":
+        pg.draw.lines(
+            surface,
+            color,
+            False,
+            [
+                (
+                    margin,
+                    margin
+                ),
+                (
+                    rect.right - margin,
+                    margin
+                ),
+                (
+                    rect.right - margin,
+                    rect.bottom - margin
+                ),
+                (
+                    rect.left + margin,
+                    rect.bottom - margin
+                ),
+                (
+                    margin,
+                    margin
+                )
+            ],
             size
         )
 
