@@ -705,6 +705,15 @@ def drawSymbol(surface,type="x",color=(0, 0, 0),margin=0,size=1):# pg.surface
             ],
             size
         )
+    # drawing an underline
+    elif type == "_":
+        pg.draw.line(
+            surface,
+            color,
+            (margin, rect.bottom - margin),
+            (rect.right - margin, rect.bottom - margin),
+            size
+        )
 
     return surface
 def drawBorder(surface, **kwargs):
