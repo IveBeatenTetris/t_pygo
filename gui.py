@@ -956,16 +956,24 @@ class Panel(GuiMaster):
     def create_buttons(self):
         """returns a list of panel-buttons to blit on the panel."""
         buttons = []
-        i = 0
+        # declaring drawing-position for next button
+        x = self.style.button_margin[1]
 
         for but in self.style.buttons:
             button = PanelButton(parent=self)
             # declaring position of buttons to draw
             if self.style.drag_area:
-                pos = (self.drag_area.right - i, self.drag_area.top)
+                pos = (
+                    self.drag_area.right - x,
+                    self.drag_area.top + self.style.button_margin[0]
+                )
+
             else:
-                pos = (self.rect.width - i, 0)
-            i += button.rect.width
+                pos = (
+                    self.rect.width - x,
+                    self.style.button_margin[0]
+                )
+            x += button.rect.width + self.style.button_margin[1]
             # moving button to 'pos'
             button.shift(pos, "topright")
             # appending button to returning-list
