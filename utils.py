@@ -137,10 +137,11 @@ STYLE = {
         "dragable": False,
         "drag_area": None,
         "drag_area_background": (70, 70, 80),
-        "buttons": ("minimize", "maximize", "close")
+        "buttons": ("minimize", "maximize", "close"),
+        "button_margin": [5, 5, 0, 0]
     },
     "panel_button": {
-        "size": (25, 25),
+        "size": (20, 20),
         "position": (0, 0),
         "background_color": (30, 30, 40),
         "background_hover": (40, 40, 50),
@@ -264,7 +265,7 @@ STYLE = {
         "border_color": (0, 0, 0),
         "border_size": 1,
         "dragable": True,
-        "drag_area": [5, 5, 290, 25],
+        "drag_area": [0, 0, 300, 20],
         "drag_area_background": (70, 70, 80),
         "buttons": ("minimize", "maximize", "close")
     }

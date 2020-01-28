@@ -864,6 +864,12 @@ class PanelButton(GuiMaster):
     # basic mathodes
     def update(self):
         """overwrites parent's 'update()'-method."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # recreating visuals on hover
+        if self.hover or self.leave and (mrel[0] or mrel[1]):
+            self.redraw()
+            #self.image.blit(self.arrow, (0, 0))
 class Panel(GuiMaster):
     """a panel-surface to draw information or elements on."""
     def __init__(self, **kwargs):
@@ -875,16 +881,20 @@ class Panel(GuiMaster):
         '__dragged_at'      standard 'none' later becomes a tuple of 2 ints.
                             this can be used to calculate the position of an
                             element when the mouse tries to drag it.
+        'buttons'           'list' of panel-button-elements to draw.
         """
         # initialising panel-object
         if not "type" in kwargs: kwargs["type"] = "panel"
         GuiMaster.__init__(self, **kwargs)
-        self.buttons = self.create_buttons()
         if self.style.drag_area:
             self.drag_area = pg.Rect(self.style.drag_area)
         else:
             self.drag_area = self.style.drag_area
         self.__dragged_at = None
+        self.buttons = self.create_buttons()
+        # first time drawing buttons to image-surface
+        for button in self.buttons:
+            self.image.blit(button.image, button.rect)
     # dynamic attributes
     @property# bool
     def drag(self):
@@ -944,20 +954,24 @@ class Panel(GuiMaster):
         return self.__clicked
     # basic methodes
     def create_buttons(self):
-        """."""
+        """returns a list of panel-buttons to blit on the panel."""
         buttons = []
+        i = 0
 
         for but in self.style.buttons:
-            button = PanelButton(
-                size = (22, 22),
-                border = True
-            )
+            button = PanelButton(parent=self)
+            # declaring position of buttons to draw
+            if self.style.drag_area:
+                pos = (self.drag_area.right - i, self.drag_area.top)
+            else:
+                pos = (self.rect.width - i, 0)
+            i += button.rect.width
+            # moving button to 'pos'
+            button.shift(pos, "topright")
+            # appending button to returning-list
             buttons.append(button)
 
         return buttons
-    def draw_buttons(self):
-        """."""
-        pass
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
@@ -984,6 +998,14 @@ class Panel(GuiMaster):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             if self.style.background_hover:
                 self.redraw()
+        # redrawing buttons on specific events
+        for button in self.buttons:
+            if (
+                (button.click or button.hover or button.leave) and
+                (mrel[0] or mrel[1])
+            ):
+                button.update()
+                self.image.blit(button.image, button.rect)
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
