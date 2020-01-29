@@ -34,302 +34,6 @@ class Stylesheet:
         # dynamically creating stylesheet-attributes
         for name, attr in self.config.items():
             setattr(self, name, attr)
-class Cursor(pg.sprite.Sprite):
-    """replacement for the native pygame-mouse-cursor."""
-    def __init__(self, image_path=None):
-        """
-        renders the native cursor invisible, loads either an image from a
-        given path or a library-default value.
-
-        'full_image'    the once loaed full-image as a pg.surface.
-        'state'         the actual state of the mouse in a str. by changing
-                        this, the app will draw another mouse-curor based on
-                        following names:
-                            'normal',
-                            'text'
-        """
-        pg.sprite.Sprite.__init__(self)
-        if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
-        self.full_image = pg.image.load(image_path)
-        self.state = "normal"
-        pg.mouse.set_visible(False)
-    # dynamic properties
-    @property
-    def image(self):
-        """returns a cropped pg.surface-image."""
-        image = pg.Surface((16, 16), pg.SRCALPHA)
-        # calculate image-position to draw (each 16x16-steps there is
-        # another cursor on the image)
-        if self.state == "normal": pos = (0, 0)
-        elif self.state == "text": pos = (-16, 0)
-        # drawing picked cursor to returning image-surface
-        image.blit(self.full_image, pos)
-
-        return image
-    @property
-    def rect(self):
-        """returns a valid pygame-rect."""
-        rect = pg.Rect(0, 0, 16, 16)
-        rect.topleft = pg.mouse.get_pos()
-
-        return rect
-class GuiMaster(pg.sprite.Sprite):
-    """resembles a 'pygame.surface' but with advanced operations."""
-    def __init__(self, **kwargs):
-        """
-        first creates a internal setup-config to decleare some properties.
-
-        'stylesheet'        the validated 'dict' to draw building instructions
-                            from. evaluation between pass keyword-args and a
-                            dict of predefined attributes.
-        'parent'            object which draws this element. must have
-                            'GuiMaster' as master-class.
-        'rect'              initialising rect dimensions.
-        'absolute_rect'     pg.rect with absolute position for event-checking.
-        'state'             (str) can be changed to mark the event-related
-                            state of this event. values are "waiting" and
-                            "active".
-        '__clicked'         internal bool to check, if the element has been
-                            clicked.
-        '__hovering'        used to determine if the mouse floats over the
-                            element.
-        'image'             image-surface of this sprite class.
-        """
-        # initialising sprite
-        pg.sprite.Sprite.__init__(self)
-        # appending a stylesheet for this specific element
-        if "type" in kwargs:
-            type = kwargs["type"]
-        else:
-            type = "none"
-        self.style = Stylesheet(
-            type = type,
-            style = kwargs
-        )
-        # declaring parent
-        if "parent" in kwargs:
-            self.parent = kwargs["parent"]
-        else:
-            self.parent = pg.display.get_surface()
-        # visuals and rect-dimensions
-        self.rect = pg.Rect(
-            self.style.position,
-            self.style.size
-        )
-        self.absloute_rect = pg.Rect(
-            self.style.position,
-            self.style.size
-        )
-        # event related stuff
-        self.state = "waiting"
-        self.__clicked = False
-        self.__hovering = False
-        # first time creating surface and recreating inner element's visuals
-        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
-        self.redraw()
-    # dynamic attributes
-    @property# pg.surface
-    def background(self):
-        """returns a ready to draw background-surface."""
-        background = pg.Surface(self.rect.size, pg.SRCALPHA)
-
-        # draws hover-color if element is hovered
-        if self.hover:
-            if self.style.background_hover:
-                background.fill(self.style.background_hover)
-        # else redraw background-color if it's not 'none'
-        elif self.style.background_color:
-            background.fill(self.style.background_color)
-
-        return background
-    @property# pg.surface
-    def border(self):
-        """returns a surface with a blitten border to it if preset by user."""
-        border = None
-        # drawing border to temprary surface if given
-        if self.style.border:
-            border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
-            u.drawBorder(
-                border_surface,
-                color = self.style.border_color,
-                size = self.style.border_size
-            )
-            border = border_surface
-
-        return border
-    # event related properties
-    @property# list
-    def click(self):
-        """
-        returns the mouse-button the element has just been clicked with.
-        otherwise returns 'none'.
-        """
-        mbut = self.mouse_events[0]
-        buttons = []
-        # adding marking for used button on hover
-        if self.hover:
-            if mbut[0]: buttons.append("left")
-            if mbut[1]: buttons.append("wheel")
-            if mbut[2]: buttons.append("right")
-        # marking element as activated
-        if "left" in buttons:
-            self.state = "active"
-
-        return buttons
-    @property# none / str
-    def precise_click(self):
-        """
-        returns 'none' if nothing has clicked and a str related to used mouse-
-        button.
-        """
-        precise_click = None
-        # adding more precise mouse-events
-        for evt in globals()["app"]._events:
-            if evt.type is pg.MOUSEBUTTONDOWN and self.hover:
-                if evt.button == 1:
-                    precise_click = "left"
-
-        return precise_click
-    @property# bool
-    def hover(self):
-        """
-        returns 'true' if the mouse-cursor floats over the element's rect. also
-        sets 'self.__hovering' to 'true', so we can check for several mouse-
-        events.
-        """
-        # mouse-events
-        mbut, mpos = self.mouse_events[:2]
-        # returning-bool
-        hover = False
-        # this rect is used to check mouse-events. parent's position is going
-        # to be added to its internal position.
-        self.absloute_rect = pg.Rect(
-            self.rect.left,
-            self.rect.top,
-            self.rect.width,
-            self.rect.height,
-        )
-        if hasattr(self.parent, "rect"):
-            self.absloute_rect.topleft = (
-                self.absloute_rect.left + self.parent.rect.left,
-                self.absloute_rect.top + self.parent.rect.top,
-            )
-        # mark as hovered
-        if self.absloute_rect.collidepoint(mpos):
-            hover = True
-            self.__hovering = True
-        # if not hovered and clicked somwhere else, reset 'self.state'
-        if not hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.state = "waiting"
-
-        return hover
-    @property# bool
-    def leave(self):
-        """
-        returns 'true' if the mouse leaves the element. used to declare
-        redrawing of surface on mouse-out.
-        """
-        leaving = False
-
-        if self.__hovering and not self.hover:
-            leaving = True
-
-            return leaving
-    @property# tuple
-    def mouse_events(self):
-        """
-        returns a tuple of 3 tuples containing clicked mouse-button, mouse-
-        position and mouse-movement.
-        """
-        # somehow pg.mouse.get_rel() doesn't work here, so we have to get rels
-        # from the app
-        mrel = (0, 0)
-
-        for evt in globals()["app"]._events:
-            if evt.type == pg.MOUSEMOTION:
-                mrel = evt.rel
-
-        return (
-            pg.mouse.get_pressed(),
-            pg.mouse.get_pos(),
-            mrel
-        )
-    # basic methods
-    def draw(self, object, rect=None, area=None):
-        """
-        blits a surface-object / gui-element to the elements's surface.
-        if 'object' is a list or tuple, fill the surface with this statement
-        instead. 'area' takes a pygame.rect-statement for declaring a specific
-        area to redraw for keep fps up.
-        """
-        if not rect:
-            rect = (0, 0, *self.rect.size)
-        # filling self.image with color
-        if type(object) is list or type(object) is tuple:
-            self.image.fill(object, rect)
-        # drawing sprite.image to self.image
-        elif (
-            type(object) is pg.sprite.Sprite or
-            object.__class__.__bases__[0] is GuiMaster
-        ):
-            # with drawing boundaries
-            if area: self.image.blit(object.image, rect, area)
-            else: self.image.blit(object.image, rect)
-        # drawing surface-object to self.image
-        elif (
-            type(object) is pg.Surface or
-            issubclass(type(object), pg.Surface) or
-            object.__class__.__bases__[0] is pg.Surface
-        ):
-            # with drawing boundaries
-            if area: self.image.blit(object, rect, area)
-            else: self.image.blit(object, rect)
-    def redraw(self):
-        """
-        rebuilds the surface with all inner elements updated. one can pass a
-        'GuiMaster'-element and blit this to the surface as well.
-        """
-        # drawing background
-        self.redrawBackground()
-        # drawing background if set by user
-        self.redrawBorder()
-    def redrawBackground(self):
-        """recreates only the background."""
-        # drawing if background is not 'none'
-        if self.style.background_color:
-            self.image.blit(self.background, (0, 0))
-    def redrawBorder(self):
-        """only recreates border for the sprite.image."""
-        if self.border:
-            self.image.blit(self.border, (0, 0))
-    def resize(self, size):
-        """
-        resizes the surface and updates its dimensions. as well as redrawing
-        the background if there is one.
-        """
-        self.style.size = size
-        self.rect.size = size
-        self.image = pg.Surface(size, pg.SRCALPHA)
-        # redrawing backgrounds and stuff
-        self.redraw()
-    def shift(self, pos, rect_pos="topleft"):
-        """
-        moves the element to the given position.
-
-        'pos'           must be tuple of two ints.
-        'rect_pos'      internal argument used for setting the new position to
-                        an inner rect-position like 'center' or 'bottomright'
-                        etc. all pg.rect-arguments are allowed.
-        """
-        setattr(self.rect, rect_pos, pos)
-        self.style.position = self.rect.topleft
-    def update(self):
-        """runs with every game-loop."""
-        # mouse-events
-        mrel = self.mouse_events[2]
-        # visual redrawing of this element depends on the following conditions:
-        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
-            self.redraw()
 class App:
     """
     pygames-window-module with extended features. can be accessed by calling
@@ -564,6 +268,303 @@ class App:
         # updating fps
         self.clock.tick(self.preffered_fps)
         self.fps = int(self.clock.get_fps())
+class Cursor(pg.sprite.Sprite):
+    """replacement for the native pygame-mouse-cursor."""
+    def __init__(self, image_path=None):
+        """
+        renders the native cursor invisible, loads either an image from a
+        given path or a library-default value.
+
+        'full_image'    the once loaed full-image as a pg.surface.
+        'state'         the actual state of the mouse in a str. by changing
+                        this, the app will draw another mouse-curor based on
+                        following names:
+                            'normal',
+                            'text'
+        """
+        pg.sprite.Sprite.__init__(self)
+        if not image_path: image_path = u.PATH["sysimg"] + "\\cursors.png"
+        self.full_image = pg.image.load(image_path)
+        self.state = "normal"
+        pg.mouse.set_visible(False)
+    # dynamic properties
+    @property
+    def image(self):
+        """returns a cropped pg.surface-image."""
+        image = pg.Surface((16, 16), pg.SRCALPHA)
+        # calculate image-position to draw (each 16x16-steps there is
+        # another cursor on the image)
+        if self.state == "normal": pos = (0, 0)
+        elif self.state == "text": pos = (-16, 0)
+        # drawing picked cursor to returning image-surface
+        image.blit(self.full_image, pos)
+
+        return image
+    @property
+    def rect(self):
+        """returns a valid pygame-rect."""
+        rect = pg.Rect(0, 0, 16, 16)
+        rect.topleft = pg.mouse.get_pos()
+
+        return rect
+class GuiMaster(pg.sprite.Sprite):
+    """resembles a 'pygame.surface' but with advanced operations."""
+    def __init__(self, **kwargs):
+        """
+        first creates a internal setup-config to decleare some properties.
+
+        'stylesheet'        the validated 'dict' to draw building instructions
+                            from. evaluation between pass keyword-args and a
+                            dict of predefined attributes.
+        'parent'            object which draws this element. must have
+                            'GuiMaster' as master-class.
+        'rect'              initialising rect dimensions.
+        'absolute_rect'     pg.rect with absolute position for event-checking.
+        'state'             (str) can be changed to mark the event-related
+                            state of this event. values are "waiting" and
+                            "active".
+        '__clicked'         internal bool to check, if the element has been
+                            clicked.
+        '__hovering'        used to determine if the mouse floats over the
+                            element.
+        'image'             image-surface of this sprite class.
+        """
+        # initialising sprite
+        pg.sprite.Sprite.__init__(self)
+        # appending a stylesheet for this specific element
+        if "type" in kwargs:
+            type = kwargs["type"]
+        else:
+            type = "none"
+        self.style = Stylesheet(
+            type = type,
+            style = kwargs
+        )
+        # declaring parent
+        if "parent" in kwargs:
+            self.parent = kwargs["parent"]
+        else:
+            #self.parent = pg.display.get_surface()
+            self.parent = globals()["app"]
+        # visuals and rect-dimensions
+        self.rect = pg.Rect(
+            self.style.position,
+            self.style.size
+        )
+        self.absloute_rect = pg.Rect(
+            self.style.position,
+            self.style.size
+        )
+        # event related stuff
+        self.state = "waiting"
+        self.__clicked = False
+        self.__hovering = False
+        # first time creating surface and recreating inner element's visuals
+        self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
+        self.redraw()
+    # dynamic attributes
+    @property# pg.surface
+    def background(self):
+        """returns a ready to draw background-surface."""
+        background = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+        # draws hover-color if element is hovered
+        if self.hover:
+            if self.style.background_hover:
+                background.fill(self.style.background_hover)
+        # else redraw background-color if it's not 'none'
+        elif self.style.background_color:
+            background.fill(self.style.background_color)
+
+        return background
+    @property# pg.surface
+    def border(self):
+        """returns a surface with a blitten border to it if preset by user."""
+        border = None
+        # drawing border to temprary surface if given
+        if self.style.border:
+            border_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+            u.drawBorder(
+                border_surface,
+                color = self.style.border_color,
+                size = self.style.border_size
+            )
+            border = border_surface
+
+        return border
+    # event related properties
+    @property# list
+    def click(self):
+        """
+        returns the mouse-button the element has just been clicked with.
+        otherwise returns 'none'.
+        """
+        mbut = self.mouse_events[0]
+        buttons = []
+        # adding marking for used button on hover
+        if self.hover:
+            if mbut[0]: buttons.append("left")
+            if mbut[1]: buttons.append("wheel")
+            if mbut[2]: buttons.append("right")
+        # marking element as activated
+        if "left" in buttons:
+            self.state = "active"
+
+        return buttons
+    @property# none / str
+    def precise_click(self):
+        """
+        returns 'none' if nothing has clicked and a str related to used mouse-
+        button.
+        """
+        precise_click = None
+        # adding more precise mouse-events
+        for evt in globals()["app"]._events:
+            if evt.type is pg.MOUSEBUTTONDOWN and self.hover:
+                if evt.button == 1:
+                    precise_click = "left"
+
+        return precise_click
+    @property# bool
+    def hover(self):
+        """
+        returns 'true' if the mouse-cursor floats over the element's rect. also
+        sets 'self.__hovering' to 'true', so we can check for several mouse-
+        events.
+        """
+        # mouse-events
+        mbut, mpos = self.mouse_events[:2]
+        # returning-bool
+        hover = False
+        # this rect is used to check mouse-events. parent's position is going
+        # to be added to its internal position.
+        self.absloute_rect = pg.Rect(
+            self.rect.left,
+            self.rect.top,
+            self.rect.width,
+            self.rect.height,
+        )
+        if hasattr(self.parent, "rect"):
+            self.absloute_rect.topleft = (
+                self.absloute_rect.left + self.parent.rect.left,
+                self.absloute_rect.top + self.parent.rect.top,
+            )
+        # mark as hovered
+        if self.absloute_rect.collidepoint(mpos):
+            hover = True
+            self.__hovering = True
+        # if not hovered and clicked somwhere else, reset 'self.state'
+        if not hover and (mbut[0] or mbut[1] or mbut[2]):
+            self.state = "waiting"
+
+        return hover
+    @property# bool
+    def leave(self):
+        """
+        returns 'true' if the mouse leaves the element. used to declare
+        redrawing of surface on mouse-out.
+        """
+        leaving = False
+
+        if self.__hovering and not self.hover:
+            leaving = True
+
+            return leaving
+    @property# tuple
+    def mouse_events(self):
+        """
+        returns a tuple of 3 tuples containing clicked mouse-button, mouse-
+        position and mouse-movement.
+        """
+        # somehow pg.mouse.get_rel() doesn't work here, so we have to get rels
+        # from the app
+        mrel = (0, 0)
+
+        for evt in globals()["app"]._events:
+            if evt.type == pg.MOUSEMOTION:
+                mrel = evt.rel
+
+        return (
+            pg.mouse.get_pressed(),
+            pg.mouse.get_pos(),
+            mrel
+        )
+    # basic methods
+    def draw(self, object, rect=None, area=None):
+        """
+        blits a surface-object / gui-element to the elements's surface.
+        if 'object' is a list or tuple, fill the surface with this statement
+        instead. 'area' takes a pygame.rect-statement for declaring a specific
+        area to redraw for keep fps up.
+        """
+        if not rect:
+            rect = (0, 0, *self.rect.size)
+        # filling self.image with color
+        if type(object) is list or type(object) is tuple:
+            self.image.fill(object, rect)
+        # drawing sprite.image to self.image
+        elif (
+            type(object) is pg.sprite.Sprite or
+            object.__class__.__bases__[0] is GuiMaster
+        ):
+            # with drawing boundaries
+            if area: self.image.blit(object.image, rect, area)
+            else: self.image.blit(object.image, rect)
+        # drawing surface-object to self.image
+        elif (
+            type(object) is pg.Surface or
+            issubclass(type(object), pg.Surface) or
+            object.__class__.__bases__[0] is pg.Surface
+        ):
+            # with drawing boundaries
+            if area: self.image.blit(object, rect, area)
+            else: self.image.blit(object, rect)
+    def redraw(self):
+        """
+        rebuilds the surface with all inner elements updated. one can pass a
+        'GuiMaster'-element and blit this to the surface as well.
+        """
+        # drawing background
+        self.redrawBackground()
+        # drawing background if set by user
+        self.redrawBorder()
+    def redrawBackground(self):
+        """recreates only the background."""
+        # drawing if background is not 'none'
+        if self.style.background_color:
+            self.image.blit(self.background, (0, 0))
+    def redrawBorder(self):
+        """only recreates border for the sprite.image."""
+        if self.border:
+            self.image.blit(self.border, (0, 0))
+    def resize(self, size):
+        """
+        resizes the surface and updates its dimensions. as well as redrawing
+        the background if there is one.
+        """
+        self.style.size = size
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        # redrawing backgrounds and stuff
+        self.redraw()
+    def shift(self, pos, rect_pos="topleft"):
+        """
+        moves the element to the given position.
+
+        'pos'           must be tuple of two ints.
+        'rect_pos'      internal argument used for setting the new position to
+                        an inner rect-position like 'center' or 'bottomright'
+                        etc. all pg.rect-arguments are allowed.
+        """
+        setattr(self.rect, rect_pos, pos)
+        self.style.position = self.rect.topleft
+    def update(self):
+        """runs with every game-loop."""
+        # mouse-events
+        mrel = self.mouse_events[2]
+        # visual redrawing of this element depends on the following conditions:
+        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+            self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
@@ -1552,14 +1553,15 @@ class MenuBar(GuiMaster):
         'options'       'list' of option-buttons to draw.
         """
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
-        self.options = self.create_options()
+        self.options, self.menus = self.create_options()
         # first time drawing all options
         for opt in self.options:
             self.image.blit(opt.image, opt.rect)
     # basic methods
     def create_options(self):# list
-        """returns a list of option-buttons."""
+        """."""
         options = []
+        menus = []
         x = 0
 
         for k, v in self.style.options.items():
@@ -1577,7 +1579,7 @@ class MenuBar(GuiMaster):
             # update next button's drawing-position
             x += option.rect.width
 
-        return options
+        return options, menus
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
