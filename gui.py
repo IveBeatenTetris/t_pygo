@@ -570,7 +570,10 @@ class GuiMaster(pg.sprite.Sprite):
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
 class Bar(GuiMaster):
-    """."""
+    """
+    a bar-element with information to draw on. suitable for displaying
+    information and creating menus to click on.
+    """
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
@@ -578,10 +581,7 @@ class Bar(GuiMaster):
         if not "type" in kwargs: kwargs["type"] = "bar"
         GuiMaster.__init__(self, **kwargs)
     def resize(self, size):
-        """
-        resizes the surface and updates its dimensions. as well as redrawing
-        the background if there is one.
-        """
+        """overwrites parent's 'resize()'-method."""
         self.style.size = size
         self.rect.size = size
         self.image = pg.Surface(size, pg.SRCALPHA)
@@ -591,14 +591,17 @@ class Bar(GuiMaster):
         """overwrites parent's 'update()'-method."""
         pass
 class MenuBar2(Bar):
-    """."""
+    """a menu-bar-object with menus to call on clicked options."""
     def __init__(self, **kwargs):
         """
         uses 'Bar' as its parent with additional methods and attributes.
         """
         Bar.__init__(self, type="menu_bar", **kwargs)
 class InfoBar2(Bar):
-    """."""
+    """
+    this bar is used for displaying usefull information about the app and its
+    contents.
+    """
     def __init__(self, **kwargs):
         """
         uses 'Bar' as its parent with additional methods and attributes.
