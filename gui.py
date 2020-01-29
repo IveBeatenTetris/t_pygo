@@ -590,23 +590,7 @@ class Bar(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
-class MenuBar2(Bar):
-    """a menu-bar-object with menus to call on clicked options."""
-    def __init__(self, **kwargs):
-        """
-        uses 'Bar' as its parent with additional methods and attributes.
-        """
-        Bar.__init__(self, type="menu_bar", **kwargs)
-class InfoBar2(Bar):
-    """
-    this bar is used for displaying usefull information about the app and its
-    contents.
-    """
-    def __init__(self, **kwargs):
-        """
-        uses 'Bar' as its parent with additional methods and attributes.
-        """
-        Bar.__init__(self, type="info_bar", **kwargs)
+
 
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
@@ -1106,6 +1090,25 @@ class Panel(GuiMaster):
                 self.redraw()
         # handling button-events
         self.handle_buttons()
+
+class MenuBar2(Panel):
+    """a menu-bar-object with menus to call on clicked options."""
+    def __init__(self, **kwargs):
+        """
+        uses 'Panel' as its parent with additional methods and attributes.
+        """
+        Panel.__init__(self, type="menu_bar", **kwargs)
+class InfoBar2(Panel):
+    """
+    this bar is used for displaying usefull information about the app and its
+    contents.
+    """
+    def __init__(self, **kwargs):
+        """
+        uses 'Panel' as its parent with additional methods and attributes.
+        """
+        Panel.__init__(self, type="info_bar", **kwargs)
+
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle

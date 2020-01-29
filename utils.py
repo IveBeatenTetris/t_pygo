@@ -68,15 +68,6 @@ STYLE = {
         "border_color": (0, 0, 0),
         "border_size": 1
     },
-    "bar": {
-        "size": (300, 40),
-        "position": (0, 0),
-        "background_color": (25, 25, 35),
-        "background_hover": None,
-        "border": False,
-        "border_color": (0, 0, 0),
-        "border_size": 1
-    },
     "grid" : {
         "size": (0, 0),
         "position": (0, 0),
@@ -98,6 +89,11 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (70, 70, 80),
+        "buttons": (),
+        "button_margin": [0, 0, 0, 0],
         "info": (("mouse_loc", "app_size", "app_fps"),),
         "text_size": 13,
         "text_position": "midleft",
@@ -267,6 +263,11 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (70, 70, 80),
+        "buttons": (),
+        "button_margin": [0, 0, 0, 0],
         "options": ()
     },
     "drop_down": {
