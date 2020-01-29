@@ -121,7 +121,9 @@ class App:
             if evt.type is pg.VIDEORESIZE:
                 self.resized = True
                 self.resize(evt.size)
-            elif evt.type is pg.ACTIVEEVENT and self.resized:
+            #elif evt.type is pg.ACTIVEEVENT and self.resized:
+                #self.resized = False
+            else:
                 self.resized = False
 
         return events
@@ -393,13 +395,12 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a ready to draw background-surface."""
         background = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-        # draw hover-color if element is hovered
-        if self.hover:
-            if self.style.background_hover:
-                background.fill(self.style.background_hover)
-        # else redraw background-color if it's not 'none'
-        elif self.style.background_color:
+        # redraw background-color if it's not 'none'
+        if self.style.background_color:
             background.fill(self.style.background_color)
+        # draw hover-color if element is hovered
+        if self.hover and self.style.background_hover:
+            background.fill(self.style.background_hover)
 
         return background
     @property# pg.surface
@@ -735,6 +736,7 @@ class Table(GuiMaster):
         self.draw_visuals()
     def update(self):
         """overwrites parent's 'update()'-method."""
+        pass
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
@@ -840,8 +842,12 @@ class Button(Text):
         Text.__init__(self, type="button", **kwargs)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.redraw()
-        self.image.blit(self.text, self.style.line_balance)
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
+            self.redraw()
+            self.image.blit(self.text, self.style.line_balance)
 class ArrowButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
@@ -873,7 +879,7 @@ class ArrowButton(GuiMaster):
         # mouse-events
         mrel = self.mouse_events[2]
         # recreating visuals on hover
-        if self.hover or self.leave and (mrel[0] or mrel[1]):
+        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
             self.image.blit(self.arrow, (0, 0))
 class PanelButton(GuiMaster):
@@ -928,7 +934,7 @@ class PanelButton(GuiMaster):
         # mouse-events
         mrel = self.mouse_events[2]
         # recreating visuals on hover
-        if self.hover or self.leave and (mrel[0] or mrel[1]):
+        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
             self.image.blit(self.symbol, (0, 0))
 class Panel(GuiMaster):
@@ -1080,11 +1086,12 @@ class Panel(GuiMaster):
         # invoking drag-operation
         self.drag
         # visual redrawing of this element depends on the following conditions:
-        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
+            # redrawing visuals
             if self.style.background_hover:
                 self.redraw()
-        # handling button-events
-        self.handle_buttons()
+            # handling button-events
+            self.handle_buttons()
 class InfoBar(Panel):
     """
     this bar is used for displaying usefull information about the app and its
@@ -1340,7 +1347,9 @@ class TextField(GuiMaster):
         # mouse-events
         mrel = self.mouse_events[2]
         # visual redrawing of this element depends on the following conditions:
-        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+        if (
+            ((self.hover or self.leave) and (mrel[0] or mrel[1])) or self.click
+        ):
             self.redraw()
             self.image.blit(self.text.image, self.text.rect)
         # drawing cursor on activation
@@ -1653,9 +1662,13 @@ class DropDown(GuiMaster):
                 self.draw_selection()
     def update(self):
         """overwrites parent's 'update()'-method."""
-        # drawing updated arrow-image
-        self.draw_arrow()
-        # drawing menu if dropdown or its arrow has been clicked
-        self.call_menu()
-        # change selection related to menu.option.click
-        self.make_selection()
+        # mouse-events
+        #mrel = self.mouse_events[2]
+
+        if self.click or self.hover or self.leave:
+            # drawing updated arrow-image
+            self.draw_arrow()
+            # drawing menu if dropdown or its arrow has been clicked
+            self.call_menu()
+            # change selection related to menu.option.click
+            self.make_selection()
