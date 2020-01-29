@@ -350,9 +350,9 @@ class GuiMaster(pg.sprite.Sprite):
         'state'             (str) can be changed to mark the event-related
                             state of this event. values are "waiting" and
                             "active".
-        '__clicked'         internal bool to check, if the element has been
+        '_clicked'          internal bool to check, if the element has been
                             clicked.
-        '__hovering'        used to determine if the mouse floats over the
+        '_hovering'         used to determine if the mouse floats over the
                             element.
         'image'             image-surface of this sprite class.
         """
@@ -384,8 +384,8 @@ class GuiMaster(pg.sprite.Sprite):
         )
         # event related stuff
         self.state = "waiting"
-        self.__clicked = False
-        self.__hovering = False
+        self._clicked = False
+        self._hovering = False
         # first time creating surface and recreating inner element's visuals
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
@@ -455,7 +455,7 @@ class GuiMaster(pg.sprite.Sprite):
     def hover(self):
         """
         returns 'true' if the mouse-cursor floats over the element's rect. also
-        sets 'self.__hovering' to 'true', so we can check for several mouse-
+        sets 'self._hovering' to 'true', so we can check for several mouse-
         events.
         """
         # mouse-events
@@ -478,7 +478,7 @@ class GuiMaster(pg.sprite.Sprite):
         # mark as hovered
         if self.absloute_rect.collidepoint(mpos):
             hover = True
-            self.__hovering = True
+            self._hovering = True
         # if not hovered and clicked somwhere else, reset 'self.state'
         if not hover and (mbut[0] or mbut[1] or mbut[2]):
             self.state = "waiting"
@@ -492,7 +492,7 @@ class GuiMaster(pg.sprite.Sprite):
         """
         leaving = False
 
-        if self.__hovering and not self.hover:
+        if self._hovering and not self.hover:
             leaving = True
 
             return leaving
@@ -986,9 +986,9 @@ class Panel(GuiMaster):
             # on hover and left-click
             if rect.collidepoint(mpos) and mbut[0]:
                     # marking the element as clicked ('true). if element is not
-                    # clicked yet, set its '__clicked'-state 'true' and
+                    # clicked yet, set its '_clicked'-state 'true' and
                     # calculate the clicked position on the element's rect
-                    if not self.__clicked:
+                    if not self._clicked:
                         # adding left and top of 'drag_area' so the element
                         # doesn't jump on click
                         if self.drag_area:
@@ -1001,24 +1001,24 @@ class Panel(GuiMaster):
                                 mpos[0] - rect.x,
                                 mpos[1] - rect.y
                             )
-                        self.__clicked = True
+                        self._clicked = True
             # if left mouse-button is released or just not pressed, mark
             # element as clicked ('true')
             if not mbut[0]:
                 self.__dragged_at = None
-                self.__clicked = False
+                self._clicked = False
             # if element is marked as clicked, redraw parent's background on a
             # specific place and update its topleft-position. this removes the
             # previously drawn element's trails from the surface again
-            if self.__clicked:
+            if self._clicked:
                 self.rect.topleft = (
                     mpos[0] - self.__dragged_at[0],
                     mpos[1] - self.__dragged_at[1]
                 )
         else:
-            self.__clicked = False
+            self._clicked = False
 
-        return self.__clicked
+        return self._clicked
     # basic methods
     def create_buttons(self):# list
         """returns a list of panel-buttons to blit on the panel."""
@@ -1058,7 +1058,7 @@ class Panel(GuiMaster):
         for button in self.buttons:
             # disabling drag-functionality on button-click
             if button.click:
-                self.__clicked = False
+                self._clicked = False
             # redrawing buttons on hover or out
             if (button.hover or button.leave) and (mrel[0] or mrel[1]):
                 button.update()
