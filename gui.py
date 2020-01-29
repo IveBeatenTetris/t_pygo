@@ -310,6 +310,28 @@ class Cursor(pg.sprite.Sprite):
         rect.topleft = pg.mouse.get_pos()
 
         return rect
+class TextCursor(pg.sprite.Sprite):
+    """blinking text-cursor for text-field."""
+    def __init__(self, **kwargs):
+        """
+        'style'             the validated 'dict' to draw building-
+                            instructions from. evaluation between passed
+                            keyword-args and a dict of predefined
+                            attributes.
+        'rect'              (pg.rect) cursor dimensions.
+        'image'             image-surface of this sprite.
+        'cooldown'          int to decrease on update for drawing a
+                            blinking cursor to the text-field-element.
+        """
+        pg.sprite.Sprite.__init__(self)
+        self.style = Stylesheet(
+            type = "text_cursor",
+            style = kwargs
+        )
+        self.rect = pg.Rect(self.style.position, self.style.size)
+        self.image = pg.Surface(self.rect.size)
+        self.image.fill(self.style.color)
+        self.cooldown = 100
 class GuiMaster(pg.sprite.Sprite):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
@@ -1067,13 +1089,6 @@ class Panel(GuiMaster):
                 self.redraw()
         # handling button-events
         self.handle_buttons()
-class MenuBar(Panel):
-    """a menu-bar-object with menus to call on clicked options."""
-    def __init__(self, **kwargs):
-        """
-        uses 'Panel' as its parent with additional methods and attributes.
-        """
-        Panel.__init__(self, type="menu_bar", **kwargs)
 class InfoBar(Panel):
     """
     this bar is used for displaying usefull information about the app and its
@@ -1084,7 +1099,17 @@ class InfoBar(Panel):
         uses 'Panel' as its parent with additional methods and attributes.
         """
         Panel.__init__(self, type="info_bar", **kwargs)
-
+class MenuBar(Panel):
+    """a menu-bar-object with menus to call on clicked options."""
+    def __init__(self, **kwargs):
+        """
+        uses 'Panel' as its parent with additional methods and attributes.
+        """
+        Panel.__init__(self, type="menu_bar", **kwargs)
+class Window(Panel):
+    """a callable window-popup-surface."""
+    def __init__(self, **kwargs):
+        Panel.__init__(self, type="window", **kwargs)
 class Slider(GuiMaster):
     """
     slider-element with a handle to drag around. the position of the handle
@@ -1225,28 +1250,6 @@ class Slider(GuiMaster):
             # recreating border if there is one
             if self.style.border:
                 self.redrawBorder()
-class TextCursor(pg.sprite.Sprite):
-    """blinking text-cursor for text-field."""
-    def __init__(self, **kwargs):
-        """
-        'style'             the validated 'dict' to draw building-
-                            instructions from. evaluation between passed
-                            keyword-args and a dict of predefined
-                            attributes.
-        'rect'              (pg.rect) cursor dimensions.
-        'image'             image-surface of this sprite.
-        'cooldown'          int to decrease on update for drawing a
-                            blinking cursor to the text-field-element.
-        """
-        pg.sprite.Sprite.__init__(self)
-        self.style = Stylesheet(
-            type = "text_cursor",
-            style = kwargs
-        )
-        self.rect = pg.Rect(self.style.position, self.style.size)
-        self.image = pg.Surface(self.rect.size)
-        self.image.fill(self.style.color)
-        self.cooldown = 100
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
@@ -1660,7 +1663,3 @@ class DropDown(GuiMaster):
         self.call_menu()
         # change selection related to menu.option.click
         self.make_selection()
-class Window(Panel):
-    """a callable window-popup-surface."""
-    def __init__(self, **kwargs):
-        Panel.__init__(self, type="window", **kwargs)
