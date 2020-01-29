@@ -1554,17 +1554,37 @@ class MenuBar(GuiMaster):
         """
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
         self.options = self.create_options()
+        # first time drawing all options
+        for opt in self.options:
+            self.image.blit(opt.image, opt.rect)
     # basic methods
-    def create_options(self):
-        """."""
-        for opt in self.style.options:
-            print(opt)
+    def create_options(self):# list
+        """returns a list of option-buttons."""
+        options = []
+        x = 0
+
+        for k, v in self.style.options.items():
+            option = Button(
+                parent = self,
+                text = k,
+                size = (100, self.rect.height),
+                position = (x, 0),
+                border = False,
+                padding = [5, 10, 0, 10]
+            )
+            options.append(option)
+            x += option.rect.width
+
+        return options
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
         self.style.size = size
         # redrawing visuals
         self.redraw()
+
+        for opt in self.options:
+            self.image.blit(opt.image, opt.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
         pass
