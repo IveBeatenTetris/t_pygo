@@ -566,6 +566,11 @@ class GuiMaster(pg.sprite.Sprite):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
+class Bar(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, **kwargs)
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
@@ -1418,6 +1423,49 @@ class Slot(GuiMaster):
         # redrawing text-field
         self.text_field.update()
         self.image.blit(self.text_field.image, (0, 0))
+class InfoBar(GuiMaster):
+    """
+    this bar is used for displaying usefull information about the app and its
+    contents.
+    """
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'position'      dynamic attribute. on calling this, the infobar-element
+                        updates its rect-position and style.position as well.
+        'info_table'    table-object with grid and contents already drawn to
+                        its surface.
+        """
+        GuiMaster.__init__(self, type="info_bar", **kwargs)
+        # creating table for displaying formated information
+        self.info_table = Table(
+            size = self.rect.size,
+            rows = self.style.info,
+            background_color = self.style.background_color,
+            border = self.style.border,
+            border_color = self.style.border_color,
+            border_size = self.style.border_size,
+            text_size = self.style.text_size,
+            text_position = self.style.text_position,
+            text_margin = self.style.text_margin
+        )
+        # first time drawing the given information as table-content
+        self.image.blit(self.info_table.image, (0, 0))
+    def resize(self, size):
+        """
+        resizes the surface and updates its dimensions. as well as redrawing
+        the background if there is one.
+        """
+        self.style.size = size
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        self.redraw()
+        self.info_table.resize(size)
+        self.image.blit(self.info_table.image, (0, 0))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
 class Menu(GuiMaster):
     """
     represents a listable menu. its dimensions depend on its options.
@@ -1549,56 +1597,8 @@ class MenuBar(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
-
-        'options'       'list' of option-buttons to draw.
         """
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
-        self.options, self.menus = self.create_options()
-        # first time drawing all options
-        for opt in self.options:
-            self.image.blit(opt.image, opt.rect)
-    # basic methods
-    def create_options(self):# list
-        """."""
-        options = []
-        menus = []
-        x = 0
-
-        for k, v in self.style.options.items():
-            # creating option-button and appending it to returning-list
-            option = Button(
-                parent = self,
-                text = k,
-                size = (100, self.rect.height),
-                background_color = self.style.background_color,
-                position = (x, 0),
-                border = False,
-                padding = [5, 10, 0, 10]
-            )
-            options.append(option)
-            # update next button's drawing-position
-            x += option.rect.width
-
-        return options, menus
-    def resize(self, size):
-        """overwrites parent's 'resize()'-method."""
-        self.rect.size = size
-        self.style.size = size
-        # redrawing visuals
-        self.redraw()
-        # redrawing buttons
-        for opt in self.options:
-            self.image.blit(opt.image, opt.rect)
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        # mouse-events
-        mrel = self.mouse_events[2]
-
-        for opt in self.options:
-            if (opt.hover or opt.leave) and (mrel[0] or mrel[1]):
-                if opt.style.background_hover:
-                    opt.update()
-                    self.image.blit(opt.image, opt.rect)
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
     def __init__(self, **kwargs):
@@ -1694,49 +1694,6 @@ class DropDown(GuiMaster):
         self.call_menu()
         # change selection related to menu.option.click
         self.make_selection()
-class InfoBar(GuiMaster):
-    """
-    this bar is used for displaying usefull information about the app and its
-    contents.
-    """
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methods and attributes.
-
-        'position'      dynamic attribute. on calling this, the infobar-element
-                        updates its rect-position and style.position as well.
-        'info_table'    table-object with grid and contents already drawn to
-                        its surface.
-        """
-        GuiMaster.__init__(self, type="info_bar", **kwargs)
-        # creating table for displaying formated information
-        self.info_table = Table(
-            size = self.rect.size,
-            rows = self.style.info,
-            background_color = self.style.background_color,
-            border = self.style.border,
-            border_color = self.style.border_color,
-            border_size = self.style.border_size,
-            text_size = self.style.text_size,
-            text_position = self.style.text_position,
-            text_margin = self.style.text_margin
-        )
-        # first time drawing the given information as table-content
-        self.image.blit(self.info_table.image, (0, 0))
-    def resize(self, size):
-        """
-        resizes the surface and updates its dimensions. as well as redrawing
-        the background if there is one.
-        """
-        self.style.size = size
-        self.rect.size = size
-        self.image = pg.Surface(size, pg.SRCALPHA)
-        self.redraw()
-        self.info_table.resize(size)
-        self.image.blit(self.info_table.image, (0, 0))
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        pass
 class Window(Panel):
     """a callable window-popup-surface."""
     def __init__(self, **kwargs):
