@@ -572,8 +572,39 @@ class GuiMaster(pg.sprite.Sprite):
 class Bar(GuiMaster):
     """."""
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+        """
+        if not "type" in kwargs: kwargs["type"] = "bar"
         GuiMaster.__init__(self, **kwargs)
+    def resize(self, size):
+        """
+        resizes the surface and updates its dimensions. as well as redrawing
+        the background if there is one.
+        """
+        self.style.size = size
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        # redrawing backgrounds and stuff
+        self.redraw()
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        pass
+class MenuBar2(Bar):
+    """."""
+    def __init__(self, **kwargs):
+        """
+        uses 'Bar' as its parent with additional methods and attributes.
+        """
+        Bar.__init__(self, type="menu_bar", **kwargs)
+class InfoBar2(Bar):
+    """."""
+    def __init__(self, **kwargs):
+        """
+        uses 'Bar' as its parent with additional methods and attributes.
+        """
+        Bar.__init__(self, type="info_bar", **kwargs)
+
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
