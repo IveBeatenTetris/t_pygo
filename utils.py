@@ -48,6 +48,15 @@ FONTS = {
     }
 }
 STYLE = {
+    "none": {
+        "size": (300, 200),
+        "position": (0, 0),
+        "background_color": None,
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1
+    },
     "app": {
         "size": (320, 240),
         "title": "Unnamed Project",
@@ -59,14 +68,49 @@ STYLE = {
         "icon": LIBPATH["windowicon"],
         "fps": 30
     },
-    "none": {
-        "size": (300, 200),
+    "arrow_button": {
+        "size": (20, 20),
         "position": (0, 0),
-        "background_color": None,
-        "background_hover": None,
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
+        "direction": "up",
+        "margin": 2,
+        "arrow_color": (10, 10, 20)
+    },
+    "button": {
+        "text": "New Button",
+        "text_position": "center",
+        "font": FONTS["base"]["name"],
+        "font_size": FONTS["base"]["size"],
+        "color": FONTS["base"]["color"],
+        "size": (100, 25),
+        "position": (0, 0),
+        "background_color": (30, 30, 40),
+        "background_hover": (40, 40, 50),
+        "border": True,
+        "border_size": 1,
+        "border_color": (10, 10, 20),
+        "bold": False,
+        "italic": False,
+        "antialias": True,
+        "shadow": None,
+        "wrap": None,
+        "padding": [10, 10, 0, 0],
+        "line_balance": (0, -2)
+    },
+    "drop_down": {
+        "size": (50, 30),
+        "position": (0, 0),
+        "background_color": (55, 55, 65),
+        "background_hover": (45, 45, 55),
         "border": False,
         "border_color": (0, 0, 0),
-        "border_size": 1
+        "border_size": 1,
+        "options" : [],
+        "margin": [7, 35, 7, 10]
     },
     "grid" : {
         "size": (0, 0),
@@ -99,38 +143,32 @@ STYLE = {
         "text_position": "midleft",
         "text_margin": [0, 0, 0, 10],
     },
-    "button": {
-        "text": "New Button",
-        "text_position": "center",
-        "font": FONTS["base"]["name"],
-        "font_size": FONTS["base"]["size"],
-        "color": FONTS["base"]["color"],
-        "size": (100, 25),
+    "menu": {
+        "size": (50, 75),
         "position": (0, 0),
-        "background_color": (30, 30, 40),
-        "background_hover": (40, 40, 50),
-        "border": True,
+        "background_color": (55, 55, 65),
+        "background_hover": (35, 35, 45),
+        "border": False,
+        "border_color": (0, 0, 0),
         "border_size": 1,
-        "border_color": (10, 10, 20),
-        "bold": False,
-        "italic": False,
-        "antialias": True,
-        "shadow": None,
-        "wrap": None,
-        "padding": [10, 10, 0, 0],
-        "line_balance": (0, -2)
+        "options" : [],
+        "margin": [7, 35, 7, 10],
+        "font_size": 13
     },
-    "arrow_button": {
-        "size": (20, 20),
+    "menu_bar": {
+        "size": (300, 30),
         "position": (0, 0),
-        "background_color": (30, 30, 40),
-        "background_hover": (40, 40, 50),
-        "border": True,
+        "background_color": (25, 25, 35),
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
         "border_size": 1,
-        "border_color": (10, 10, 20),
-        "direction": "up",
-        "margin": 2,
-        "arrow_color": (10, 10, 20)
+        "dragable": False,
+        "drag_area": None,
+        "drag_area_background": (70, 70, 80),
+        "buttons": (),
+        "button_margin": [0, 0, 0, 0],
+        "options": ()
     },
     "panel": {
         "size": (150, 200),
@@ -156,19 +194,6 @@ STYLE = {
         "border_color": (10, 10, 20),
         "symbol": "close",
         "symbol_color": (10, 10, 20)
-    },
-    "table": {
-        "size": (150, 50),
-        "position": (0, 0),
-        "background_color": (50, 50, 60),
-        "background_hover": None,
-        "border": True,
-        "border_color": (10, 10, 20),
-        "border_size": 1,
-        "text_size": 12,
-        "text_margin": [0, 0, 0, 0],
-        "text_position": "topleft",
-        "rows": ()
     },
     "slider": {
         "size": (150, 20),
@@ -198,6 +223,19 @@ STYLE = {
         "border": True,
         "border_color": (10, 10, 20),
         "border_size": 1
+    },
+    "table": {
+        "size": (150, 50),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": None,
+        "border": True,
+        "border_color": (10, 10, 20),
+        "border_size": 1,
+        "text_size": 12,
+        "text_margin": [0, 0, 0, 0],
+        "text_position": "topleft",
+        "rows": ()
     },
     "text": {
         "size": (0, 0),
@@ -242,44 +280,6 @@ STYLE = {
         "size": (1, 30),
         "position": (2, 0),
         "color": (100, 100, 150)
-    },
-    "menu": {
-        "size": (50, 75),
-        "position": (0, 0),
-        "background_color": (55, 55, 65),
-        "background_hover": (35, 35, 45),
-        "border": False,
-        "border_color": (0, 0, 0),
-        "border_size": 1,
-        "options" : [],
-        "margin": [7, 35, 7, 10],
-        "font_size": 13
-    },
-    "menu_bar": {
-        "size": (300, 30),
-        "position": (0, 0),
-        "background_color": (25, 25, 35),
-        "background_hover": None,
-        "border": False,
-        "border_color": (0, 0, 0),
-        "border_size": 1,
-        "dragable": False,
-        "drag_area": None,
-        "drag_area_background": (70, 70, 80),
-        "buttons": (),
-        "button_margin": [0, 0, 0, 0],
-        "options": ()
-    },
-    "drop_down": {
-        "size": (50, 30),
-        "position": (0, 0),
-        "background_color": (55, 55, 65),
-        "background_hover": (45, 45, 55),
-        "border": False,
-        "border_color": (0, 0, 0),
-        "border_size": 1,
-        "options" : [],
-        "margin": [7, 35, 7, 10]
     },
     "window": {
         "size": (300, 200),
