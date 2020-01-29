@@ -569,29 +569,6 @@ class GuiMaster(pg.sprite.Sprite):
         if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
-class Bar(GuiMaster):
-    """
-    a bar-element with information to draw on. suitable for displaying
-    information and creating menus to click on.
-    """
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methods and attributes.
-        """
-        if not "type" in kwargs: kwargs["type"] = "bar"
-        GuiMaster.__init__(self, **kwargs)
-    def resize(self, size):
-        """overwrites parent's 'resize()'-method."""
-        self.style.size = size
-        self.rect.size = size
-        self.image = pg.Surface(size, pg.SRCALPHA)
-        # redrawing backgrounds and stuff
-        self.redraw()
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        pass
-
-
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
@@ -1090,7 +1067,6 @@ class Panel(GuiMaster):
                 self.redraw()
         # handling button-events
         self.handle_buttons()
-
 class MenuBar2(Panel):
     """a menu-bar-object with menus to call on clicked options."""
     def __init__(self, **kwargs):
