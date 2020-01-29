@@ -1032,10 +1032,7 @@ class Panel(GuiMaster):
             if button.click:
                 self.__clicked = False
             # redrawing buttons on hover or out
-            if (
-                (button.hover or button.leave) and
-                (mrel[0] or mrel[1])
-            ):
+            if (button.hover or button.leave) and (mrel[0] or mrel[1]):
                 button.update()
                 self.image.blit(button.image, button.rect)
     def redraw(self):
@@ -1551,6 +1548,8 @@ class MenuBar(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'options'       'list' of option-buttons to draw.
         """
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
         self.options = self.create_options()
@@ -1564,15 +1563,18 @@ class MenuBar(GuiMaster):
         x = 0
 
         for k, v in self.style.options.items():
+            # creating option-button and appending it to returning-list
             option = Button(
                 parent = self,
                 text = k,
                 size = (100, self.rect.height),
+                background_color = self.style.background_color,
                 position = (x, 0),
                 border = False,
                 padding = [5, 10, 0, 10]
             )
             options.append(option)
+            # update next button's drawing-position
             x += option.rect.width
 
         return options
@@ -1582,12 +1584,19 @@ class MenuBar(GuiMaster):
         self.style.size = size
         # redrawing visuals
         self.redraw()
-
+        # redrawing buttons
         for opt in self.options:
             self.image.blit(opt.image, opt.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        pass
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        for opt in self.options:
+            if (opt.hover or opt.leave) and (mrel[0] or mrel[1]):
+                if opt.style.background_hover:
+                    opt.update()
+                    self.image.blit(opt.image, opt.rect)
 class DropDown(GuiMaster):
     """represents a drop-down-menu while using a menu-class as a subelement."""
     def __init__(self, **kwargs):
