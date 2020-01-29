@@ -393,13 +393,13 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a ready to draw background-surface."""
         background = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-        # redraw background-color if it's not 'none'
-        if self.style.background_color:
-            background.fill(self.style.background_color)
-        # else draw hover-color if element is hovered
-        elif self.hover:
+        # draw hover-color if element is hovered
+        if self.hover:
             if self.style.background_hover:
                 background.fill(self.style.background_hover)
+        # else redraw background-color if it's not 'none'
+        elif self.style.background_color:
+            background.fill(self.style.background_color)
 
         return background
     @property# pg.surface
@@ -555,9 +555,7 @@ class GuiMaster(pg.sprite.Sprite):
         self.redrawBorder()
     def redrawBackground(self):
         """recreates only the background."""
-        # drawing if background is not 'none'
-        if self.style.background_color:
-            self.image.blit(self.background, (0, 0))
+        self.image.blit(self.background, (0, 0))
     def redrawBorder(self):
         """only recreates border for the sprite.image."""
         if self.border:
@@ -588,7 +586,7 @@ class GuiMaster(pg.sprite.Sprite):
         # mouse-events
         mrel = self.mouse_events[2]
         # visual redrawing of this element depends on the following conditions:
-        if (self.click or self.hover or self.leave) and (mrel[0] or mrel[1]):
+        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
 class Grid(GuiMaster):
@@ -767,7 +765,7 @@ class Text(GuiMaster):
     @property# pg.surface
     def text(self):
         """
-        considering own 'wrap'-attribute, this returns a pygame.surface with
+        considering own 'wrap'-attribute, this returns a pg.surface with
         blitten text to it.
         """
         # creating text-surface
@@ -817,20 +815,14 @@ class Text(GuiMaster):
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size
+        self.style.size = size
         self.image = pg.Surface(size, pg.SRCALPHA)
         # drawing text to text-surface
         self.redraw()
         self.image.blit(self.text, self.style.line_balance)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        if self.hover or self.leave or self.click:
-            # only redrawing text if there is a background. else it would oddly
-            # overdraw the old text
-            if self.style.background_color:
-                if self.style.background_hover:
-                    self.redrawBackground()
-                    self.redrawBorder()
-                    self.image.blit(self.text, self.style.line_balance)
+        pass
     def update_text(self, text):
         """updates 'text_string' and redraws text-visuals."""
         self.style.text = text
@@ -846,6 +838,10 @@ class Button(Text):
         uses 'Text' as its parent with additional methods and attributes.
         """
         Text.__init__(self, type="button", **kwargs)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        self.redraw()
+        self.image.blit(self.text, self.style.line_balance)
 class ArrowButton(GuiMaster):
     """represents an arrow-button with an arrow drawn on it."""
     def __init__(self, **kwargs):
