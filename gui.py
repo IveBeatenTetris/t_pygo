@@ -211,29 +211,8 @@ class App:
                     self.display.blit(object, rect)
             else:
                 self.display.blit(object, rect, area)
-    def resize(self, size):# none / tuple
-        """resizes the app's surface. 'size' needs to be a tuple."""
-        # make new display surface
-        self.display = u.getDisplay(
-            size,
-            resizable = self.style.resizable
-        )
-        # drawing new created background
-        self.background = self.createBackground()
-        self.draw(self.background)
-    def quit(self):
-        """exits the app."""
-        pg.quit()
-        sys.exit()
-    def update(self):
-        """
-        updates dimensions, visuals and physics of the pygame.display with each
-        game-loop-tick.
-        it also cycles trough 'self.draw_list' to draw everything that is given
-        to this list.
-        """
-        self._events = self.events
-        # overdrawing old moved sprite-trails on backgrounds
+    def redraw(self):
+        """redraws everything from 'draw_list'."""
         self.draw_list.clear(self.display, self.background)
         changes = self.draw_list.draw(self.display)
         # rendering another mouse-cursor depending on some specific element-
@@ -263,6 +242,30 @@ class App:
         # updating all drawn sprites
         for each in self.draw_list: each.update()
         pg.display.update(changes)
+    def resize(self, size):# none / tuple
+        """resizes the app's surface. 'size' needs to be a tuple."""
+        # make new display surface
+        self.display = u.getDisplay(
+            size,
+            resizable = self.style.resizable
+        )
+        # drawing new created background
+        self.background = self.createBackground()
+        self.draw(self.background)
+    def quit(self):
+        """exits the app."""
+        pg.quit()
+        sys.exit()
+    def update(self):
+        """
+        updates dimensions, visuals and physics of the pygame.display with each
+        game-loop-tick.
+        it also cycles trough 'self.draw_list' to draw everything that is given
+        to this list.
+        """
+        self._events = self.events
+        # overdrawing old moved sprite-trails on backgrounds
+        self.redraw()
         # refreshing display visuals
         pg.display.update()
         # updating fps
