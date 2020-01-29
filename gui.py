@@ -371,13 +371,13 @@ class GuiMaster(pg.sprite.Sprite):
         """returns a ready to draw background-surface."""
         background = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-        # draws hover-color if element is hovered
-        if self.hover:
+        # redraw background-color if it's not 'none'
+        if self.style.background_color:
+            background.fill(self.style.background_color)
+        # else draw hover-color if element is hovered
+        elif self.hover:
             if self.style.background_hover:
                 background.fill(self.style.background_hover)
-        # else redraw background-color if it's not 'none'
-        elif self.style.background_color:
-            background.fill(self.style.background_color)
 
         return background
     @property# pg.surface
