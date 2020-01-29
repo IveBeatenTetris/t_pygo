@@ -760,10 +760,10 @@ class Text(GuiMaster):
         rect = text.get_rect()
         # looking for padding to apply as size and position
         if self.style.padding:
-            rect.width += 2 * self.style.padding
-            rect.height += 2 * self.style.padding
-            rect.left = self.style.padding
-            rect.top = self.style.padding
+            rect.width += 2 + self.style.padding[3] + self.style.padding[1]
+            rect.height += 2 + self.style.padding[0] + self.style.padding[2]
+            rect.left = self.style.padding[3]
+            rect.top = self.style.padding[0]
         # this is the final surface we will return at the end
         final_surface = pg.Surface(rect.size, pg.SRCALPHA)
         # render a self-made shadow if user disires so
@@ -1547,11 +1547,18 @@ class Menu(GuiMaster):
                             opt.call[0]
                         ))
 class MenuBar(GuiMaster):
-    """."""
+    """a menu-bar-object with menus to call on clicked options."""
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+        """
         GuiMaster.__init__(self, type="menu_bar", **kwargs)
+        self.options = self.create_options()
     # basic methods
+    def create_options(self):
+        """."""
+        for opt in self.style.options:
+            print(opt)
     def resize(self, size):
         """overwrites parent's 'resize()'-method."""
         self.rect.size = size

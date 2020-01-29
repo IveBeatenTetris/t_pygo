@@ -96,6 +96,7 @@ STYLE = {
     },
     "button": {
         "text": "New Button",
+        "text_position": "center",
         "font": FONTS["base"]["name"],
         "font_size": FONTS["base"]["size"],
         "color": FONTS["base"]["color"],
@@ -111,7 +112,7 @@ STYLE = {
         "antialias": True,
         "shadow": None,
         "wrap": None,
-        "padding": 10,
+        "padding": [10, 10, 0, 0],
         "line_balance": (0, -2)
     },
     "arrow_button": {
@@ -202,13 +203,15 @@ STYLE = {
         "background_color": None,
         "background_hover": None,
         "border": None,
+        "border_color": (0, 0, 0),
+        "border_size": 1,
         "text": "Text",
         "antialias": True,
         "bold": False,
         "italic": False,
         "shadow": None,
         "wrap": None,
-        "padding": 0,
+        "padding": [0, 0, 0, 0],
         "line_balance": (0, -2)
     },
     "text_field": {
@@ -255,6 +258,7 @@ STYLE = {
         "border": False,
         "border_color": (0, 0, 0),
         "border_size": 1,
+        "options": ()
     },
     "drop_down": {
         "size": (50, 30),
