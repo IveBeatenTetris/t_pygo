@@ -1709,10 +1709,6 @@ class InfoBar(GuiMaster):
                         its surface.
         """
         GuiMaster.__init__(self, type="info_bar", **kwargs)
-        self.resize((globals()["app"].rect.width, self.style.size[1]))
-        self.redraw()
-        # invoking creation of new position for this element
-        self.position
         # creating table for displaying formated information
         self.info_table = Table(
             size = self.rect.size,
@@ -1727,26 +1723,20 @@ class InfoBar(GuiMaster):
         )
         # first time drawing the given information as table-content
         self.image.blit(self.info_table.image, (0, 0))
-    # dynamic attributes
-    @property# tuple
-    def position(self):
-        """returns the recalculated position of this element in a tuple."""
-        position = ((0, globals()["app"].rect.height - self.rect.height))
-        self.style.position = position
-        self.rect.topleft = position
-
-        return position
-    # basic methods
+    def resize(self, size):
+        """
+        resizes the surface and updates its dimensions. as well as redrawing
+        the background if there is one.
+        """
+        self.style.size = size
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        self.redraw()
+        self.info_table.resize(size)
+        self.image.blit(self.info_table.image, (0, 0))
     def update(self):
         """overwrites parent's 'update()'-method."""
-        app = globals()["app"]
-        # invoking creation of new position for this element and redrawing
-        # information
-        if app.resized:
-            self.position
-            self.resize((app.rect.width, self.rect.height))
-            self.info_table.resize(self.rect.size)
-            self.image.blit(self.info_table.image, (0, 0))
+        pass
 class Window(Panel):
     """a callable window-popup-surface."""
     def __init__(self, **kwargs):
