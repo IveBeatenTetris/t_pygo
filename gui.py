@@ -590,6 +590,14 @@ class GuiMaster(pg.sprite.Sprite):
         if (self.hover or self.leave) and (mrel[0] or mrel[1]):
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
+class Chart(GuiMaster):
+    """a statistic chart drawing a line for inspecting the given value."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+        """
+        GuiMaster.__init__(self, type="chart", **kwargs)
+
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
