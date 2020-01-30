@@ -612,7 +612,6 @@ class Graph(GuiMaster):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
         chart_rect = self.chart.get_rect()
-        color = (70, 150, 75)
         line = (
             (
                 chart_rect.width - 2,
@@ -624,7 +623,12 @@ class Graph(GuiMaster):
             )
         )
         # drawing the line to a minimalistic space on the right
-        pg.draw.line(self.chart, color, *line, 1)
+        pg.draw.line(
+            self.chart,
+            self.style.line_color,
+            *line,
+            self.style.line_size
+        )
         # cropping the image and shift it to left
         chop = pg.transform.chop(self.chart, [0, 0, 1, 0])
         # redrawing cropped area to chart

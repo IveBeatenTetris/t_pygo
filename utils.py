@@ -119,7 +119,9 @@ STYLE = {
         "background_hover": None,
         "border": True,
         "border_color": (0, 0, 0),
-        "border_size": 1
+        "border_size": 1,
+        "line_color": (70, 150, 75),
+        "line_size": 1
     },
     "grid" : {
         "size": (0, 0),
