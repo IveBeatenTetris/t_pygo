@@ -494,6 +494,7 @@ class GuiMaster(pg.sprite.Sprite):
 
         if self._hovering and not self.hover:
             leaving = True
+            self._hovering = False
 
             return leaving
     @property# tuple
