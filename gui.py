@@ -1348,7 +1348,7 @@ class TextField(GuiMaster):
         mrel = self.mouse_events[2]
         # visual redrawing of this element depends on the following conditions:
         if (
-            ((self.hover or self.leave) and (mrel[0] or mrel[1])) or self.click
+            (self.hover and (mrel[0] or mrel[1])) or self.click or self.leave
         ):
             self.redraw()
             self.image.blit(self.text.image, self.text.rect)
