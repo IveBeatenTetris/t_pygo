@@ -613,6 +613,7 @@ class Graph(GuiMaster):
         """overwrites parent's 'update()'-method."""
         if self.inspect is not None:
             self.update_chart()
+            self.redrawBorder()
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
