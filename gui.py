@@ -599,30 +599,37 @@ class Graph(GuiMaster):
         GuiMaster.__init__(self, type="graph", **kwargs)
         self.chart = pg.Surface((self.rect.width, self.rect.height), pg.SRCALPHA)
         self.chart_rect = self.chart.get_rect()
-        self.chart.fill((50, 20, 25))
+        self.last_stat = globals()["app"].fps
+    # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.update_chart()
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
+        color = (70, 150, 75)
         line = (
             (
-                self.chart_rect.width,
-                self.chart_rect.height - app.fps
+                self.chart_rect.width - 2,
+                self.chart_rect.height - self.last_stat
             ),
             (
                 self.chart_rect.width - 1,
                 self.chart_rect.height - app.fps
             )
         )
-        pg.draw.line(self.chart, (0, 0, 0), *line, 1)
+        # drawing the line to a minimalistic space on the right
+        pg.draw.line(self.chart, color, *line, 1)
+        # cropping the image and shift it to left
         chop = pg.transform.chop(self.chart, [0, 0, 1, 0])
+        # redrawing cropped area to chart
         self.chart = pg.Surface(self.chart_rect.size, pg.SRCALPHA)
-        self.chart.fill((50, 20, 25))
+        self.chart.fill(self.style.background_color)
         self.chart.blit(chop, (0, 0))
+        # drawing chart to graph.image
         self.image.blit(self.chart, (0, 0))
-
+        # updating next position for line to start drawing from
+        self.last_stat = app.fps
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
