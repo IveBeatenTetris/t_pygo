@@ -600,14 +600,19 @@ class Graph(GuiMaster):
                             drawn to it.
         'last_stat'         'int' positional height-argument for next graph-
                             line to start drawing from.
+        'inspect'           subject to watch and draw a graph for. change this
+                            with each game loop to keep it running. example:
+                            graph.inspect = app.fps
         """
         GuiMaster.__init__(self, type="graph", **kwargs)
         self.chart = pg.Surface((self.rect.width,self.rect.height),pg.SRCALPHA)
-        self.last_stat = globals()["app"].fps
+        self.last_stat = 0
+        self.inspect = None
     # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.update_chart()
+        if self.inspect is not None:
+            self.update_chart()
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
@@ -619,7 +624,7 @@ class Graph(GuiMaster):
             ),
             (
                 chart_rect.width - 1,
-                chart_rect.height - app.fps
+                chart_rect.height - self.inspect
             )
         )
         # drawing the line to a minimalistic space on the right
@@ -638,7 +643,7 @@ class Graph(GuiMaster):
         # drawing chart to graph.image
         self.image.blit(self.chart, (0, 0))
         # updating next position for line to start drawing from
-        self.last_stat = app.fps
+        self.last_stat = self.inspect
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""
     def __init__(self, **kwargs):
