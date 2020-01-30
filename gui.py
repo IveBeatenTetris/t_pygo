@@ -596,7 +596,32 @@ class Graph(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
         """
-        GuiMaster.__init__(self, type="chart", **kwargs)
+        GuiMaster.__init__(self, type="graph", **kwargs)
+        self.chart = pg.Surface((self.rect.width, self.rect.height), pg.SRCALPHA)
+        self.chart_rect = self.chart.get_rect()
+        self.chart.fill((50, 20, 25))
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        self.update_chart()
+    def update_chart(self):
+        """creates a chart dan draws it to the graph-surface."""
+        app = globals()["app"]
+        line = (
+            (
+                self.chart_rect.width,
+                self.chart_rect.height - app.fps
+            ),
+            (
+                self.chart_rect.width - 1,
+                self.chart_rect.height - app.fps
+            )
+        )
+        pg.draw.line(self.chart, (0, 0, 0), *line, 1)
+        chop = pg.transform.chop(self.chart, [0, 0, 1, 0])
+        self.chart = pg.Surface(self.chart_rect.size, pg.SRCALPHA)
+        self.chart.fill((50, 20, 25))
+        self.chart.blit(chop, (0, 0))
+        self.image.blit(self.chart, (0, 0))
 
 class Grid(GuiMaster):
     """grid-surface that has a border-drawn grid on it. used for tables etc."""

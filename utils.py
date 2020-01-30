@@ -101,15 +101,6 @@ STYLE = {
         "padding": [10, 10, 0, 0],
         "line_balance": (0, -2)
     },
-    "chart": {
-        "size": (300, 100),
-        "position": (0, 0),
-        "background_color": (50, 50, 60),
-        "background_hover": None,
-        "border": True,
-        "border_color": (0, 0, 0),
-        "border_size": 1
-    },
     "drop_down": {
         "size": (50, 30),
         "position": (0, 0),
@@ -120,6 +111,15 @@ STYLE = {
         "border_size": 1,
         "options" : [],
         "margin": [7, 35, 7, 10]
+    },
+    "graph": {
+        "size": (300, 150),
+        "position": (0, 0),
+        "background_color": (50, 50, 60),
+        "background_hover": None,
+        "border": True,
+        "border_color": (0, 0, 0),
+        "border_size": 1
     },
     "grid" : {
         "size": (0, 0),
