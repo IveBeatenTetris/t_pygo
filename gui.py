@@ -1314,6 +1314,29 @@ class TextField(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
+        """
+        # initialising text-object
+        if not "type" in kwargs: kwargs["type"] = "text_field"
+        GuiMaster.__init__(self, **kwargs)
+        self.text_string = ""
+    # dynamic properties
+    @property# text-object
+    def text(self):
+        """returns a text-object."""
+        text = Text(
+            text = self.text_string,
+            font_size = 16
+        )
+
+        return text
+    # basic methods
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+class TextField2(GuiMaster):
+    """resembles a text-field-element for typing in some text."""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
 
         'text_string'   with entered keys combined as a str.
         'cursor'        'pg.surface' that comes along with some additional
