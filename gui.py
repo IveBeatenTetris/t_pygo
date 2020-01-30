@@ -552,13 +552,13 @@ class GuiMaster(pg.sprite.Sprite):
         'GuiMaster'-element and blit this to the surface as well.
         """
         # drawing background
-        self.redrawBackground()
+        self.redraw_background()
         # drawing background if set by user
-        self.redrawBorder()
-    def redrawBackground(self):
+        self.redraw_border()
+    def redraw_background(self):
         """recreates only the background."""
         self.image.blit(self.background, (0, 0))
-    def redrawBorder(self):
+    def redraw_border(self):
         """only recreates border for the sprite.image."""
         if self.border:
             self.image.blit(self.border, (0, 0))
@@ -614,7 +614,7 @@ class Graph(GuiMaster):
         """overwrites parent's 'update()'-method."""
         if self.inspect is not None:
             self.update_chart()
-            self.redrawBorder()
+            self.redraw_border()
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
@@ -915,9 +915,9 @@ class ArrowButton(GuiMaster):
         """
         GuiMaster.__init__(self, type="arrow_button", **kwargs)
         # drawing an arrow to the image
-        self.arrow = self.createArrow()
+        self.arrow = self.create_arrow()
         self.image.blit(self.arrow, (0, 0))
-    def createArrow(self):# pg.surface
+    def create_arrow(self):# pg.surface
         """returns a pg.surface with an arrow drawn on."""
         surface = pg.Surface(self.style.size, pg.SRCALPHA)
 
@@ -1125,12 +1125,12 @@ class Panel(GuiMaster):
         'GuiMaster'-element and blit this to the surface as well.
         """
         # drawing background
-        self.redrawBackground()
+        self.redraw_background()
         # drawing drag-area if set by user
-        self.redrawDragArea()
+        self.redraw_dragarea()
         # drawing background if set by user
-        self.redrawBorder()
-    def redrawDragArea(self):
+        self.redraw_border()
+    def redraw_dragarea(self):
         """only recreates a drag-area if set by user."""
         if self.style.drag_area:
             rect = pg.Rect(self.style.drag_area)
@@ -1308,7 +1308,7 @@ class Slider(GuiMaster):
             self.draw_elements()
             # recreating border if there is one
             if self.style.border:
-                self.redrawBorder()
+                self.redraw_border()
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
@@ -1380,7 +1380,7 @@ class TextField2(GuiMaster):
             # redrawing background over cursor if cooldown falls below 50
             elif self.cursor.cooldown < 50:
                 self.image.blit(self.background, self.cursor.rect)
-                self.redrawBorder()
+                self.redraw_border()
             # resetting cooldown or further reducing it
             if self.cursor.cooldown == 0:
                 self.cursor.cooldown = 100
@@ -1388,8 +1388,8 @@ class TextField2(GuiMaster):
                 self.cursor.cooldown -= 1
         # resetting cursor by clicking somewhere else
         elif not self.hover and (mbut[0] or mbut[1] or mbut[2]):
-            self.redrawBackground()
-            self.redrawBorder()
+            self.redraw_background()
+            self.redraw_border()
             # redrawing text if there is one typed in
             if len(self.text_string) >= 1:
                 self.image.blit(self.text.image, self.text.rect)
