@@ -595,10 +595,14 @@ class Graph(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'chart'             'pg.surface' with the visualized graph already
+                            drawn to it.
+        'last_stat'         'int' positional height-argument for next graph-
+                            line to start drawing from.
         """
         GuiMaster.__init__(self, type="graph", **kwargs)
-        self.chart = pg.Surface((self.rect.width, self.rect.height), pg.SRCALPHA)
-        self.chart_rect = self.chart.get_rect()
+        self.chart = pg.Surface((self.rect.width,self.rect.height),pg.SRCALPHA)
         self.last_stat = globals()["app"].fps
     # basic methods
     def update(self):
@@ -607,15 +611,16 @@ class Graph(GuiMaster):
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]
+        chart_rect = self.chart.get_rect()
         color = (70, 150, 75)
         line = (
             (
-                self.chart_rect.width - 2,
-                self.chart_rect.height - self.last_stat
+                chart_rect.width - 2,
+                chart_rect.height - self.last_stat
             ),
             (
-                self.chart_rect.width - 1,
-                self.chart_rect.height - app.fps
+                chart_rect.width - 1,
+                chart_rect.height - app.fps
             )
         )
         # drawing the line to a minimalistic space on the right
@@ -623,7 +628,7 @@ class Graph(GuiMaster):
         # cropping the image and shift it to left
         chop = pg.transform.chop(self.chart, [0, 0, 1, 0])
         # redrawing cropped area to chart
-        self.chart = pg.Surface(self.chart_rect.size, pg.SRCALPHA)
+        self.chart = pg.Surface(chart_rect.size, pg.SRCALPHA)
         self.chart.fill(self.style.background_color)
         self.chart.blit(chop, (0, 0))
         # drawing chart to graph.image
