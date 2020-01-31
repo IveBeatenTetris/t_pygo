@@ -278,7 +278,7 @@ STYLE = {
         "size": (175, 30),
         "position": (0, 0),
         "background_color": (50, 50, 60),
-        "background_hover": (60, 60, 70),
+        "background_hover": None,
         "border": True,
         "border_size": 1,
         "border_color": (10, 10, 20),
@@ -287,7 +287,8 @@ STYLE = {
         "antialias": True,
         "shadow": None,
         "wrap": None,
-        "padding": 10
+        "padding": 10,
+        "multiline": False
     },
     "text_marker": {
         "size": (1, 30),

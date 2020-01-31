@@ -1346,7 +1346,33 @@ class Slider(GuiMaster):
                 self.redraw_border()
 
 class TextField(GuiMaster):
-    """resembles a text-field-element for typing in some text."""
+    """
+    resembles a text-field-element for typing in some text.
+
+    class 'Marker'          a blinking text-marker (pg.sprite).
+    """
+    class Marker(pg.sprite.Sprite):
+        """blinking text-cursor for text-field."""
+        def __init__(self, **kwargs):
+            """
+            'style'             the validated 'dict' to draw building-
+                                instructions from. evaluation between passed
+                                keyword-args and a dict of predefined
+                                attributes.
+            'rect'              (pg.rect) cursor dimensions.
+            'image'             image-surface of this sprite.
+            'cooldown'          int to decrease on update for drawing a
+                                blinking cursor to the text-field-element.
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.style = Stylesheet(
+                type = "text_marker",
+                style = kwargs
+            )
+            self.rect = pg.Rect(self.style.position, self.style.size)
+            self.image = pg.Surface(self.rect.size)
+            self.image.fill(self.style.color)
+            self.cooldown = 100
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
