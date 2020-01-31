@@ -825,6 +825,8 @@ class Text(GuiMaster):
 
         'text_string'   actual text-string (str).
         'font'          'pygame.font'-object to render a text with.
+        'rect'          'pg.rect' recreating this here enables the given
+                        positon to apply.
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text"
@@ -862,6 +864,8 @@ class Text(GuiMaster):
                 size = self.style.font_size,
                 color = self.style.color,
                 antialias = self.style.antialias,
+                bold = self.style.bold,
+                italic = self.style.italic,
                 wrap = self.style.wrap
             )
         # creating the former rect for the final surface to return
