@@ -831,6 +831,8 @@ class Text(GuiMaster):
         # downsizing element to text.rect-size
         self.style.size = self.text.get_rect().size
         self.resize(self.style.size)
+        # recreating rect to apply positional args from inheriting classes
+        self.rect = self.create_rect()
         # drawing text to text-surface
         self.image.blit(self.text, self.style.line_balance)
     # dynamic properties
