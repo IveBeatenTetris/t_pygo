@@ -333,7 +333,7 @@ class TextCursor(pg.sprite.Sprite):
         """
         pg.sprite.Sprite.__init__(self)
         self.style = Stylesheet(
-            type = "text_cursor",
+            type = "text_marker",
             style = kwargs
         )
         self.rect = pg.Rect(self.style.position, self.style.size)

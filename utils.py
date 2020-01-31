@@ -289,7 +289,7 @@ STYLE = {
         "wrap": None,
         "padding": 10
     },
-    "text_cursor": {
+    "text_marker": {
         "size": (1, 30),
         "position": (2, 0),
         "color": (100, 100, 150)
