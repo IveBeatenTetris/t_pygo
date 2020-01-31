@@ -638,6 +638,14 @@ class Graph(GuiMaster):
             position = (5, self.rect.height, "bottomleft")
         )
     # basic methods
+    def resize(self, size):
+        """overwrites parent's 'resize()'-method."""
+        self.style.size = size
+        self.rect.size = size
+        self.image = pg.Surface(size, pg.SRCALPHA)
+        self.chart = pg.Surface(size, pg.SRCALPHA)
+        # redrawing backgrounds and stuff
+        self.redraw()
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.inspect is not None:
@@ -1349,7 +1357,7 @@ class TextField(GuiMaster):
     """
     resembles a text-field-element for typing in some text.
 
-    class 'Marker'          a blinking text-marker (pg.sprite).
+    class 'Marker'      a blinking text-marker (pg.sprite).
     """
     class Marker(pg.sprite.Sprite):
         """blinking text-cursor for text-field."""
@@ -1376,11 +1384,21 @@ class TextField(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'text_string'       the fully entered text-input as a str. by drawing
+                            'self.text' to a surface, this variable is used to
+                            create a new text-object.
+        'marker'            a blinking pg.sprite shows where the cursor is set
+                            within the textfield.
         """
         # initialising text-object
         if not "type" in kwargs: kwargs["type"] = "text_field"
         GuiMaster.__init__(self, **kwargs)
         self.text_string = ""
+        self.marker = self.Marker(
+            size = (2, self.rect.height - 10),
+            position = (5, 5)
+        )
     # dynamic properties
     @property# text-object
     def text(self):
@@ -1389,6 +1407,7 @@ class TextField(GuiMaster):
             text = self.text_string,
             font_size = 16
         )
+        text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
 
         return text
     # basic methods
