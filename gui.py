@@ -618,17 +618,27 @@ class Graph(GuiMaster):
         'inspect'           subject to watch and draw a graph for. change this
                             with each game loop to keep it running. example:
                             graph.inspect = app.fps
+        'text'              text-object - naming the element and displaying it
+                            on the desired position.
         """
         GuiMaster.__init__(self, type="graph", **kwargs)
         self.chart = pg.Surface((self.rect.width,self.rect.height),pg.SRCALPHA)
         self.last_stat = 0
         self.inspect = None
+        self.text = Text(
+            text = self.style.text,
+            font_size = 20,
+            color = (120, 120, 130),
+            position = (5, self.rect.height, "bottomleft")
+        )
     # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
         if self.inspect is not None:
             self.update_chart()
             self.redraw_border()
+        if len(self.text.text_string) > 0:
+            self.image.blit(self.text.image, self.text.rect)
     def update_chart(self):
         """creates a chart dan draws it to the graph-surface."""
         app = globals()["app"]

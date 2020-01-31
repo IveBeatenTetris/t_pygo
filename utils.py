@@ -121,7 +121,8 @@ STYLE = {
         "border_color": (20, 20, 30),
         "border_size": 1,
         "line_color": (70, 150, 75),
-        "line_size": 1
+        "line_size": 1,
+        "text": ""
     },
     "grid" : {
         "size": (0, 0),
