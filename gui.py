@@ -362,6 +362,8 @@ class GuiMaster(pg.sprite.Sprite):
                             clicked.
         '_hovering'         used to determine if the mouse floats over the
                             element.
+        '_start_hovering'   'bool' used to check if the mosue starts to hover
+                            an elemenet.
         'image'             image-surface of this sprite class.
         """
         # initialising sprite
@@ -391,6 +393,7 @@ class GuiMaster(pg.sprite.Sprite):
         self.state = "waiting"
         self._clicked = False
         self._hovering = False
+        self._start_hovering = False
         # first time creating surface and recreating inner element's visuals
         self.image = pg.Surface(self.rect.size, pg.SRCALPHA)
         self.redraw()
@@ -490,6 +493,16 @@ class GuiMaster(pg.sprite.Sprite):
 
         return hover
     @property# bool
+    def start_hover(self):
+        """returns 'true' if the cursor starts hovering an element."""
+        start_hover = False
+
+        if self._hovering and not self._start_hovering:
+            self._start_hovering = True
+            start_hover = True
+
+        return start_hover
+    @property# bool
     def leave(self):
         """
         returns 'true' if the mouse leaves the element. used to declare
@@ -500,8 +513,9 @@ class GuiMaster(pg.sprite.Sprite):
         if self._hovering and not self.hover:
             leaving = True
             self._hovering = False
+            self._start_hovering = False
 
-            return leaving
+        return leaving
     @property# tuple
     def mouse_events(self):
         """
@@ -610,7 +624,7 @@ class GuiMaster(pg.sprite.Sprite):
         # mouse-events
         mrel = self.mouse_events[2]
         # visual redrawing of this element depends on the following conditions:
-        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
+        if self.start_hover or self.leave:
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
 class Graph(GuiMaster):
