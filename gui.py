@@ -340,7 +340,7 @@ class GuiMaster(pg.sprite.Sprite):
         """
         first creates a internal setup-config to decleare some properties.
 
-        'stylesheet'        the validated 'dict' to draw building instructions
+        'style'             the validated 'dict' to draw building instructions
                             from. evaluation between pass keyword-args and a
                             dict of predefined attributes.
         'parent'            object which draws this element. must have
@@ -374,12 +374,9 @@ class GuiMaster(pg.sprite.Sprite):
             #self.parent = pg.display.get_surface()
             self.parent = globals()["app"]
         # visuals and rect-dimensions
-        self.rect = pg.Rect(
-            self.style.position,
-            self.style.size
-        )
+        self.rect = self.create_rect()
         self.absloute_rect = pg.Rect(
-            self.style.position,
+            self.rect.topleft,
             self.style.size
         )
         # event related stuff
@@ -546,6 +543,23 @@ class GuiMaster(pg.sprite.Sprite):
             # with drawing boundaries
             if area: self.image.blit(object, rect, area)
             else: self.image.blit(object, rect)
+    def create_rect(self):# pg.rect
+        """
+        returns a recreation of the element's rect. if 'style.position' is a
+        tuple of three, the third argument can be a 'str' with a rect-anchor
+        like 'topleft' or 'center'. this argument can be any pg.rect-positional
+        key. example:
+            position = (100, 50, "bottomleft")
+        """
+        rect = pg.Rect(
+            self.style.position[:2],
+            self.style.size
+        )
+        # setting rect-anchor if third tuple-arg is passed
+        if len(self.style.position) > 2:
+            setattr(rect, self.style.position[2], self.style.position[:2])
+
+        return rect
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
@@ -1332,6 +1346,8 @@ class TextField(GuiMaster):
     # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
+        if self.hover or self.leave:
+            self.redraw()
 class TextField2(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
