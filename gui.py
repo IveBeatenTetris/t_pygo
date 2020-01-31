@@ -258,6 +258,8 @@ class App:
         """adding objects to the drawing-queue 'draw_list'."""
         if type(object) is dict:
             self.draw_list.add(*[e for _, e in object.items()])
+        elif type(object) is GuiMaster:
+            self.draw_list.add(object)
         elif object.__class__.__bases__[0] is GuiMaster:
             self.draw_list.add(object)
     def quit(self):
