@@ -118,7 +118,7 @@ STYLE = {
         "background_color": (50, 50, 60),
         "background_hover": None,
         "border": True,
-        "border_color": (0, 0, 0),
+        "border_color": (20, 20, 30),
         "border_size": 1,
         "line_color": (70, 150, 75),
         "line_size": 1
@@ -389,7 +389,7 @@ def loadXML(path):
         or object-type.
     """
     return et.parse(path)
-# convering data types
+# convering data types and output
 def convertXmlToDict(xml):# dict
     """converts an xml.elementtree object into da dict and returns it."""
     def convertAttribute(l):# list
@@ -479,6 +479,10 @@ def validateDict(config={}, defaults={}):# dict
             validated[each] = defaults[each]
 
     return validated
+# class related
+def listAttributes(object):
+    """pretty-prints all available object-attributes."""
+    prettyPrint(object.__dict__.keys())
 # pygame related
 def convertRect(rect, parent):# pg.rect
     """
@@ -869,9 +873,6 @@ def getFrames(image, framesize):# list
 def getMouse():# tuple
     """returns pygame.mouse position."""
     return pg.mouse.get_pos()
-def listAttributes(object):
-    """pretty-prints all available object-attributes."""
-    prettyPrint(object.__dict__.keys())
 def makeText(**kwargs):
     """returns a pg.surface with the text already blitten to it."""
     default = {

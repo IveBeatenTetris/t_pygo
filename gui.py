@@ -1323,6 +1323,7 @@ class Slider(GuiMaster):
             # recreating border if there is one
             if self.style.border:
                 self.redraw_border()
+
 class TextField(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
