@@ -254,6 +254,12 @@ class App:
         # drawing new created background
         self.background = self.createBackground()
         self.draw(self.background)
+    def queue(self, object):
+        """adding objects to the drawing-queue 'draw_list'."""
+        if type(object) is dict:
+            self.draw_list.add(*[e for _, e in object.items()])
+        elif object.__class__.__bases__[0] is GuiMaster:
+            self.draw_list.add(object)
     def quit(self):
         """exits the app."""
         pg.quit()
