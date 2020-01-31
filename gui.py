@@ -1146,9 +1146,8 @@ class Panel(GuiMaster):
             if button.click:
                 self._clicked = False
             # redrawing buttons on hover or out
-            if (button.hover or button.leave) and (mrel[0] or mrel[1]):
-                button.update()
-                self.image.blit(button.image, button.rect)
+            button.update()
+            self.image.blit(button.image, button.rect)
     def redraw(self):
         """
         rebuilds the surface with all inner elements updated. one can pass a
@@ -1172,7 +1171,7 @@ class Panel(GuiMaster):
         # invoking drag-operation
         self.drag
         # visual redrawing of this element depends on the following conditions:
-        if (self.hover or self.leave) and (mrel[0] or mrel[1]):
+        if (self.hover and (mrel[0] or mrel[1])) or self.leave:
             # redrawing visuals
             if self.style.background_hover:
                 self.redraw()
