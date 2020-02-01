@@ -1441,17 +1441,42 @@ class TextField(GuiMaster):
         """returns a text-object."""
         text = Text(
             text = self.text_string,
-            font_size = 16
+            font_size = self.style.font_size
         )
         text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
 
         return text
     # basic methods
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        if self.start_hover or self.leave:
-            self.redraw()
-            self.image.blit(self.text.image, self.text.rect)
+    def handle_input(self):
+        """
+        translates pressed keys and adds their char to 'text_string'. draws the
+        text to textfields-surface afterwards.
+        """
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        if self.state == "active":
+            for evt in globals()["app"]._events:
+                if evt.type is pg.KEYDOWN:
+                    # translating key to unicode
+                    char = pg.key.name(evt.key)
+                    # special operations if key is longer than a single char or
+                    # letter. adding an empty space to string
+                    if evt.key is pg.K_SPACE:
+                        char = " "
+                    # removing last entered char from string
+                    elif evt.key is pg.K_BACKSPACE:
+                        self.text_string = self.text_string[:-1]
+                        char = ""
+                    # appending char to string
+                    self.text_string += char
+                # recreating background and drawing text to textfield (only
+                # when mouse is not moving)
+                if not(mrel[0] or mrel[1]):
+                    self.redraw()
+                    self.image.blit(self.text.image, self.text.rect)
+    def handle_marker(self):
+        """."""
         if self.click:
             self.marker.visible = True
 
@@ -1462,6 +1487,14 @@ class TextField(GuiMaster):
                 self.marker.rect
             )
             self.image.blit(self.marker.image, self.marker.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        if self.start_hover or self.leave:
+            self.redraw()
+            self.image.blit(self.text.image, self.text.rect)
+        
+        self.handle_input()
+        self.handle_marker()
 
 class TextField2(GuiMaster):
     """resembles a text-field-element for typing in some text."""
