@@ -1417,6 +1417,19 @@ class TextField(GuiMaster):
                 self.cooldown = self.__cd
 
             return image
+        # basic methods
+        def shift(self, pos, rect_pos="topleft"):
+            """
+            moves the element to the given position.
+
+            'pos'           must be tuple of two ints.
+            'rect_pos'      internal argument used for setting the new position
+                            to an inner rect-position like 'center' or
+                            'bottomright' etc. all pg.rect-arguments are
+                            allowed.
+            """
+            setattr(self.rect, rect_pos, pos)
+            self.style.position = self.rect.topleft
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
