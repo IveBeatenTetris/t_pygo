@@ -1489,7 +1489,10 @@ class TextField(GuiMaster):
                     self.redraw()
                     self.image.blit(self.text.image, self.text.rect)
     def handle_marker(self):
-        """."""
+        """
+        checks 'cooldown' and draws either 'marker' or 'background'. draws the
+        marker on 'active' and clears it again on 'waiting'.
+        """
         if self.click:
             self.marker.visible = True
 
@@ -1505,7 +1508,7 @@ class TextField(GuiMaster):
         if self.start_hover or self.leave:
             self.redraw()
             self.image.blit(self.text.image, self.text.rect)
-        
+
         self.handle_input()
         self.handle_marker()
 
