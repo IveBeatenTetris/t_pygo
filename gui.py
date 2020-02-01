@@ -1384,9 +1384,12 @@ class TextField(GuiMaster):
                                 keyword-args and a dict of predefined
                                 attributes.
             'rect'              (pg.rect) cursor dimensions.
-            'image'             image-surface of this sprite.
-            'cooldown'          int to decrease on update for drawing a
-                                blinking cursor to the text-field-element.
+            'cooldown'          'int' to decrease on update for drawing a
+                                blinking marker to the text-field-element.
+            '__cd'              internal int to save the initial cooldown.
+            'visible'           used to determine the drawing-state of this
+                                element. set this 'bool' true or false within
+                                its parent element.
             """
             pg.sprite.Sprite.__init__(self)
             self.style = Stylesheet(
@@ -1394,9 +1397,26 @@ class TextField(GuiMaster):
                 style = kwargs
             )
             self.rect = pg.Rect(self.style.position, self.style.size)
-            self.image = pg.Surface(self.rect.size)
-            self.image.fill(self.style.color)
-            self.cooldown = 100
+            self.cooldown = 150
+            self.__cd = 150
+            self.visible = False
+        # dynamic attributes
+        @property
+        def image(self):# pg.surface
+            """"
+            returns the image-surface of the marker either filled or not
+            depending on cooldown.
+            """
+            image = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+            if self.cooldown >= int(self.__cd / 2):
+                image.fill(self.style.color)
+
+            self.cooldown -= 1
+            if self.cooldown == 0:
+                self.cooldown = self.__cd
+
+            return image
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
@@ -1429,8 +1449,20 @@ class TextField(GuiMaster):
     # basic methods
     def update(self):
         """overwrites parent's 'update()'-method."""
-        if self.hover or self.leave:
+        if self.start_hover or self.leave:
             self.redraw()
+            self.image.blit(self.text.image, self.text.rect)
+        if self.click:
+            self.marker.visible = True
+
+        if self.marker.visible:
+            self.image.blit(
+                self.background,
+                self.marker.rect.topleft,
+                self.marker.rect
+            )
+            self.image.blit(self.marker.image, self.marker.rect)
+
 class TextField2(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
