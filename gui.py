@@ -1950,8 +1950,8 @@ class Text2(GuiMaster):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
         #self.string = self.style.text
-        self.resize(self.text.get_rect().size)
-        self.image.blit(self.text, (0, 0))
+        self.resize(self.text2.get_rect().size)
+        self.image.blit(self.text2, (0, 0))
     @property
     def text(self):
         """."""
@@ -1966,7 +1966,6 @@ class Text2(GuiMaster):
         if not self.style.wrap: wrap = app.rect.width
         else: wrap = self.style.wrap
         rect = pg.Rect(0, 0, wrap, app.rect.height)
-        print(wrap)
         y = rect.top
         lineSpacing = -2
         new_size = [wrap, 0]
@@ -1996,12 +1995,32 @@ class Text2(GuiMaster):
         txt_surf2.blit(txt_surf, (0, 0))
 
         return txt_surf2
+    @property
+    def text2(self):
+        """."""
+        app = globals()["app"]
+        font = pg.font.SysFont(
+            self.style.font,
+            self.style.font_size
+        )
+        text = self.style.text
+        final_text_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+        for i, e in enumerate(text):
+            print(
+                "#{}".format(i),
+                e,
+                font.size(text[i])
+            )
+
+        return final_text_surface
     def update(self):
         """."""
         app = globals()["app"]
 
         if app.resized:
-            if not self.style.wrap: size = app.rect.size
-            else: size = (self.style.wrap, app.rect.height)
-            self.resize(size)
-            self.image.blit(self.text, (0, 0))
+            #if not self.style.wrap: size = app.rect.size
+            #else: size = (self.style.wrap, app.rect.height)
+            #self.resize(size)
+            #self.image.blit(self.text, (0, 0))
+            pass
