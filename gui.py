@@ -1368,150 +1368,6 @@ class Slider(GuiMaster):
             # recreating border if there is one
             if self.style.border:
                 self.redraw_border()
-
-class TextField(GuiMaster):
-    """
-    resembles a text-field-element for typing in some text.
-
-    class 'Marker'      a blinking text-marker (pg.sprite).
-    """
-    class Marker(pg.sprite.Sprite):
-        """blinking text-cursor for text-field."""
-        def __init__(self, **kwargs):
-            """
-            'style'             the validated 'dict' to draw building-
-                                instructions from. evaluation between passed
-                                keyword-args and a dict of predefined
-                                attributes.
-            'rect'              (pg.rect) cursor dimensions.
-            'cooldown'          'int' to decrease on update for drawing a
-                                blinking marker to the text-field-element.
-            '__cd'              internal int to save the initial cooldown.
-            'visible'           used to determine the drawing-state of this
-                                element. set this 'bool' true or false within
-                                its parent element.
-            """
-            pg.sprite.Sprite.__init__(self)
-            self.style = Stylesheet(
-                type = "text_marker",
-                style = kwargs
-            )
-            self.rect = pg.Rect(self.style.position, self.style.size)
-            self.cooldown = 150
-            self.__cd = 150
-            self.visible = False
-        # dynamic attributes
-        @property
-        def image(self):# pg.surface
-            """"
-            returns the image-surface of the marker either filled or not
-            depending on cooldown.
-            """
-            image = pg.Surface(self.rect.size, pg.SRCALPHA)
-
-            if self.cooldown >= int(self.__cd / 2):
-                image.fill(self.style.color)
-
-            self.cooldown -= 1
-            if self.cooldown == 0:
-                self.cooldown = self.__cd
-
-            return image
-        # basic methods
-        def shift(self, pos, rect_pos="topleft"):
-            """
-            moves the element to the given position.
-
-            'pos'           must be tuple of two ints.
-            'rect_pos'      internal argument used for setting the new position
-                            to an inner rect-position like 'center' or
-                            'bottomright' etc. all pg.rect-arguments are
-                            allowed.
-            """
-            setattr(self.rect, rect_pos, pos)
-            self.style.position = self.rect.topleft
-    def __init__(self, **kwargs):
-        """
-        uses 'GuiMaster' as its parent with additional methods and attributes.
-
-        'text_string'       the fully entered text-input as a str. by drawing
-                            'self.text' to a surface, this variable is used to
-                            create a new text-object.
-        'marker'            a blinking pg.sprite shows where the cursor is set
-                            within the textfield.
-        """
-        # initialising text-object
-        if not "type" in kwargs: kwargs["type"] = "text_field"
-        GuiMaster.__init__(self, **kwargs)
-        self.text_string = ""
-        self.marker = self.Marker(
-            size = (2, self.rect.height - 10),
-            position = (5, 5)
-        )
-    # dynamic properties
-    @property# text-object
-    def text(self):
-        """returns a text-object."""
-        text = Text(
-            text = self.text_string,
-            font_size = self.style.font_size
-        )
-        text.rect.top = int(self.rect.height / 2) - int(text.rect.height / 2)
-
-        return text
-    # basic methods
-    def handle_input(self):
-        """
-        translates pressed keys and adds their char to 'text_string'. draws the
-        text to textfields-surface afterwards.
-        """
-        # mouse-events
-        mrel = self.mouse_events[2]
-
-        if self.state == "active":
-            for evt in globals()["app"]._events:
-                if evt.type is pg.KEYDOWN:
-                    # translating key to unicode
-                    char = pg.key.name(evt.key)
-                    # special operations if key is longer than a single char or
-                    # letter. adding an empty space to string
-                    if evt.key is pg.K_SPACE:
-                        char = " "
-                    # removing last entered char from string
-                    elif evt.key is pg.K_BACKSPACE:
-                        self.text_string = self.text_string[:-1]
-                        char = ""
-                    # appending char to string
-                    self.text_string += char
-                # recreating background and drawing text to textfield (only
-                # when mouse is not moving)
-                if not(mrel[0] or mrel[1]):
-                    self.redraw()
-                    self.image.blit(self.text.image, self.text.rect)
-    def handle_marker(self):
-        """
-        checks 'cooldown' and draws either 'marker' or 'background'. draws the
-        marker on 'active' and clears it again on 'waiting'.
-        """
-        if self.click:
-            self.marker.visible = True
-
-        if self.marker.visible:
-            self.image.blit(
-                self.background,
-                self.marker.rect.topleft,
-                self.marker.rect
-            )
-            self.image.blit(self.marker.image, self.marker.rect)
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        if self.start_hover or self.leave:
-            self.redraw()
-            self.image.blit(self.text.image, self.text.rect)
-
-        self.handle_input()
-        self.handle_marker()
-
 class TextField2(GuiMaster):
     """resembles a text-field-element for typing in some text."""
     def __init__(self, **kwargs):
@@ -1931,3 +1787,165 @@ class DropDown(GuiMaster):
             self.call_menu()
             # change selection related to menu.option.click
             self.make_selection()
+
+class TextField(GuiMaster):
+    """
+    resembles a text-field-element for typing in some text.
+
+    class 'Marker'      a blinking text-marker (pg.sprite).
+    """
+    class Marker(pg.sprite.Sprite):
+        """blinking text-cursor for text-field."""
+        def __init__(self, **kwargs):
+            """
+            'style'             the validated 'dict' to draw building-
+                                instructions from. evaluation between passed
+                                keyword-args and a dict of predefined
+                                attributes.
+            'rect'              (pg.rect) cursor dimensions.
+            'cooldown'          'int' to decrease on update for drawing a
+                                blinking marker to the text-field-element.
+            '__cd'              internal int to save the initial cooldown.
+            'visible'           used to determine the drawing-state of this
+                                element. set this 'bool' true or false within
+                                its parent element.
+            """
+            pg.sprite.Sprite.__init__(self)
+            self.style = Stylesheet(
+                type = "text_marker",
+                style = kwargs
+            )
+            self.rect = pg.Rect(self.style.position, self.style.size)
+            self.cooldown = 150
+            self.__cd = 150
+            self.visible = False
+        # dynamic attributes
+        @property
+        def image(self):# pg.surface
+            """"
+            returns the image-surface of the marker either filled or not
+            depending on cooldown.
+            """
+            image = pg.Surface(self.rect.size, pg.SRCALPHA)
+
+            if self.cooldown >= int(self.__cd / 2):
+                image.fill(self.style.color)
+
+            self.cooldown -= 1
+            if self.cooldown == 0:
+                self.cooldown = self.__cd
+
+            return image
+        # basic methods
+        def shift(self, pos, rect_pos="topleft"):
+            """
+            moves the element to the given position.
+
+            'pos'           must be tuple of two ints.
+            'rect_pos'      internal argument used for setting the new position
+                            to an inner rect-position like 'center' or
+                            'bottomright' etc. all pg.rect-arguments are
+                            allowed.
+            """
+            setattr(self.rect, rect_pos, pos)
+            self.style.position = self.rect.topleft
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'text_string'       the fully entered text-input as a str. by drawing
+                            'self.text' to a surface, this variable is used to
+                            create a new text-object.
+        'marker'            a blinking pg.sprite shows where the cursor is set
+                            within the textfield.
+        """
+        # initialising text-object
+        if not "type" in kwargs: kwargs["type"] = "text_field"
+        GuiMaster.__init__(self, **kwargs)
+        self.text_string = ""
+        self.marker = self.Marker(
+            size = (2, self.rect.height - 10),
+            position = (5, 5)
+        )
+    # dynamic properties
+    @property# text-object
+    def text(self):
+        """returns a text-object."""
+        text = Text(
+            text = self.text_string,
+            font_size = self.style.font_size
+        )
+        if self.style.multiline:
+            pass
+        else:
+            text.shift((
+                text.rect.left,
+                int(self.rect.height / 2) - int(text.rect.height / 2)
+            ))
+
+        return text
+    # basic methods
+    def handle_input(self):
+        """
+        translates pressed keys and adds their char to 'text_string'. draws the
+        text to textfields-surface afterwards.
+        """
+        # mouse-events
+        mrel = self.mouse_events[2]
+
+        if self.state == "active":
+            for evt in globals()["app"]._events:
+                if evt.type is pg.KEYDOWN:
+                    # translating key to unicode
+                    char = pg.key.name(evt.key)
+                    # special operations if key is longer than a single char or
+                    # letter. adding an empty space to string
+                    if evt.key is pg.K_SPACE:
+                        char = " "
+                    # removing last entered char from string
+                    elif evt.key is pg.K_BACKSPACE:
+                        self.text_string = self.text_string[:-1]
+                        char = ""
+                    # appending char to string
+                    self.text_string += char
+                # recreating background and drawing text to textfield (only
+                # when mouse is not moving)
+                if not(mrel[0] or mrel[1]):
+                    self.redraw()
+                    self.image.blit(self.text.image, self.text.rect)
+    def handle_marker(self):
+        """
+        checks 'cooldown' and draws either 'marker' or 'background'. draws the
+        marker on 'active' and clears it again on 'waiting'.
+        """
+        if self.click:
+            self.marker.visible = True
+
+        if self.marker.visible:
+            """self.marker.shift(
+                (
+                    self.rect.right,
+                    self.marker.rect.top
+                )
+            )"""
+
+            self.image.blit(
+                self.background,
+                self.marker.rect.topleft,
+                self.marker.rect
+            )
+            self.image.blit(self.marker.image, self.marker.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        if self.start_hover or self.leave:
+            self.redraw()
+            self.image.blit(self.text.image, self.text.rect)
+
+        self.handle_input()
+        self.handle_marker()
+
+class Text2(GuiMaster):
+    """."""
+    def __init__(self, **kwargs):
+        """."""
+        GuiMaster.__init__(self, type="text", **kwargs)
