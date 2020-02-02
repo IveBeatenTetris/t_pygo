@@ -1996,24 +1996,40 @@ class Text2(GuiMaster):
 
         return txt_surf2
     @property
-    def text2(self):
+    def text(self):
         """."""
         app = globals()["app"]
+        if not self.style.wrap: width = app.rect.width
+        else: width = self.style.wrap
+        surface = pg.Surface((width, app.rect.height), pg.SRCALPHA)
+        char_rects = []
         font = pg.font.SysFont(
             self.style.font,
             self.style.font_size
         )
         text = self.style.text
-        final_text_surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+        color = self.style.color
+        aa = self.style.antialias
+        previous_y = 0
 
-        for i, e in enumerate(text):
-            print(
+        for i, s in enumerate(text):
+            char = font.render(text[i], aa, color)
+            char_rect = char.get_rect()
+            char_rect.left += previous_y
+            surface.blit(char, char_rect.topleft)
+            previous_y += char_rect.width
+            char_rects.append(char_rect)
+            """print(
                 "#{}".format(i),
-                e,
-                font.size(text[i])
-            )
+                s,
+                char_rect,
+            )"""
 
-        return final_text_surface
+        return {
+            "surface": surface,
+            "rect": surface.get_rect(),
+            "char_rects": char_rects
+        }
     def update(self):
         """."""
         app = globals()["app"]
