@@ -1949,55 +1949,14 @@ class Text2(GuiMaster):
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
-        #self.string = self.style.text
+        self.text = self.create_text()
         self.resize(self.text["rect"].size)
         self.image.blit(self.text["surface"], (0, 0))
-    @property
-    def text2(self):
-        """."""
-        app = globals()["app"]
-        font = pg.font.SysFont(
-            self.style.font,
-            self.style.font_size
-        )
-        text = self.style.text
-        color = self.style.color
-        aa = self.style.antialias
-        if not self.style.wrap: wrap = app.rect.width
-        else: wrap = self.style.wrap
-        rect = pg.Rect(0, 0, wrap, app.rect.height)
-        y = rect.top
-        lineSpacing = -2
-        new_size = [wrap, 0]
-        txt_surf = pg.Surface(rect.size, pg.SRCALPHA)
-        # get the height of the font
-        fontHeight = font.size("Tg")[1]
-
-        while text:
-            i = 1
-            # declaring maximum width of line
-            while font.size(text[:i])[0] < rect.width and i < len(text):
-                i += 1
-            # if we've wrapped the text, then adjust the wrap to the last word
-            if i < len(text):
-                i = text.rfind(" ", 0, i) + 1
-            # render the line and blit it to the surface
-            image = font.render(text[:i], aa, color)
-            txt_surf.blit(image, (rect.left, y))
-            y += fontHeight + lineSpacing
-            new_size[1] = y
-            # remove the text we just blit
-            text = text[i:]
-
-        # we want only the real text-size so we get to blit everything to a
-        # smaller surface before returning it
-        txt_surf2 = pg.Surface(new_size, pg.SRCALPHA)
-        txt_surf2.blit(txt_surf, (0, 0))
-
-        return txt_surf2
-    @property
-    def text(self):
-        """."""
+    def create_text(self):
+        """
+        returns a dict with the text-surface along with a list of each chars
+        rect.
+        """
         app = globals()["app"]
         if not self.style.wrap: width = app.rect.width
         else: width = self.style.wrap
@@ -2033,6 +1992,7 @@ class Text2(GuiMaster):
     def update(self):
         """."""
         app = globals()["app"]
+        mpos = self.mouse_events[1]
 
         if app.resized:
             #if not self.style.wrap: size = app.rect.size
@@ -2040,3 +2000,7 @@ class Text2(GuiMaster):
             #self.resize(size)
             #self.image.blit(self.text, (0, 0))
             pass
+
+        for i, char in enumerate(self.text["char_rects"]):
+            if char.collidepoint(mpos):
+                print(self.text["char_rects"][i])
