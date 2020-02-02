@@ -1958,22 +1958,21 @@ class Text2(GuiMaster):
         returns a dict with the text-surface along with a list of each chars
         rect.
         """
-        app = globals()["app"]
-        if not self.style.wrap: width = app.rect.width
+        if not self.style.wrap: width = self.parent.rect.width
         else: width = self.style.wrap
-        surface = pg.Surface((width, app.rect.height), pg.SRCALPHA)
-        char_rects = []
         font = pg.font.SysFont(
             self.style.font,
             self.style.font_size
         )
-        text = self.style.text
-        color = self.style.color
-        aa = self.style.antialias
-        previous_y = 0
+        char_rects, previous_y, line_height = [], 0, font.size("Tg")[1]
+        surface = pg.Surface((width, line_height), pg.SRCALPHA)
 
-        for i, s in enumerate(text):
-            char = font.render(text[i], aa, color)
+        for i, s in enumerate(self.style.text):
+            char = font.render(
+                self.style.text[i],
+                self.style.antialias,
+                self.style.color
+            )
             char_rect = char.get_rect()
             char_rect.left += previous_y
             surface.blit(char, char_rect.topleft)
@@ -2004,4 +2003,4 @@ class Text2(GuiMaster):
 
         for i, char in enumerate(self.text["char_rects"]):
             if char.collidepoint(mpos):
-                print(self.text["char_rects"][i])
+                print(self.style.text[i], self.text["char_rects"][i])
