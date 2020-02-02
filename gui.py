@@ -1950,10 +1950,10 @@ class Text2(GuiMaster):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
         #self.string = self.style.text
-        self.resize(self.text2.get_rect().size)
-        self.image.blit(self.text2, (0, 0))
+        self.resize(self.text["rect"].size)
+        self.image.blit(self.text["surface"], (0, 0))
     @property
-    def text(self):
+    def text2(self):
         """."""
         app = globals()["app"]
         font = pg.font.SysFont(
