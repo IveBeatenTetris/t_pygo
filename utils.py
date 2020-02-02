@@ -988,7 +988,7 @@ def wrapText(**kwargs):# pg.surface
     text = kwargs["text"]
     color = kwargs["color"]
     aa = kwargs["antialias"]
-    rect = pg.Rect(0 ,0, kwargs["size"], 500)
+    rect = pg.Rect(0, 0, kwargs["size"], 500)
     y = rect.top
     lineSpacing = -2
     new_size = [kwargs["size"], 0]
