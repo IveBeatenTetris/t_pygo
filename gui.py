@@ -225,6 +225,7 @@ class App:
             # element
             if (
                 type(each) is Text or
+                type(each) is Text2 or
                 type(each) is TextField or
                 each.__class__.__bases__[0] is TextField
             ):
