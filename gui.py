@@ -1947,6 +1947,12 @@ class TextField(GuiMaster):
 
 class Text2(GuiMaster):
     """."""
+    class Char(pg.sprite.Sprite):
+        """."""
+
+        def __init__(self, **kwargs):
+            """."""
+            pg.sprite.Sprite.__init__(self)
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
