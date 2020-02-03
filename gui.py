@@ -635,7 +635,19 @@ class Char(GuiMaster):
         uses 'GuiMaster' as its parent with additional methods and attributes.
         """
         GuiMaster.__init__(self, type="char", **kwargs)
-
+        self.font = pg.font.SysFont(
+            self.style.font,
+            self.style.font_size
+        )
+        self.image = self.font.render(
+            self.style.digit,
+            self.style.antialias,
+            self.style.color
+        )
+        self.resize(self.image.get_rect().size)
+    def __repr__(self):# str
+        """string representation."""
+        return "<Char({0})>".format(self.style.digit)
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
     def __init__(self, **kwargs):

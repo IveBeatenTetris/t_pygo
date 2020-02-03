@@ -104,11 +104,22 @@ STYLE = {
     "char": {
         "size": (10, 10),
         "position": (0, 0),
+        "font": FONTS["base"]["name"],
+        "font_size": FONTS["base"]["size"],
+        "color": FONTS["base"]["color"],
         "background_color": None,
         "background_hover": None,
-        "border": False,
+        "border": None,
         "border_color": (0, 0, 0),
-        "border_size": 1
+        "border_size": 1,
+        "digit": "?",
+        "antialias": True,
+        "bold": False,
+        "italic": False,
+        "shadow": None,
+        "wrap": None,
+        "padding": [0, 0, 0, 0],
+        "line_balance": (0, -2)
     },
     "drop_down": {
         "size": (50, 30),
