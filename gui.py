@@ -639,12 +639,13 @@ class Character(GuiMaster):
             self.style.font,
             self.style.font_size
         )
+
+        self.resize(self.font.size(self.style.digit))
         self.image = self.font.render(
             self.style.digit,
             self.style.antialias,
             self.style.color
         )
-        self.resize(self.image.get_rect().size)
     def __repr__(self):# str
         """string representation."""
         return "<Character({0})>".format(self.style.digit)
