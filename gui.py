@@ -647,8 +647,13 @@ class Character(GuiMaster):
             self.style.color
         )
     def __repr__(self):# str
-        """string representation."""
-        return "<Character({0})>".format(self.style.digit)
+        """returns a string representation of this element."""
+
+        return "<Character({}, pos={}, size={})>".format(
+            self.style.digit,
+            self.rect.topleft,
+            self.rect.size
+        )
 
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
