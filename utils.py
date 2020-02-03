@@ -101,6 +101,15 @@ STYLE = {
         "padding": [10, 10, 0, 0],
         "line_balance": (0, -2)
     },
+    "char": {
+        "size": (10, 10),
+        "position": (0, 0),
+        "background_color": None,
+        "background_hover": None,
+        "border": False,
+        "border_color": (0, 0, 0),
+        "border_size": 1
+    },
     "drop_down": {
         "size": (50, 30),
         "position": (0, 0),

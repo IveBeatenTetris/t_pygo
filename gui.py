@@ -628,6 +628,14 @@ class GuiMaster(pg.sprite.Sprite):
         if self.start_hover or self.leave:
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
+class Char(GuiMaster):
+    """resembles an interactive character of a text"""
+    def __init__(self, **kwargs):
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+        """
+        GuiMaster.__init__(self, type="char", **kwargs)
+
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
     def __init__(self, **kwargs):
@@ -1947,12 +1955,6 @@ class TextField(GuiMaster):
 
 class Text2(GuiMaster):
     """."""
-    class Char(pg.sprite.Sprite):
-        """."""
-
-        def __init__(self, **kwargs):
-            """."""
-            pg.sprite.Sprite.__init__(self)
     def __init__(self, **kwargs):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
