@@ -1973,29 +1973,48 @@ class TextField(GuiMaster):
         self.handle_marker()
 
 class EditableText(GuiMaster):
-    """."""
+    """
+    similar to text-element but this one is editable via mouse and keyboard.
+    """
     def __init__(self, **kwargs):
-        """."""
+        """
+        uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'text'          'list' containing multiple lists. each represents a new
+                        line of text. the text itself are already rendered
+                        characters ready to be drawn by 'draw_text'.
+        """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
-        #self.resize(self.text["rect"].size)
-        #self.image.blit(self.text["surface"], (0, 0))
-        pass
+        self.draw_text()
     def create_text(self):
-        """."""
-        app = globals()["app"]
-        rect = pg.Rect(0, 0, 0, 0)
-        lines, actual_line, y = [[]], 0, 0
-        line_height = Character(
+        """
+        creates and returns a list of lists holding character-elements.
+
+        'tg'            'character'-element is used to determine the overall
+                        line-height for each line.
+        'lines'         'list' of multiple lists which are later filled by
+                        'character'-elements. this list will be returned by
+                        this method.
+        'actual_line'   'int' index of the actual line to handle.
+        'maximum_width' 'int' maximal width-argument to create the
+                        EditableText.image.
+        'char_y'        'int' left-argument for character.rect
+        """
+        Tg = Character(
             digit = "Tg",
             font = self.style.font,
             font_size = self.style.font_size,
             color = self.style.color,
             antialias = self.style.antialias
-        ).rect.height
+        )
+        line_height, line_width = Tg.rect.height, 0
+        lines, actual_line, = [[]], 0
+        maximum_width = 0
+        char_y = 0
 
         if self.style.wrap:
-            # determining the width to wrap with
+            # determining the width to wrap the text with
             if type(self.style.wrap) is bool and self.style.wrap is True:
                 wrap_width = app.rect.width
             elif type(self.style.wrap) is int:
@@ -2003,79 +2022,43 @@ class EditableText(GuiMaster):
             # enumerating the text-string to resolve its chatacters into
             # several lines if necessary.
             for i, c in enumerate(self.style.text):
+                # creating new character with updated position
                 char = Character(
                     digit = c,
                     font = self.style.font,
                     font_size = self.style.font_size,
                     color = self.style.color,
-                    antialias = self.style.antialias
+                    antialias = self.style.antialias,
+                    position = (char_y, line_height * actual_line)
                 )
-
-                if rect.width + char.rect.width > wrap_width:
+                # if drawing of next char would exceed wrap-arg, create a new
+                # line to put the new created characters in it
+                if line_width + char.rect.width > wrap_width:
+                    # determining final width for 'self.image'
+                    if line_width + char.rect.width > maximum_width:
+                        maximum_width = line_width + char.rect.width
+                    # new line and positional resets
                     lines.append([])
                     actual_line += 1
-                    rect.width = 0
+                    line_width = 0
+                    char_y = 0
+                else:
+                    # appending character to returning-list and updating
+                    # next charater.rect-position
+                    lines[actual_line].append(char)
+                    line_width += char.rect.width
+                    char_y += char.rect.width
+            # updating 'self.image.rect'
+            self.resize((maximum_width, line_height * (actual_line + 1)))
 
-                lines[actual_line].append(char)
-                rect.width += char.rect.width
-
-            for line in lines:
-                print(line)
-
-        return
-    def create_text2(self):
-        """
-        returns a dict with the text-surface along with a list of each chars
-        rect.
-        """
-        if not self.style.wrap: width = self.parent.rect.width
-        else: width = self.style.wrap
-        font = pg.font.SysFont(
-            self.style.font,
-            self.style.font_size
-        )
-        char_rects, previous_y, line_height = [], 0, font.size("Tg")[1]
-        #surface = pg.Surface((width, line_height), pg.SRCALPHA)
-        final_surface = pg.Surface((0, 0), pg.SRCALPHA)
-        final_rect = final_surface.get_rect()
-
-        lines, actual_line = [""], 0
-
-        """for i, s in enumerate(self.style.text):
-            char = font.render(
-                #self.style.text[i],
-                #self.style.antialias,
-                #self.style.color
-            )
-            char_rect = char.get_rect()
-            char_rect.left += previous_y
-            surface.blit(char, char_rect.topleft)
-            previous_y += char_rect.width
-            char_rects.append(char_rect)
-            print(
-                "#{}".format(i),
-                s,
-                char_rect,
-            )"""
-
-        for i, s in enumerate(self.style.text):
-            char_size = font.size(self.style.text[i])
-
-            if not final_rect.width + char_size[0] > self.parent.rect.width:
-                lines[actual_line] = self.style.text[i]
-            else:
-                actual_line += 1
-
-            final_rect.width += char_size[0]
-        print(lines)
-
-        return {
-            "surface": final_surface,
-            "rect": final_surface.get_rect(),
-            "char_rects": char_rects
-        }
+        return lines
+    def draw_text(self):
+        """draws each character in 'self.text' by its own rect-position."""
+        for line in self.text:
+            for char in line:
+                self.image.blit(char.image, char.rect)
     def update(self):
-        """."""
+        """overwrites parent's 'update()'-method."""
         app = globals()["app"]
         mpos = self.mouse_events[1]
 
