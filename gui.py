@@ -225,7 +225,7 @@ class App:
             # element
             if (
                 type(each) is Text or
-                type(each) is Text2 or
+                type(each) is EditableText or
                 type(each) is TextField or
                 each.__class__.__bases__[0] is TextField
             ):
@@ -648,6 +648,7 @@ class Character(GuiMaster):
     def __repr__(self):# str
         """string representation."""
         return "<Character({0})>".format(self.style.digit)
+
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
     def __init__(self, **kwargs):
@@ -1965,7 +1966,7 @@ class TextField(GuiMaster):
         self.handle_input()
         self.handle_marker()
 
-class Text2(GuiMaster):
+class EditableText(GuiMaster):
     """."""
     def __init__(self, **kwargs):
         """."""
@@ -2007,7 +2008,7 @@ class Text2(GuiMaster):
                 if rect.width + char.rect.width > wrap_width:
                     lines.append([])
                     actual_line += 1
-                    rect = pg.Rect(0, 0, 0, 0)
+                    rect.width = 0
 
                 lines[actual_line].append(char)
                 rect.width += char.rect.width
@@ -2028,28 +2029,43 @@ class Text2(GuiMaster):
             self.style.font_size
         )
         char_rects, previous_y, line_height = [], 0, font.size("Tg")[1]
-        surface = pg.Surface((width, line_height), pg.SRCALPHA)
+        #surface = pg.Surface((width, line_height), pg.SRCALPHA)
+        final_surface = pg.Surface((0, 0), pg.SRCALPHA)
+        final_rect = final_surface.get_rect()
 
-        for i, s in enumerate(self.style.text):
+        lines, actual_line = [""], 0
+
+        """for i, s in enumerate(self.style.text):
             char = font.render(
-                self.style.text[i],
-                self.style.antialias,
-                self.style.color
+                #self.style.text[i],
+                #self.style.antialias,
+                #self.style.color
             )
             char_rect = char.get_rect()
             char_rect.left += previous_y
             surface.blit(char, char_rect.topleft)
             previous_y += char_rect.width
             char_rects.append(char_rect)
-            """print(
+            print(
                 "#{}".format(i),
                 s,
                 char_rect,
             )"""
 
+        for i, s in enumerate(self.style.text):
+            char_size = font.size(self.style.text[i])
+
+            if not final_rect.width + char_size[0] > self.parent.rect.width:
+                lines[actual_line] = self.style.text[i]
+            else:
+                actual_line += 1
+
+            final_rect.width += char_size[0]
+        print(lines)
+
         return {
-            "surface": surface,
-            "rect": surface.get_rect(),
+            "surface": final_surface,
+            "rect": final_surface.get_rect(),
             "char_rects": char_rects
         }
     def update(self):
@@ -2064,6 +2080,7 @@ class Text2(GuiMaster):
             #self.image.blit(self.text, (0, 0))
             pass
 
-        for i, char in enumerate(self.text["char_rects"]):
-            if char.collidepoint(mpos):
-                print(self.style.text[i], self.text["char_rects"][i])
+        #for i, char in enumerate(self.text["char_rects"]):
+            #if char.collidepoint(mpos):
+                #print(self.style.text[i], self.text["char_rects"][i])
+        pass
