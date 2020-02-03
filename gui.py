@@ -628,7 +628,7 @@ class GuiMaster(pg.sprite.Sprite):
         if self.start_hover or self.leave:
             self.redraw()
 # most of these following elements draw their inherition from 'GuiMaster'
-class Char(GuiMaster):
+class Character(GuiMaster):
     """resembles an interactive character of a text"""
     def __init__(self, **kwargs):
         """
@@ -647,7 +647,7 @@ class Char(GuiMaster):
         self.resize(self.image.get_rect().size)
     def __repr__(self):# str
         """string representation."""
-        return "<Char({0})>".format(self.style.digit)
+        return "<Character({0})>".format(self.style.digit)
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
     def __init__(self, **kwargs):
@@ -1979,7 +1979,7 @@ class Text2(GuiMaster):
         app = globals()["app"]
         rect = pg.Rect(0, 0, 0, 0)
         lines, actual_line, y = [[]], 0, 0
-        line_height = Char(
+        line_height = Character(
             digit = "Tg",
             font = self.style.font,
             font_size = self.style.font_size,
@@ -1996,7 +1996,7 @@ class Text2(GuiMaster):
             # enumerating the text-string to resolve its chatacters into
             # several lines if necessary.
             for i, c in enumerate(self.style.text):
-                char = Char(
+                char = Character(
                     digit = c,
                     font = self.style.font,
                     font_size = self.style.font_size,
