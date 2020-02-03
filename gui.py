@@ -1971,9 +1971,52 @@ class Text2(GuiMaster):
         """."""
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
-        self.resize(self.text["rect"].size)
-        self.image.blit(self.text["surface"], (0, 0))
+        #self.resize(self.text["rect"].size)
+        #self.image.blit(self.text["surface"], (0, 0))
+        pass
     def create_text(self):
+        """."""
+        app = globals()["app"]
+        rect = pg.Rect(0, 0, 0, 0)
+        lines, actual_line, y = [[]], 0, 0
+        line_height = Char(
+            digit = "Tg",
+            font = self.style.font,
+            font_size = self.style.font_size,
+            color = self.style.color,
+            antialias = self.style.antialias
+        ).rect.height
+
+        if self.style.wrap:
+            # determining the width to wrap with
+            if type(self.style.wrap) is bool and self.style.wrap is True:
+                wrap_width = app.rect.width
+            elif type(self.style.wrap) is int:
+                wrap_width = sself.style.wrap
+            # enumerating the text-string to resolve its chatacters into
+            # several lines if necessary.
+            for i, c in enumerate(self.style.text):
+                char = Char(
+                    digit = c,
+                    font = self.style.font,
+                    font_size = self.style.font_size,
+                    color = self.style.color,
+                    antialias = self.style.antialias
+                )
+
+                if rect.width + char.rect.width > wrap_width:
+                    lines.append([])
+                    actual_line += 1
+                    rect = pg.Rect(0, 0, 0, 0)
+
+                lines[actual_line].append(char)
+                rect.width += char.rect.width
+
+            for line in lines:
+                print(line)
+
+        return
+    def create_text2(self):
         """
         returns a dict with the text-surface along with a list of each chars
         rect.
