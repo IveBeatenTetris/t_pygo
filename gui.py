@@ -460,6 +460,17 @@ class GuiMaster(pg.sprite.Sprite):
                     precise_click = "left"
 
         return precise_click
+    @property# none / str
+    def release(self):
+        """returns a 'str' of the mouse-button that was released."""
+        release = None
+        # adding more precise mouse-events
+        for evt in globals()["app"]._events:
+            if evt.type is pg.MOUSEBUTTONUP and self.hover:
+                if evt.button == 1:
+                    release = "left"
+
+        return release
     @property# bool
     def hover(self):
         """
