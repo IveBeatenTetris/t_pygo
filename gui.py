@@ -636,7 +636,7 @@ class Character(GuiMaster):
 
         'font'          'pg.font'-object created by the passed arguments.
         'digit'         the actual letter or charater as a 'str'.
-        'image'         'pg.surface'-image of this element.
+        'selected'      'bool' of the state of beeing selected by the mouse.
         """
         GuiMaster.__init__(self, type="char", **kwargs)
         self.font = pg.font.SysFont(
@@ -644,13 +644,10 @@ class Character(GuiMaster):
             self.style.font_size
         )
         self.digit = self.style.digit
-
+        self.selected = False
         self.resize(self.font.size(self.style.digit))
-        self.image = self.font.render(
-            self.style.digit,
-            self.style.antialias,
-            self.style.color
-        )
+        self.recreate()
+    # builtin-methods
     def __repr__(self):# str
         """returns a string representation of this element."""
 
@@ -659,6 +656,22 @@ class Character(GuiMaster):
             self.rect.topleft,
             self.rect.size
         )
+    def recreate(self):
+        """recreates the image-surface with the character already drawn."""
+        text = self.font.render(
+            self.style.digit,
+            self.style.antialias,
+            self.style.color
+        )
+        char = pg.Surface(text.get_rect().size, pg.SRCALPHA)
+        # filling with color if char is selected
+        if self.selected:
+            char.fill(self.style.background_select)
+
+        char.blit(text, (0, 0))
+        # recreating the element's image
+        self.resize(char.get_rect().size)
+        self.image = char
 class Graph(GuiMaster):
     """a statistic graph drawing a line for inspecting the given value."""
     def __init__(self, **kwargs):
@@ -966,13 +979,19 @@ class EditableText(GuiMaster):
                 self.image.blit(char.image, char.rect)
     def handle_text(self):
         """."""
+        app = globals()["app"]
         # mouse-events
         mpos = self.mouse_events[1]
 
         for line in self.text:
             for char in line:
                 if char.rect.collidepoint(mpos):
-                    print(char.digit, char.rect)
+                    for evt in app._events:
+                        if evt.type is pg.MOUSEBUTTONDOWN:
+                            char.selected = True
+                            char.recreate()
+                            self.draw_text()
+
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.handle_text()

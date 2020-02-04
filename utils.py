@@ -109,6 +109,7 @@ STYLE = {
         "color": FONTS["base"]["color"],
         "background_color": None,
         "background_hover": None,
+        "background_select": (45, 45, 50),
         "border": None,
         "border_color": (0, 0, 0),
         "border_size": 1,
