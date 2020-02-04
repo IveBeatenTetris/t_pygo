@@ -964,22 +964,18 @@ class EditableText(GuiMaster):
         for line in self.text:
             for char in line:
                 self.image.blit(char.image, char.rect)
-    def update(self):
-        """overwrites parent's 'update()'-method."""
-        app = globals()["app"]
+    def handle_text(self):
+        """."""
+        # mouse-events
         mpos = self.mouse_events[1]
 
-        if app.resized:
-            #if not self.style.wrap: size = app.rect.size
-            #else: size = (self.style.wrap, app.rect.height)
-            #self.resize(size)
-            #self.image.blit(self.text, (0, 0))
-            pass
-
-        #for i, char in enumerate(self.text["char_rects"]):
-            #if char.collidepoint(mpos):
-                #print(self.style.text[i], self.text["char_rects"][i])
-        pass
+        for line in self.text:
+            for char in line:
+                if char.rect.collidepoint(mpos):
+                    print(char.digit, char.rect)
+    def update(self):
+        """overwrites parent's 'update()'-method."""
+        self.handle_text()
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):
