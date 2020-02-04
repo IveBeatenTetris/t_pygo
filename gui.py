@@ -633,12 +633,17 @@ class Character(GuiMaster):
     def __init__(self, **kwargs):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
+
+        'font'          'pg.font'-object created by the passed arguments.
+        'digit'         the actual letter or charater as a 'str'.
+        'image'         'pg.surface'-image of this element.
         """
         GuiMaster.__init__(self, type="char", **kwargs)
         self.font = pg.font.SysFont(
             self.style.font,
             self.style.font_size
         )
+        self.digit = self.style.digit
 
         self.resize(self.font.size(self.style.digit))
         self.image = self.font.render(
@@ -650,7 +655,7 @@ class Character(GuiMaster):
         """returns a string representation of this element."""
 
         return "<Character({}, pos={}, size={})>".format(
-            self.style.digit,
+            self.digit,
             self.rect.topleft,
             self.rect.size
         )
