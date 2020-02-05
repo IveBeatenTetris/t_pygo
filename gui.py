@@ -911,18 +911,16 @@ class EditableText(GuiMaster):
         """
         uses 'GuiMaster' as its parent with additional methods and attributes.
 
-        'text'          'list' containing multiple lists. each represents a new
-                        line of text. the text itself are already rendered
-                        characters ready to be drawn by 'draw_text'.
-        'select_start'  'char'-element, used to determine the beginning of the
-                        selection.
-        'select_end'    'char'-element, used to determine the ending of the
-                        selection.
+        'text'              'list' containing multiple lists. each represents a
+                            new line of text. the text itself are already
+                            rendered characters ready to be drawn by
+                            'draw_text'.
+        'selection_active'  'bool' used to mark the beginning and the ending of
+                            a made selection.
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
-        self.select_start = None
-        self.select_end = None
+        self.selection_active = False
         self.draw_text()
     def create_text(self):
         """
@@ -998,23 +996,30 @@ class EditableText(GuiMaster):
         """."""
         app = globals()["app"]
         # mouse-events
-        mpos = self.mouse_events[1]
+        mpos, mrel = self.mouse_events[1:]
 
         for l, line in enumerate(self.text):
             for c, char in enumerate(line):
+                # resembles the start of selecting a text
                 if char.precise_click:
-                    self.select_start = (l, c)
                     self.select(l, c)
-                if char.release:
-                    self.select_end = (l, c)
+                    self.selection_active = True
+                # resembles the end of selecting a text
+                elif char.release:
                     self.select(l, c)
+                    self.selection_active = False
+                # this happens while selecting and moving the mouse around
+                if self.selection_active:
+                    if mrel[0] or mrel[1]:
+                        if char.rect.collidepoint(mpos):
+                            self.select(l, c)
+
     def select(self, line, char):
         """."""
         char = self.text[line][char]
         char.selected = True
         char.recreate()
         self.draw_text()
-        self.select_start, self.select_end = None, None
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.handle_text()
