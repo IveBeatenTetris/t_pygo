@@ -914,9 +914,15 @@ class EditableText(GuiMaster):
         'text'          'list' containing multiple lists. each represents a new
                         line of text. the text itself are already rendered
                         characters ready to be drawn by 'draw_text'.
+        'select_start'  'char'-element, used to determine the beginning of the
+                        selection.
+        'select_end'    'char'-element, used to determine the ending of the
+                        selection.
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
+        self.select_start = None
+        self.select_end = None
         self.draw_text()
     def create_text(self):
         """
@@ -994,15 +1000,21 @@ class EditableText(GuiMaster):
         # mouse-events
         mpos = self.mouse_events[1]
 
-        for line in self.text:
-            for char in line:
-                if char.rect.collidepoint(mpos):
-                    for evt in app._events:
-                        if evt.type is pg.MOUSEBUTTONDOWN:
-                            char.selected = True
-                            char.recreate()
-                            self.draw_text()
-
+        for l, line in enumerate(self.text):
+            for c, char in enumerate(line):
+                if char.precise_click:
+                    self.select_start = (l, c)
+                    self.select(l, c)
+                if char.release:
+                    self.select_end = (l, c)
+                    self.select(l, c)
+    def select(self, line, char):
+        """."""
+        char = self.text[line][char]
+        char.selected = True
+        char.recreate()
+        self.draw_text()
+        self.select_start, self.select_end = None, None
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.handle_text()
