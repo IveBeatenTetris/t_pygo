@@ -968,8 +968,8 @@ class EditableText(GuiMaster):
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
         self.cursor = TextCursor2(
-            size = (2, self.rect.height - 10),
-            position = (5, 5)
+            size = (3, self.text[0][0].rect.height),
+            #position = (5, 5)
         )
         self.selection_active = False
         self.started_at = None
@@ -1047,7 +1047,12 @@ class EditableText(GuiMaster):
                 self.image.blit(char.image, char.rect)
     def handle_cursor(self):
         """."""
-        pass
+        for l, line in enumerate(self.text):
+            for c, char in enumerate(line):
+                if char.click:
+                    self.cursor.rect.right = char.rect.left
+
+        self.image.blit(self.cursor.image, self.cursor.rect)
     def handle_text(self):
         """."""
         app = globals()["app"]
