@@ -1081,7 +1081,9 @@ class EditableText(GuiMaster):
                         self.cursor.rect
                     )
                     self.cursor.rect.topright = char.rect.topleft
-
+        # somehow we need to redraw everything here again. keeping it short
+        self.image.blit(self.background, self.cursor.rect, self.cursor.rect)
+        self.image.blit(self.text_surface, self.cursor.rect, self.cursor.rect)
         self.image.blit(self.cursor.image, self.cursor.rect)
     def handle_text(self):
         """."""
@@ -1099,14 +1101,13 @@ class EditableText(GuiMaster):
                     #print(self.started_at)
                 # resembles the end of selecting a text
                 elif char.release:
-                    self.started_at = (l, c)
+                    self.ended_at = (l, c)
                     #self.select(l, c)
                     self.selection_active = False
                 # this happens while selecting and moving the mouse around
                 if self.selection_active and (mrel[0] or mrel[1]):
                     if char.rect.collidepoint(mpos):
                         #self.select(l, c)
-                        #print(l, c)
                         pass
     def select(self, line, char):
         """."""
