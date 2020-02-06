@@ -1085,7 +1085,7 @@ class EditableText(GuiMaster):
         self.image.blit(self.background, self.cursor.rect, self.cursor.rect)
         self.image.blit(self.text_surface, self.cursor.rect, self.cursor.rect)
         self.image.blit(self.cursor.image, self.cursor.rect)
-    def handle_text(self):
+    def handle_selection(self):
         """."""
         app = globals()["app"]
         # mouse-events
@@ -1117,7 +1117,7 @@ class EditableText(GuiMaster):
         self.draw_text()
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.handle_text()
+        self.handle_selection()
         self.handle_cursor()
 class Text(GuiMaster):
     """resembles a text-object."""
