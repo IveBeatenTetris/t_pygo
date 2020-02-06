@@ -355,6 +355,8 @@ class TextCursor2(pg.sprite.Sprite):
                             keyword-args and a dict of predefined
                             attributes.
         'rect'              (pg.rect) cursor dimensions.
+        '__init_cooldown'   initial 'int' for 'cooldown' to reset it to this
+                            number.
         'cooldown'          int to decrease on update for drawing a
                             blinking cursor to the text-field-element.
         'visible'           'bool' used to determine if this element is gonna
@@ -366,7 +368,8 @@ class TextCursor2(pg.sprite.Sprite):
             style = kwargs
         )
         self.rect = pg.Rect(self.style.position, self.style.size)
-        self.cooldown = 100
+        self.__init_cooldown = 150
+        self.cooldown = self.__init_cooldown
         self.visible = False
     # dynamic attributes
     @property# pg.surface
@@ -379,11 +382,11 @@ class TextCursor2(pg.sprite.Sprite):
         image = pg.Surface(self.rect.size, pg.SRCALPHA)
 
         # drawing cursor if cooldown over 50
-        if self.cooldown >= 50:
+        if self.cooldown >= int(self.__init_cooldown / 2):
             image.fill(self.style.color)
         # resetting cooldown or further reducing it
         if self.cooldown == 0:
-            self.cooldown = 100
+            self.cooldown = self.__init_cooldown
         else:
             self.cooldown -= 1
 
