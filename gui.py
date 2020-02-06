@@ -965,6 +965,14 @@ class EditableText(GuiMaster):
                             text-marker.
         'selection_active'  'bool' used to mark the beginning and the ending of
                             a made selection.
+        'started_at'        'none/tuple' starts with 'none' but becomes a tuple
+                            of indexes for 'self.text':
+                                [0] 'int' actual line
+                                [1] 'int' actual cell (character-object)
+        'ended_at'          'none/tuple' starts with 'none' but becomes a tuple
+                            of indexes for 'self.text':
+                                [0] 'int' actual line
+                                [1] 'int' actual cell (character-object)
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
@@ -976,7 +984,7 @@ class EditableText(GuiMaster):
         self.selection_active = False
         self.started_at = None
         self.ended_at = None
-
+        # first time drawing text to the element
         self.image.blit(self.text_surface, (0, 0))
     def create_text(self):# list
         """
@@ -1043,7 +1051,7 @@ class EditableText(GuiMaster):
             self.resize((maximum_width, line_height * (actual_line + 1)))
 
         return lines
-    def create_text_surface(self):
+    def create_text_surface(self):# pg.surface
         """
         draws each character in 'self.text' to a surface by its own rect-
         position and returns it.
@@ -1056,15 +1064,24 @@ class EditableText(GuiMaster):
 
         return surface
     def handle_cursor(self):
-        """."""
+        """draws a blinking text-cursor on click at mouse-position."""
         for l, line in enumerate(self.text):
             for c, char in enumerate(line):
+                # if a character has been clicked, redraw element at cursor's
+                # last position
                 if char.click:
+                    self.image.blit(
+                        self.background,
+                        self.cursor.rect.topleft,
+                        self.cursor.rect
+                    )
+                    self.image.blit(
+                        self.text_surface,
+                        self.cursor.rect.topleft,
+                        self.cursor.rect
+                    )
                     self.cursor.rect.topright = char.rect.topleft
 
-        #self.image.blit(self.text_surface, self.cursor.rect.topleft, self.cursor.rect)
-        self.redraw_background()
-        self.image.blit(self.text_surface, (0, 0))
         self.image.blit(self.cursor.image, self.cursor.rect)
     def handle_text(self):
         """."""
