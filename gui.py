@@ -333,6 +333,8 @@ class TextCursor(pg.sprite.Sprite):
         'image'             image-surface of this sprite.
         'cooldown'          int to decrease on update for drawing a
                             blinking cursor to the text-field-element.
+        'visible'           'bool' used to determine if this element is gonna
+                            be drawn or not.
         """
         pg.sprite.Sprite.__init__(self)
         self.style = Stylesheet(
@@ -343,6 +345,32 @@ class TextCursor(pg.sprite.Sprite):
         self.image = pg.Surface(self.rect.size)
         self.image.fill(self.style.color)
         self.cooldown = 100
+        self.visible = False
+class TextCursor2(pg.sprite.Sprite):
+    """blinking text-cursor for text-field."""
+    def __init__(self, **kwargs):
+        """
+        'style'             the validated 'dict' to draw building-
+                            instructions from. evaluation between passed
+                            keyword-args and a dict of predefined
+                            attributes.
+        'rect'              (pg.rect) cursor dimensions.
+        'image'             image-surface of this sprite.
+        'cooldown'          int to decrease on update for drawing a
+                            blinking cursor to the text-field-element.
+        'visible'           'bool' used to determine if this element is gonna
+                            be drawn or not.
+        """
+        pg.sprite.Sprite.__init__(self)
+        self.style = Stylesheet(
+            type = "text_marker",
+            style = kwargs
+        )
+        self.rect = pg.Rect(self.style.position, self.style.size)
+        self.image = pg.Surface(self.rect.size)
+        self.image.fill(self.style.color)
+        self.cooldown = 100
+        self.visible = False
 class GuiMaster(pg.sprite.Sprite):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
@@ -920,7 +948,13 @@ class EditableText(GuiMaster):
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
+        self.cursor = TextCursor(
+            size = (2, self.rect.height - 10),
+            position = (5, 5)
+        )
         self.selection_active = False
+        self.started_at = None
+        self.ended_at = None
         self.draw_text()
     def create_text(self):
         """
@@ -992,6 +1026,9 @@ class EditableText(GuiMaster):
         for line in self.text:
             for char in line:
                 self.image.blit(char.image, char.rect)
+    def handle_cursor(self):
+        """."""
+        pass
     def handle_text(self):
         """."""
         app = globals()["app"]
@@ -1002,18 +1039,21 @@ class EditableText(GuiMaster):
             for c, char in enumerate(line):
                 # resembles the start of selecting a text
                 if char.precise_click:
-                    self.select(l, c)
+                    self.started_at = (l, c)
+                    #self.select(l, c)
                     self.selection_active = True
+                    #print(self.started_at)
                 # resembles the end of selecting a text
                 elif char.release:
-                    self.select(l, c)
+                    self.started_at = (l, c)
+                    #self.select(l, c)
                     self.selection_active = False
                 # this happens while selecting and moving the mouse around
-                if self.selection_active:
-                    if mrel[0] or mrel[1]:
-                        if char.rect.collidepoint(mpos):
-                            self.select(l, c)
-
+                if self.selection_active and (mrel[0] or mrel[1]):
+                    if char.rect.collidepoint(mpos):
+                        #self.select(l, c)
+                        #print(l, c)
+                        pass
     def select(self, line, char):
         """."""
         char = self.text[line][char]
@@ -1023,6 +1063,7 @@ class EditableText(GuiMaster):
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.handle_text()
+        self.handle_cursor()
 class Text(GuiMaster):
     """resembles a text-object."""
     def __init__(self, **kwargs):

@@ -312,7 +312,7 @@ STYLE = {
         "multiline": False
     },
     "text_marker": {
-        "size": (1, 30),
+        "size": (1, 16),
         "position": (2, 0),
         "color": (100, 100, 150)
     },
