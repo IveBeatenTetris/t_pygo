@@ -347,7 +347,7 @@ class TextCursor(pg.sprite.Sprite):
         self.cooldown = 100
         self.visible = False
 class TextCursor2(pg.sprite.Sprite):
-    """blinking text-cursor for text-field."""
+    """blinking cursor for editable text elements."""
     def __init__(self, **kwargs):
         """
         'style'             the validated 'dict' to draw building-
@@ -355,7 +355,6 @@ class TextCursor2(pg.sprite.Sprite):
                             keyword-args and a dict of predefined
                             attributes.
         'rect'              (pg.rect) cursor dimensions.
-        'image'             image-surface of this sprite.
         'cooldown'          int to decrease on update for drawing a
                             blinking cursor to the text-field-element.
         'visible'           'bool' used to determine if this element is gonna
@@ -367,10 +366,28 @@ class TextCursor2(pg.sprite.Sprite):
             style = kwargs
         )
         self.rect = pg.Rect(self.style.position, self.style.size)
-        self.image = pg.Surface(self.rect.size)
-        self.image.fill(self.style.color)
         self.cooldown = 100
         self.visible = False
+    # dynamic attributes
+    @property# pg.surface
+    def image(self):
+        """
+        returns a pg.surface. with either a filled background or ransparency.
+        this depends on the cooldown of this element. if it falls beyond 50%,
+        then the surface is going to clear itself again.
+        """
+        image = pg.Surface(self.rect.size)
+
+        # drawing cursor if cooldown over 50
+        if self.cooldown >= 50:
+            image.fill(self.style.color)
+        # resetting cooldown or further reducing it
+        if self.cooldown == 0:
+            self.cooldown = 100
+        else:
+            self.cooldown -= 1
+
+        return image
 class GuiMaster(pg.sprite.Sprite):
     """resembles a 'pygame.surface' but with advanced operations."""
     def __init__(self, **kwargs):
