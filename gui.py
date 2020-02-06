@@ -960,6 +960,7 @@ class EditableText(GuiMaster):
                             new line of text. the text itself are already
                             rendered characters ready to be drawn by
                             'draw_text'.
+        'text_surface'      the predrawn image of the text on a 'pg.surface'.
         'cursor'            'cursor'-class for marking the position of the
                             text-marker.
         'selection_active'  'bool' used to mark the beginning and the ending of
@@ -967,6 +968,7 @@ class EditableText(GuiMaster):
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
+        self.text_surface = self.create_text_surface()
         self.cursor = TextCursor2(
             size = (3, self.text[0][0].rect.height),
             #position = (5, 5)
@@ -974,8 +976,9 @@ class EditableText(GuiMaster):
         self.selection_active = False
         self.started_at = None
         self.ended_at = None
-        self.draw_text()
-    def create_text(self):
+
+        self.image.blit(self.text_surface, (0, 0))
+    def create_text(self):# list
         """
         creates and returns a list of lists holding character-elements.
 
@@ -1040,18 +1043,28 @@ class EditableText(GuiMaster):
             self.resize((maximum_width, line_height * (actual_line + 1)))
 
         return lines
-    def draw_text(self):
-        """draws each character in 'self.text' by its own rect-position."""
+    def create_text_surface(self):
+        """
+        draws each character in 'self.text' to a surface by its own rect-
+        position and returns it.
+        """
+        surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+
         for line in self.text:
             for char in line:
-                self.image.blit(char.image, char.rect)
+                surface.blit(char.image, char.rect)
+
+        return surface
     def handle_cursor(self):
         """."""
         for l, line in enumerate(self.text):
             for c, char in enumerate(line):
                 if char.click:
-                    self.cursor.rect.right = char.rect.left
+                    self.cursor.rect.topright = char.rect.topleft
 
+        #self.image.blit(self.text_surface, self.cursor.rect.topleft, self.cursor.rect)
+        self.redraw_background()
+        self.image.blit(self.text_surface, (0, 0))
         self.image.blit(self.cursor.image, self.cursor.rect)
     def handle_text(self):
         """."""
