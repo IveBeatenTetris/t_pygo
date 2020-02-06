@@ -960,12 +960,14 @@ class EditableText(GuiMaster):
                             new line of text. the text itself are already
                             rendered characters ready to be drawn by
                             'draw_text'.
+        'cursor'            'cursor'-class for marking the position of the
+                            text-marker.
         'selection_active'  'bool' used to mark the beginning and the ending of
                             a made selection.
         """
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
-        self.cursor = TextCursor(
+        self.cursor = TextCursor2(
             size = (2, self.rect.height - 10),
             position = (5, 5)
         )
