@@ -376,7 +376,7 @@ class TextCursor2(pg.sprite.Sprite):
         this depends on the cooldown of this element. if it falls beyond 50%,
         then the surface is going to clear itself again.
         """
-        image = pg.Surface(self.rect.size)
+        image = pg.Surface(self.rect.size, pg.SRCALPHA)
 
         # drawing cursor if cooldown over 50
         if self.cooldown >= 50:
