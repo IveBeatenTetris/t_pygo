@@ -156,7 +156,7 @@ class App:
             title = str(title)
         pg.display.set_caption(title)
     def createBackground(self):# pg.surface
-        """returns a pygame.surface based on background-properties."""
+        """returns a pg.surface based on background-properties."""
         # prioritizing backgorund-statement
         if self.style.background_color:
             bg = self.style.background_color
@@ -1054,27 +1054,34 @@ class EditableText(GuiMaster):
             self.resize((maximum_width, line_height * (actual_line + 1)))
 
         return lines
-    def create_text_surface(self):# pg.surface
+    def create_text_surface(self, character=None):# pg.surface
         """
         draws each character in 'self.text' to a surface by its own rect-
         position and returns it.
         """
-        surface = pg.Surface(self.rect.size, pg.SRCALPHA)
+        if character:
+            surface = self.text_surface
+            surface.blit(character.image, character.rect)
+        else:
+            surface = pg.Surface(self.rect.size, pg.SRCALPHA)
 
-        for line in self.text:
-            for char in line:
-                surface.blit(char.image, char.rect)
+            for line in self.text:
+                for char in line:
+                    surface.blit(char.image, char.rect)
 
         return surface
     def handle_cursor(self):
         """draws a blinking text-cursor on click at mouse-position."""
+        if self.style.background_color: background = self.background
+        else: background = self.parent.background
+
         for l, line in enumerate(self.text):
             for c, char in enumerate(line):
                 # if a character has been clicked, redraw element at cursor's
                 # last position
                 if char.click:
                     self.image.blit(
-                        self.background,
+                        background,
                         self.cursor.rect.topleft,
                         self.cursor.rect
                     )
@@ -1085,7 +1092,7 @@ class EditableText(GuiMaster):
                     )
                     self.cursor.rect.topright = char.rect.topleft
         # somehow we need to redraw everything here again. keeping it short
-        self.image.blit(self.background, self.cursor.rect, self.cursor.rect)
+        self.image.blit(background, self.cursor.rect, self.cursor.rect)
         self.image.blit(self.text_surface, self.cursor.rect, self.cursor.rect)
         self.image.blit(self.cursor.image, self.cursor.rect)
     def handle_selection(self):
@@ -1099,28 +1106,59 @@ class EditableText(GuiMaster):
                 # resembles the start of selecting a text
                 if char.precise_click:
                     self.started_at = (l, c)
-                    #self.select(l, c)
                     self.selection_active = True
-                    #print(self.started_at)
                 # resembles the end of selecting a text
-                elif char.release:
+                if char.release:
                     self.ended_at = (l, c)
-                    #self.select(l, c)
                     self.selection_active = False
+
                 # this happens while selecting and moving the mouse around
-                if self.selection_active and (mrel[0] or mrel[1]):
+                #if self.selection_active and (mrel[0] or mrel[1]):
+                if self.selection_active:
                     if char.rect.collidepoint(mpos):
-                        #self.select(l, c)
+                        #self.select(self.started_at, (l, c))
                         pass
-    def select(self, line, char):
+    def select(self, start, end):
         """."""
-        char = self.text[line][char]
-        char.selected = True
-        char.recreate()
-        self.draw_text()
+        mpos = self.mouse_events[1]
+        #char = self.text[line][char]
+        #char.selected = True
+        #char.recreate()
+        #self.draw_text()
+        """if start[0] == end[0]:
+            for each in range(start[1], end[1]):
+                char = self.text[0][each]
+                char.selected = True
+                char.recreate()
+                #self.text_surface = self.create_text_surface()
+                #self.image.blit(self.text_surface, char.rect.topleft, char.rect)
+                self.image.blit(self.text_surface, (0, 0))
+                self.image.blit(char.image, char.rect.topleft, char.rect)"""
+        #for each in self.text[0]:
+            #if each.rect.collidepoint(mpos):
+                #print(each)
+        #print(start, end)
+        #for row in range(start[0], end[0]):
+            #print("row:", row)
+        if end[0] != start[0]:
+            if end[0] > start[0]:
+                s, e = start, end
+                for char in self.text[s[0]][s[1]:len(self.text[s[0]])]:
+                    #char.selected = True
+                    #char.recreate()
+                    #self.text_surface = self.create_text_surface(char)
+                    #self.text_surface.blit(char.image, char.rect.topleft, char.rect)
+                    #self.image.blit(self.text_surface, each.rect.topleft, each.rect)
+                    #self.image.blit(self.text_surface, (0, 0))
+                    #self.image.blit(each.image, each.rect.topleft, each.rect)
+                    pass
+        #self.text_surface = self.create_text_surface()
+        #self.image.blit(self.text_surface, char.rect.topleft, char.rect)
+        #self.image.blit(self.text_surface, (0, 0))
+        #self.image.blit(char.image, char.rect.topleft, char.rect)
     def update(self):
         """overwrites parent's 'update()'-method."""
-        self.handle_selection()
+        #self.handle_selection()
         self.handle_cursor()
 class Text(GuiMaster):
     """resembles a text-object."""
