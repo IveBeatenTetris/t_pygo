@@ -1020,7 +1020,7 @@ class EditableText(GuiMaster):
             if type(self.style.wrap) is bool and self.style.wrap is True:
                 wrap_width = app.rect.width
             elif type(self.style.wrap) is int:
-                wrap_width = sself.style.wrap
+                wrap_width = self.style.wrap
             # enumerating the text-string to resolve its chatacters into
             # several lines if necessary.
             for i, c in enumerate(self.style.text):
