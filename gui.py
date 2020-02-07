@@ -1116,49 +1116,27 @@ class EditableText(GuiMaster):
                 #if self.selection_active and (mrel[0] or mrel[1]):
                 if self.selection_active:
                     if char.rect.collidepoint(mpos):
-                        #self.select(self.started_at, (l, c))
+                        self.select(self.started_at, (l, c))
                         pass
     def select(self, start, end):
         """."""
         mpos = self.mouse_events[1]
-        #char = self.text[line][char]
-        #char.selected = True
-        #char.recreate()
-        #self.draw_text()
-        """if start[0] == end[0]:
-            for each in range(start[1], end[1]):
-                char = self.text[0][each]
-                char.selected = True
-                char.recreate()
-                #self.text_surface = self.create_text_surface()
-                #self.image.blit(self.text_surface, char.rect.topleft, char.rect)
-                self.image.blit(self.text_surface, (0, 0))
-                self.image.blit(char.image, char.rect.topleft, char.rect)"""
-        #for each in self.text[0]:
-            #if each.rect.collidepoint(mpos):
-                #print(each)
-        #print(start, end)
-        #for row in range(start[0], end[0]):
-            #print("row:", row)
+        
         if end[0] != start[0]:
             if end[0] > start[0]:
                 s, e = start, end
                 for char in self.text[s[0]][s[1]:len(self.text[s[0]])]:
-                    #char.selected = True
-                    #char.recreate()
-                    #self.text_surface = self.create_text_surface(char)
-                    #self.text_surface.blit(char.image, char.rect.topleft, char.rect)
-                    #self.image.blit(self.text_surface, each.rect.topleft, each.rect)
-                    #self.image.blit(self.text_surface, (0, 0))
-                    #self.image.blit(each.image, each.rect.topleft, each.rect)
-                    pass
-        #self.text_surface = self.create_text_surface()
-        #self.image.blit(self.text_surface, char.rect.topleft, char.rect)
-        #self.image.blit(self.text_surface, (0, 0))
-        #self.image.blit(char.image, char.rect.topleft, char.rect)
+                    char.selected = True
+                    char.recreate()
+                    self.text_surface = self.create_text_surface(char)
+                    self.image.blit(
+                        self.text_surface,
+                        char.rect.topleft,
+                        char.rect
+                    )
     def update(self):
         """overwrites parent's 'update()'-method."""
-        #self.handle_selection()
+        self.handle_selection()
         self.handle_cursor()
 class Text(GuiMaster):
     """resembles a text-object."""
