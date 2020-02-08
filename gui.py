@@ -980,6 +980,7 @@ class EditableText(GuiMaster):
         GuiMaster.__init__(self, type="text", **kwargs)
         self.text = self.create_text()
         self.text_surface = self.create_text_surface()
+        self.grid = self.create_grid()
         self.cursor = TextCursor2(
             size = (3, self.text[0][0].rect.height),
             #position = (5, 5)
@@ -989,6 +990,26 @@ class EditableText(GuiMaster):
         self.ended_at = None
         # first time drawing text to the element
         self.image.blit(self.text_surface, (0, 0))
+    def create_grid(self):# pg.surface
+        """."""
+        grid = pg.Surface(self.rect.size, pg.SRCALPHA)
+        grid.fill((50, 50, 40))
+        line_color = [0, 0, 10]
+        cell_color = [10 ,10, 0]
+
+        for line in self.text:
+            grid.fill(line_color, [
+                0,
+                line[0].rect.top,
+                self.rect.width,
+                line[0].rect.height
+            ])
+
+            line_color[0] += 5
+            line_color[1] += 5
+            line_color[2] += 5
+
+        return grid
     def create_text(self):# list
         """
         creates and returns a list of lists holding character-elements.
@@ -1121,19 +1142,23 @@ class EditableText(GuiMaster):
     def select(self, start, end):
         """."""
         mpos = self.mouse_events[1]
-        
+
         if end[0] != start[0]:
             if end[0] > start[0]:
                 s, e = start, end
-                for char in self.text[s[0]][s[1]:len(self.text[s[0]])]:
-                    char.selected = True
-                    char.recreate()
-                    self.text_surface = self.create_text_surface(char)
-                    self.image.blit(
-                        self.text_surface,
-                        char.rect.topleft,
-                        char.rect
-                    )
+
+                for row in range(s[0], end[0]):
+                    #print(c)
+                    #for char in self.text[s[0]][s[1]:len(self.text[s[0]])]:
+                    for char in self.text[row][s[1]:len(self.text[e[0]])]:
+                        char.selected = True
+                        char.recreate()
+                        self.text_surface = self.create_text_surface(char)
+                        self.image.blit(
+                            self.text_surface,
+                            char.rect.topleft,
+                            char.rect
+                        )
     def update(self):
         """overwrites parent's 'update()'-method."""
         self.handle_selection()
