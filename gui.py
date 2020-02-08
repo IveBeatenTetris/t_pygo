@@ -993,12 +993,20 @@ class EditableText(GuiMaster):
     def create_grid(self):# pg.surface
         """."""
         grid = pg.Surface(self.rect.size, pg.SRCALPHA)
-        grid.fill((50, 50, 40))
+        #grid.fill((50, 50, 40))
         line_color = [0, 0, 10]
-        cell_color = [10 ,10, 0]
+        cell_color = [10, 10, 0]
+        cell_color2 = [35, 35, 25]
 
         for line in self.text:
-            grid.fill(line_color, [
+            for i, char in enumerate(line):
+                if i % 2:
+                    grid.fill(cell_color, char.rect)
+                else:
+                    grid.fill(cell_color2, char.rect)
+
+
+            """grid.fill(line_color, [
                 0,
                 line[0].rect.top,
                 self.rect.width,
@@ -1007,7 +1015,7 @@ class EditableText(GuiMaster):
 
             line_color[0] += 5
             line_color[1] += 5
-            line_color[2] += 5
+            line_color[2] += 5"""
 
         return grid
     def create_text(self):# list
